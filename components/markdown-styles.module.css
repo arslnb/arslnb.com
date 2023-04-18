@@ -6,7 +6,7 @@
 .markdown ul,
 .markdown ol,
 .markdown blockquote {
-  @apply my-6 font-serif text-xl leading-relaxed;
+  @apply my-6 font-serif text-xl leading-relaxed selection:bg-yellow-100;
 }
 
 .markdown h2 {

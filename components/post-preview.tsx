@@ -9,7 +9,7 @@ type Props = {
 
 const PostPreview = ({ title, date, excerpt, slug }: Props) => {
   return (
-    <div className="mb-3 max-w-fit group hover:bg-slate-50 rounded-xl px-4 py-3 relative -left-4">
+    <div className="mb-3 max-w-fit group hover:bg-slate-50 rounded-xl px-4 py-3 relative -left-4 selection:bg-yellow-100">
       <Link as={`/posts/${slug}`} href="/posts/[slug]">
         <h3 className="text-xl leading-snug font-bold tracking-tight group-hover:underline">
           {title}
