@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630">
+  <defs>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Newsreader:wght@400;500&amp;family=JetBrains+Mono:wght@400&amp;display=swap');
+    </style>
+  </defs>
+  <rect width="1200" height="630" fill="#ffffff"/>
+  <text x="100" y="240" font-family="Newsreader, Georgia, serif" font-size="80" font-weight="500" fill="#3a3a3a">arslnb</text>
+  <text x="100" y="310" font-family="JetBrains Mono, monospace" font-size="22" fill="#999999">ML, data, chess, and things that interest me.</text>
+  <line x1="100" y1="360" x2="400" y2="360" stroke="#e0e0e0" stroke-width="1"/>
+  <text x="100" y="400" font-family="JetBrains Mono, monospace" font-size="16" fill="#bbbbbb">@arslnb</text>
+</svg>

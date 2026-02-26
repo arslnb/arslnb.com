@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>So You Want to Build Your Own Claude Code - arslnb</title>
+
+  
+  
+  
+
+  <!-- SEO -->
+  <meta name="description" content="Seven layers of a code agent, from the system prompt to the Seatbelt sandbox. A year of evenings, condensed.">
+  <meta name="author" content="Arsalan Bashir">
+  <link rel="canonical" href="http://localhost:4000/posts/how-to-build-claude-code-from-scratch/">
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="So You Want to Build Your Own Claude Code">
+  <meta property="og:description" content="Seven layers of a code agent, from the system prompt to the Seatbelt sandbox. A year of evenings, condensed.">
+  <meta property="og:image" content="http://localhost:4000/assets/images/og-image.png">
+  <meta property="og:url" content="http://localhost:4000/posts/how-to-build-claude-code-from-scratch/">
+  <meta property="og:site_name" content="arslnb">
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:site" content="@arslnb">
+  <meta name="twitter:creator" content="@arslnb">
+  <meta name="twitter:title" content="So You Want to Build Your Own Claude Code">
+  <meta name="twitter:description" content="Seven layers of a code agent, from the system prompt to the Seatbelt sandbox. A year of evenings, condensed.">
+  <meta name="twitter:image" content="http://localhost:4000/assets/images/og-image.png">
+
+  <!-- Favicons -->
+  <link rel="icon" type="image/svg+xml" href="/assets/images/favicon.svg">
+  <link rel="icon" type="image/png" sizes="32x32" href="/assets/images/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/assets/images/favicon-16x16.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/assets/images/apple-touch-icon.png">
+  <link rel="shortcut icon" href="/assets/images/favicon.ico">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/assets/css/main.css">
+  <script>
+    // Apply saved theme before paint to avoid flash
+    (function() {
+      var t = localStorage.getItem('theme');
+      if (t === 'dark' || (!t && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+        document.documentElement.setAttribute('data-theme', 'dark');
+      }
+    })();
+  </script>
+</head>
+<body>
+  <div class="ascii-banner" id="ascii-banner">
+    <canvas id="ascii-canvas"></canvas>
+  </div>
+
+  <header class="site-header">
+    <nav>
+      <a href="/" class="site-title">arslnb</a>
+      <div class="nav-links">
+        <a href="/">posts</a>
+        <a href="/about">about</a>
+        <a href="https://x.com/arslnb" target="_blank" rel="noopener" class="nav-twitter" title="Twitter/X">@arslnb</a>
+        <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Toggle dark mode">
+          <svg class="icon-sun" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+          <svg class="icon-moon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        </button>
+      </div>
+    </nav>
+  </header>
+
+  <main class="content">
+    <article class="post">
+  <header class="post-header">
+    <h1 class="post-title">So You Want to Build Your Own Claude Code</h1>
+    <time class="post-date" datetime="2026-02-25T00:00:00-08:00">
+      February 25, 2026
+    </time>
+  </header>
+  <div class="post-content">
+    <p>Claude Code, Cursor, Windsurf, Aider – all of these are, at their core, the same architecture. A tool-calling loop wrapped around a code-aware system prompt with filesystem access. I built something similar from the ground up. Here is the blueprint.</p>
+
+<h2 id="the-architecture-in-one-sentence">The architecture in one sentence</h2>
+
+<p>A persistent daemon that takes natural language input, builds a system prompt with runtime context, calls a language model with tool definitions, executes the tool calls in a sandboxed environment, and loops until the model says it is done.</p>
+
+<p>That is it. Everything else is details.</p>
+
+<h2 id="layer-1-the-process-model">Layer 1: The process model</h2>
+
+<p>You need two processes:</p>
+
+<ol>
+  <li><strong>A UI layer</strong> that handles user interaction (text input, rendering responses, managing settings).</li>
+  <li><strong>A runtime daemon</strong> that does the actual work (model calls, tool execution, persistence).</li>
+</ol>
+
+<p>These communicate over a local RPC boundary. In my case it is gRPC over localhost, but a simple HTTP API or Unix socket works fine.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>UI (Swift/Electron/Terminal)
+    |
+    | gRPC / HTTP
+    |
+Daemon (Python)
+    |-- communicator (handles RPC)
+    |-- task_manager (routes work to agent loops)
+    |-- tool_loop (model + tool execution)
+    |-- sandbox (process isolation)
+    |-- persistence (SQLite)
+</code></pre></div></div>
+
+<p>The key principle: UI and runtime are fully decoupled. The daemon owns all state. If the UI crashes, nothing is lost.</p>
+
+<h2 id="layer-2-the-system-prompt">Layer 2: The system prompt</h2>
+
+<p>The system prompt is not a static string. It is assembled at runtime from several sources:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">build_system_prompt</span><span class="p">():</span>
+    <span class="n">parts</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">parts</span><span class="p">.</span><span class="nf">append</span><span class="p">(</span><span class="n">IDENTITY_BLOCK</span><span class="p">)</span>        <span class="c1"># who you are, what you do
+</span>    <span class="n">parts</span><span class="p">.</span><span class="nf">append</span><span class="p">(</span><span class="nf">runtime_context</span><span class="p">())</span>      <span class="c1"># timestamp, OS, hostname, python version
+</span>    <span class="n">parts</span><span class="p">.</span><span class="nf">append</span><span class="p">(</span><span class="n">BEHAVIOR_BLOCK</span><span class="p">)</span>         <span class="c1"># operational rules
+</span>    <span class="n">parts</span><span class="p">.</span><span class="nf">append</span><span class="p">(</span><span class="nf">load_soul</span><span class="p">())</span>            <span class="c1"># personality/voice (from SOUL.md)
+</span>    <span class="n">parts</span><span class="p">.</span><span class="nf">append</span><span class="p">(</span><span class="nf">load_user_memory</span><span class="p">())</span>     <span class="c1"># persistent user profile (from USER.md)
+</span>    <span class="n">parts</span><span class="p">.</span><span class="nf">append</span><span class="p">(</span><span class="nf">build_tools_block</span><span class="p">())</span>    <span class="c1"># XML-formatted tool inventory
+</span>    <span class="n">parts</span><span class="p">.</span><span class="nf">append</span><span class="p">(</span><span class="nf">mcp_discovery_hint</span><span class="p">())</span>   <span class="c1"># MCP server catalog location
+</span>    <span class="n">parts</span><span class="p">.</span><span class="nf">append</span><span class="p">(</span><span class="nf">build_skills_block</span><span class="p">())</span>   <span class="c1"># installed skill summaries
+</span>    <span class="k">return</span> <span class="sh">"</span><span class="se">\n\n</span><span class="sh">"</span><span class="p">.</span><span class="nf">join</span><span class="p">(</span><span class="n">parts</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>The runtime context block is surprisingly important. Without it, the model does not know what OS it is on, what time it is, or what Python version is available. These matter for generating correct shell commands.</p>
+
+<p>The user memory block (<code class="language-plaintext highlighter-rouge">USER.md</code>) is a concise, continuously-updated profile. It is not the full memory – it is a summary. Deeper memory is available on-demand through a <code class="language-plaintext highlighter-rouge">recall_memories</code> tool, so the prompt stays within a stable token budget.</p>
+
+<h2 id="layer-3-tool-definitions">Layer 3: Tool definitions</h2>
+
+<p>Tools are the interface between the model and the real world. Each tool is a JSON schema:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">TOOLS</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="p">{</span>
+        <span class="sh">"</span><span class="s">name</span><span class="sh">"</span><span class="p">:</span> <span class="sh">"</span><span class="s">bash_executor</span><span class="sh">"</span><span class="p">,</span>
+        <span class="sh">"</span><span class="s">description</span><span class="sh">"</span><span class="p">:</span> <span class="sh">"</span><span class="s">Run shell commands in a sandbox...</span><span class="sh">"</span><span class="p">,</span>
+        <span class="sh">"</span><span class="s">input_schema</span><span class="sh">"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="sh">"</span><span class="s">type</span><span class="sh">"</span><span class="p">:</span> <span class="sh">"</span><span class="s">object</span><span class="sh">"</span><span class="p">,</span>
+            <span class="sh">"</span><span class="s">properties</span><span class="sh">"</span><span class="p">:</span> <span class="p">{</span>
+                <span class="sh">"</span><span class="s">command</span><span class="sh">"</span><span class="p">:</span> <span class="p">{</span><span class="sh">"</span><span class="s">type</span><span class="sh">"</span><span class="p">:</span> <span class="sh">"</span><span class="s">string</span><span class="sh">"</span><span class="p">},</span>
+                <span class="sh">"</span><span class="s">cwd</span><span class="sh">"</span><span class="p">:</span> <span class="p">{</span><span class="sh">"</span><span class="s">type</span><span class="sh">"</span><span class="p">:</span> <span class="sh">"</span><span class="s">string</span><span class="sh">"</span><span class="p">},</span>
+                <span class="sh">"</span><span class="s">timeout_sec</span><span class="sh">"</span><span class="p">:</span> <span class="p">{</span><span class="sh">"</span><span class="s">type</span><span class="sh">"</span><span class="p">:</span> <span class="sh">"</span><span class="s">integer</span><span class="sh">"</span><span class="p">},</span>
+                <span class="sh">"</span><span class="s">allow_network</span><span class="sh">"</span><span class="p">:</span> <span class="p">{</span><span class="sh">"</span><span class="s">type</span><span class="sh">"</span><span class="p">:</span> <span class="sh">"</span><span class="s">boolean</span><span class="sh">"</span><span class="p">},</span>
+            <span class="p">},</span>
+            <span class="sh">"</span><span class="s">required</span><span class="sh">"</span><span class="p">:</span> <span class="p">[</span><span class="sh">"</span><span class="s">command</span><span class="sh">"</span><span class="p">],</span>
+        <span class="p">},</span>
+    <span class="p">},</span>
+    <span class="c1"># file_read, file_search, text_editor, web_fetch, ...
+</span><span class="p">]</span>
+</code></pre></div></div>
+
+<p>The minimum viable tool set for a code agent:</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">bash_executor</code> – run shell commands</li>
+  <li><code class="language-plaintext highlighter-rouge">file_read</code> – read files (preferred over cat/head/tail)</li>
+  <li><code class="language-plaintext highlighter-rouge">file_search</code> – ripgrep-based search</li>
+  <li><code class="language-plaintext highlighter-rouge">text_editor</code> – write/replace/append/delete/move files</li>
+</ul>
+
+<p>That gets you surprisingly far. Add <code class="language-plaintext highlighter-rouge">web_fetch</code> and <code class="language-plaintext highlighter-rouge">web_search</code> and you have a general-purpose agent.</p>
+
+<p>The tool registry is rebuilt at the start of each run but stays stable within a run. This matters for prompt caching – if the tool list changes mid-run, you invalidate the cache prefix.</p>
+
+<h2 id="layer-4-the-sandbox">Layer 4: The sandbox</h2>
+
+<p>Every <code class="language-plaintext highlighter-rouge">bash_executor</code> call runs inside a macOS Seatbelt sandbox. The profile strategy is <code class="language-plaintext highlighter-rouge">(allow default)</code> with targeted denies:</p>
+
+<div class="language-scheme highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">(</span><span class="nf">version</span> <span class="mi">1</span><span class="p">)</span>
+<span class="p">(</span><span class="nf">allow</span> <span class="nv">default</span><span class="p">)</span>
+
+<span class="c1">; Deny all file writes, then re-allow specific paths</span>
+<span class="p">(</span><span class="nf">deny</span> <span class="nv">file-write*</span> <span class="p">(</span><span class="nf">with</span> <span class="nv">message</span> <span class="s">"ZEUS_CMD_abc123"</span><span class="p">))</span>
+<span class="p">(</span><span class="nf">allow</span> <span class="nv">file-write*</span>
+    <span class="p">(</span><span class="nf">subpath</span> <span class="s">"/Users/me/project"</span><span class="p">)</span>
+    <span class="p">(</span><span class="nf">subpath</span> <span class="s">"/tmp"</span><span class="p">)</span>
+    <span class="p">(</span><span class="nf">subpath</span> <span class="s">"/private/tmp"</span><span class="p">))</span>
+
+<span class="c1">; Deny writes to protected paths even within allowed roots</span>
+<span class="p">(</span><span class="nf">deny</span> <span class="nv">file-write*</span>
+    <span class="p">(</span><span class="nf">subpath</span> <span class="s">"/Users/me/project/.git/hooks"</span><span class="p">)</span>
+    <span class="p">(</span><span class="nf">subpath</span> <span class="s">"/Users/me/project/.zshrc"</span><span class="p">))</span>
+
+<span class="c1">; Network: deny all, allow only localhost (when gate is active)</span>
+<span class="p">(</span><span class="nf">deny</span> <span class="nv">network*</span> <span class="p">(</span><span class="nf">with</span> <span class="nv">message</span> <span class="s">"ZEUS_CMD_abc123"</span><span class="p">))</span>
+<span class="p">(</span><span class="nf">allow</span> <span class="nv">network-outbound</span> <span class="p">(</span><span class="nf">remote</span> <span class="nv">ip</span> <span class="s">"localhost:*"</span><span class="p">))</span>
+</code></pre></div></div>
+
+<p>The profile is generated per-command with a unique log tag. If the command fails with “operation not permitted”, the sandbox parser detects the log tag in stderr and knows it was a sandbox denial, not a random permission error.</p>
+
+<p>Mandatory deny paths protect sensitive files (<code class="language-plaintext highlighter-rouge">.git/hooks</code>, <code class="language-plaintext highlighter-rouge">.bashrc</code>, <code class="language-plaintext highlighter-rouge">.zshrc</code>, <code class="language-plaintext highlighter-rouge">.gitconfig</code>) even inside writable roots. You do not want the model modifying your shell configuration or injecting git hooks.</p>
+
+<p>Network access goes through a separate gate: a local DNS interceptor + HTTP proxy that enforces per-domain approval. LLM API domains are pre-approved. Everything else prompts the user.</p>
+
+<h2 id="layer-5-memory-and-persistence">Layer 5: Memory and persistence</h2>
+
+<p>State lives in SQLite. Three databases:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>zeus.sqlite          -- threads, sessions, messages, tasks, approvals
+user_learning.sqlite -- learned user preferences and facts
+knowledge.sqlite     -- project/world knowledge from web fetches and conversations
+</code></pre></div></div>
+
+<p>The memory architecture has clear routing boundaries:</p>
+
+<ul>
+  <li>Facts about the primary user go to <code class="language-plaintext highlighter-rouge">user_learning</code></li>
+  <li>Facts about other people go to a People CRM (markdown files + SQLite index)</li>
+  <li>Project/domain knowledge goes to <code class="language-plaintext highlighter-rouge">knowledge.sqlite</code></li>
+</ul>
+
+<p>After each assistant response, an async reflection job reads the conversation and routes any new facts to the appropriate store. <code class="language-plaintext highlighter-rouge">USER.md</code> is regenerated only when material facts change.</p>
+
+<p>Retrieval is hybrid: BM25/FTS5 for lexical matching plus cosine similarity over embeddings (via sqlite-vec when available). The model calls <code class="language-plaintext highlighter-rouge">recall_memories</code> or <code class="language-plaintext highlighter-rouge">recall_knowledge</code> when it decides it needs context – the system does not pre-stuff the prompt with everything it knows.</p>
+
+<h2 id="layer-6-approval-and-safety">Layer 6: Approval and safety</h2>
+
+<p>Every tool has metadata: risk level, tier, required approvals.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">tool_requires_approval</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
+    <span class="n">metadata</span> <span class="o">=</span> <span class="nf">get_tool_metadata</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">metadata</span><span class="p">.</span><span class="nf">get</span><span class="p">(</span><span class="sh">"</span><span class="s">requires_approval</span><span class="sh">"</span><span class="p">,</span> <span class="bp">False</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>Tools that read the filesystem do not require approval. Tools that write files, send messages, or access the network do. The approval flow:</p>
+
+<ol>
+  <li>Model requests a tool call.</li>
+  <li>Loop checks if approval is required.</li>
+  <li>If yes, pauses execution and sends an approval request to the UI.</li>
+  <li>User approves or denies.</li>
+  <li>Loop validates the approval token (single-use, scoped to this run and tool).</li>
+  <li>Tool executes.</li>
+</ol>
+
+<p>There are also auto-approval policies: task-scoped (for this specific task, always allow <code class="language-plaintext highlighter-rouge">file_read</code>) and app-scoped (globally, always allow network to <code class="language-plaintext highlighter-rouge">github.com</code>). These reduce approval fatigue without removing the safety boundary entirely.</p>
+
+<h2 id="layer-7-subagents">Layer 7: Subagents</h2>
+
+<p>For complex tasks, the main loop can spawn child agents with their own tool loops:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Parent agent
+    |-- spawn("research", prompt="Find papers on X", tools=["web_search", "web_fetch"])
+    |-- spawn("writer", prompt="Write the summary", tools=["text_editor", "file_read"])
+    |-- wait(research_id)
+    |-- wait(writer_id)
+</code></pre></div></div>
+
+<p>Each child runs its own <code class="language-plaintext highlighter-rouge">run_tool_loop()</code> with a scoped run ID, optional tool allowlist, and an approval callback that auto-denies interactive prompts (children cannot ask the user questions). Results are collected by the parent.</p>
+
+<h2 id="putting-it-together">Putting it together</h2>
+
+<p>The full flow for a single user request:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>1. User types "install numpy and write a test file"
+2. Communicator receives gRPC Ask, persists message, enqueues work
+3. Task manager creates execution context (inbox, sandbox)
+4. run_tool_loop() starts:
+   a. Build system prompt (identity + context + user memory + tools)
+   b. Load conversation history from SQLite
+   c. Call model with streaming
+   d. Model returns tool_use: bash_executor("pip install numpy")
+   e. Sandbox generates Seatbelt profile, runs pip in sandbox_exec
+   f. Tool result appended to messages
+   g. Model returns tool_use: text_editor(write "test_numpy.py")
+   h. File written to task artifacts directory
+   i. Model returns end_turn: "Done. Installed numpy and wrote test."
+5. Final response persisted, async reflection job extracts learnings
+6. Sandbox destroyed, execution resources cleaned up
+</code></pre></div></div>
+
+<p>Each step has error handling, cancellation checks, and approval gates. But the core flow is linear.</p>
+
+<h2 id="what-i-would-do-differently">What I would do differently</h2>
+
+<p>If I started over:</p>
+
+<ol>
+  <li>
+    <p><strong>Start with fewer tools.</strong> <code class="language-plaintext highlighter-rouge">bash_executor</code> + <code class="language-plaintext highlighter-rouge">file_read</code> + <code class="language-plaintext highlighter-rouge">text_editor</code> covers 90% of coding use cases. Add tools only when you find the model reaching for something it does not have.</p>
+  </li>
+  <li>
+    <p><strong>Use SQLite from day one.</strong> Not files, not Redis, not Postgres. SQLite gives you transactions, FTS5, and zero operational overhead. It is the right default for a local-first system.</p>
+  </li>
+  <li>
+    <p><strong>Build the sandbox before anything else.</strong> Running model-generated shell commands without isolation is terrifying. The sandbox should be the first thing you build, not the last.</p>
+  </li>
+  <li>
+    <p><strong>Do not build a triage/routing model.</strong> One model, one loop, one tool set. Routing adds latency and complexity. Let the model decide what to do.</p>
+  </li>
+</ol>
+
+<p>The system described here is roughly 8,000 lines of Python for the daemon, 4,000 lines of Swift for the UI, and took about a year of evenings to build. But the core – the loop, the tools, the sandbox – came together in the first two weeks. Everything after that was edge cases.</p>
+
+  </div>
+</article>
+
+  </main>
+
+  <footer class="site-footer">
+    <p>&copy; 2026 Arsalan Bashir</p>
+  </footer>
+
+  <script src="/assets/js/ascii.js"></script>
+  <script>
+    // Dark mode toggle
+    (function() {
+      var btn = document.getElementById('theme-toggle');
+      if (!btn) return;
+      btn.addEventListener('click', function() {
+        var html = document.documentElement;
+        var current = html.getAttribute('data-theme');
+        var next = current === 'dark' ? 'light' : 'dark';
+        html.setAttribute('data-theme', next);
+        localStorage.setItem('theme', next);
+      });
+    })();
+  </script>
+</body>
+</html>

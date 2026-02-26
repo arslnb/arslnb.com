@@ -1,0 +1,18 @@
+---
+layout: default
+---
+<ul class="post-list">
+  {% for post in site.posts %}
+  <li>
+    <a href="{{ post.url | relative_url }}">
+      <div class="post-list-meta">
+        <span class="post-list-title">{{ post.title }}</span>
+        {% if post.description %}
+        <span class="post-list-desc">{{ post.description }}</span>
+        {% endif %}
+      </div>
+      <span class="post-list-date">{{ post.date | date: "%Y-%m-%d" }}</span>
+    </a>
+  </li>
+  {% endfor %}
+</ul>

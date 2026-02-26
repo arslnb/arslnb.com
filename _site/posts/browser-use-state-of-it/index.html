@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Three Architectures I Tried Before My Browser Agent Stopped Crashing - arslnb</title>
+
+  
+  
+  
+
+  <!-- SEO -->
+  <meta name="description" content="From WebSocket spaghetti to Native Messaging to DOM-first. A tour of everything that broke along the way.">
+  <meta name="author" content="Arsalan Bashir">
+  <link rel="canonical" href="http://localhost:4000/posts/browser-use-state-of-it/">
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Three Architectures I Tried Before My Browser Agent Stopped Crashing">
+  <meta property="og:description" content="From WebSocket spaghetti to Native Messaging to DOM-first. A tour of everything that broke along the way.">
+  <meta property="og:image" content="http://localhost:4000/assets/images/og-image.png">
+  <meta property="og:url" content="http://localhost:4000/posts/browser-use-state-of-it/">
+  <meta property="og:site_name" content="arslnb">
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:site" content="@arslnb">
+  <meta name="twitter:creator" content="@arslnb">
+  <meta name="twitter:title" content="Three Architectures I Tried Before My Browser Agent Stopped Crashing">
+  <meta name="twitter:description" content="From WebSocket spaghetti to Native Messaging to DOM-first. A tour of everything that broke along the way.">
+  <meta name="twitter:image" content="http://localhost:4000/assets/images/og-image.png">
+
+  <!-- Favicons -->
+  <link rel="icon" type="image/svg+xml" href="/assets/images/favicon.svg">
+  <link rel="icon" type="image/png" sizes="32x32" href="/assets/images/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/assets/images/favicon-16x16.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/assets/images/apple-touch-icon.png">
+  <link rel="shortcut icon" href="/assets/images/favicon.ico">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/assets/css/main.css">
+  <script>
+    // Apply saved theme before paint to avoid flash
+    (function() {
+      var t = localStorage.getItem('theme');
+      if (t === 'dark' || (!t && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+        document.documentElement.setAttribute('data-theme', 'dark');
+      }
+    })();
+  </script>
+</head>
+<body>
+  <div class="ascii-banner" id="ascii-banner">
+    <canvas id="ascii-canvas"></canvas>
+  </div>
+
+  <header class="site-header">
+    <nav>
+      <a href="/" class="site-title">arslnb</a>
+      <div class="nav-links">
+        <a href="/">posts</a>
+        <a href="/about">about</a>
+        <a href="https://x.com/arslnb" target="_blank" rel="noopener" class="nav-twitter" title="Twitter/X">@arslnb</a>
+        <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Toggle dark mode">
+          <svg class="icon-sun" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+          <svg class="icon-moon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        </button>
+      </div>
+    </nav>
+  </header>
+
+  <main class="content">
+    <article class="post">
+  <header class="post-header">
+    <h1 class="post-title">Three Architectures I Tried Before My Browser Agent Stopped Crashing</h1>
+    <time class="post-date" datetime="2026-02-22T00:00:00-08:00">
+      February 22, 2026
+    </time>
+  </header>
+  <div class="post-content">
+    <p>Browser use is a subset of computer use, but it deserves its own analysis because the browser is where most agent tasks end up. Booking a flight. Filling out a form. Extracting data from a website. Posting on social media.</p>
+
+<p>I built a browser automation system that went through three architectures. Here is what I learned at each stage and where the field is converging.</p>
+
+<h2 id="architecture-1-direct-websocket-to-extension">Architecture 1: Direct WebSocket to extension</h2>
+
+<p>The first attempt was a Chrome extension that opened a WebSocket connection to the daemon. The daemon sent commands (navigate, click, type), the extension executed them, and returned results.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Daemon &lt;-- WebSocket --&gt; Chrome Extension &lt;-- Chrome APIs --&gt; Web Page
+</code></pre></div></div>
+
+<p>This worked for demos but broke constantly in production:</p>
+
+<ul>
+  <li>WebSocket connections dropped when Chrome suspended the extension’s service worker (Manifest V3).</li>
+  <li>The extension could not access pages with restrictive CSP headers.</li>
+  <li>Chrome-internal pages (<code class="language-plaintext highlighter-rouge">chrome://settings</code>, <code class="language-plaintext highlighter-rouge">chrome://extensions</code>) were completely inaccessible.</li>
+  <li>Reconnection was racy: commands sent during disconnection were lost.</li>
+</ul>
+
+<h2 id="architecture-2-native-messaging--http-bridge">Architecture 2: Native Messaging + HTTP bridge</h2>
+
+<p>The second architecture split the transport into two hops:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Daemon &lt;-- HTTP --&gt; Native Host &lt;-- Native Messaging --&gt; Extension &lt;-- Chrome APIs --&gt; Page
+</code></pre></div></div>
+
+<p>Chrome Native Messaging (<code class="language-plaintext highlighter-rouge">chrome.runtime.connectNative</code>) launches a native host process that communicates with the extension via stdin/stdout. The native host relays commands to the daemon over localhost HTTP.</p>
+
+<p>The improvement:</p>
+
+<ul>
+  <li><strong>Reconnect-safe.</strong> Commands are queued by request ID on the daemon. If the native host disconnects, inflight commands are re-queued automatically. The extension polls for pending work and only opens the native host when there is something to do.</li>
+  <li><strong>Demand-driven.</strong> The native host is not always running. The extension probes a <code class="language-plaintext highlighter-rouge">pending</code> endpoint periodically; when work exists, it opens <code class="language-plaintext highlighter-rouge">connectNative</code>. The host exits after ~60s of idle. This saves resources.</li>
+  <li><strong>Authenticated.</strong> Every request includes an instance ID and auth token from the daemon’s discovery endpoint. No unauthorized process can inject commands.</li>
+</ul>
+
+<p>The daemon exposes these endpoints:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>POST /api/native-browser/session/open
+POST /api/native-browser/session/heartbeat
+POST /api/native-browser/host/register
+GET  /api/native-browser/pending
+GET  /api/native-browser/command/next
+POST /api/native-browser/command/result
+</code></pre></div></div>
+
+<p>The extension discovers the daemon by scanning <code class="language-plaintext highlighter-rouge">http://127.0.0.1:9222..9232/api/extension-discovery</code>. The response includes the HTTP port, native host name, and auth credentials.</p>
+
+<h2 id="architecture-3-dom-first-with-screenshot-fallback">Architecture 3: DOM-first with screenshot fallback</h2>
+
+<p>The action layer evolved from pixel-based to DOM-based. Instead of sending the model a screenshot and getting coordinates back, the extension inspects the page DOM and returns structured data.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># Old: pixel-based
+</span><span class="n">result</span> <span class="o">=</span> <span class="nf">send_browser_command</span><span class="p">(</span><span class="sh">"</span><span class="s">screenshot</span><span class="sh">"</span><span class="p">)</span>
+<span class="n">action</span> <span class="o">=</span> <span class="nf">model</span><span class="p">(</span><span class="sh">"</span><span class="s">click the login button</span><span class="sh">"</span><span class="p">,</span> <span class="n">result</span><span class="p">.</span><span class="n">image</span><span class="p">)</span>
+<span class="nf">send_browser_command</span><span class="p">(</span><span class="sh">"</span><span class="s">click</span><span class="sh">"</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="n">action</span><span class="p">.</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="n">action</span><span class="p">.</span><span class="n">y</span><span class="p">)</span>
+
+<span class="c1"># New: DOM-first
+</span><span class="n">result</span> <span class="o">=</span> <span class="nf">send_browser_command</span><span class="p">(</span><span class="sh">"</span><span class="s">get_page_info</span><span class="sh">"</span><span class="p">)</span>
+<span class="c1"># Returns: {title, url, forms: [...], links: [...], buttons: [...]}
+</span><span class="n">action</span> <span class="o">=</span> <span class="nf">model</span><span class="p">(</span><span class="sh">"</span><span class="s">click the login button</span><span class="sh">"</span><span class="p">,</span> <span class="n">result</span><span class="p">.</span><span class="n">page_info</span><span class="p">)</span>
+<span class="nf">send_browser_command</span><span class="p">(</span><span class="sh">"</span><span class="s">click</span><span class="sh">"</span><span class="p">,</span> <span class="n">selector</span><span class="o">=</span><span class="sh">"</span><span class="s">button.login-btn</span><span class="sh">"</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>The <code class="language-plaintext highlighter-rouge">get_page_info</code> action returns a structured representation of the page: forms with their fields, clickable elements with labels, input fields with types and values. The model reasons over structured text instead of pixels.</p>
+
+<p>Screenshots are still captured for:</p>
+<ul>
+  <li>Verification after actions (did the click work?)</li>
+  <li>Pages where the DOM is obfuscated (canvas-heavy apps, iframes)</li>
+  <li>Visual layout reasoning (where is element X relative to element Y?)</li>
+</ul>
+
+<p>The model sees both: the structured page info for planning, and an optional screenshot for verification. This hybrid approach gets the reliability of DOM selectors with the generality of vision.</p>
+
+<h2 id="the-action-vocabulary">The action vocabulary</h2>
+
+<p>After iterating on what actions the model actually needs, the minimal set is:</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Action</th>
+      <th>Input</th>
+      <th>What it does</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">navigate</code></td>
+      <td>url</td>
+      <td>Go to a URL</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">click</code></td>
+      <td>CSS selector</td>
+      <td>Click an element</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">type</code></td>
+      <td>CSS selector + text</td>
+      <td>Type into a field</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">scroll</code></td>
+      <td>direction + amount</td>
+      <td>Scroll the page</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">screenshot</code></td>
+      <td>(none)</td>
+      <td>Capture current state</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">get_page_info</code></td>
+      <td>(none)</td>
+      <td>Return DOM structure</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">back</code> / <code class="language-plaintext highlighter-rouge">forward</code></td>
+      <td>(none)</td>
+      <td>Browser history</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>That is seven actions. Everything else is a composition of these.</p>
+
+<p>The most common failure mode is <code class="language-plaintext highlighter-rouge">click</code> with a selector that does not match. The recovery pattern:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>function reliable_click(selector, retries=2):
+    for attempt in range(retries):
+        result = send_command("click", selector)
+        if result.ok:
+            return result
+        # Selector failed, refresh page state
+        page_info = send_command("get_page_info")
+        # Ask model for a better selector
+        new_selector = model("find this element", page_info)
+        selector = new_selector
+    # Last resort: screenshot + coordinate click
+    screenshot = send_command("screenshot")
+    coords = model("where is this element?", screenshot)
+    return send_command("click", x=coords.x, y=coords.y)
+</code></pre></div></div>
+
+<h2 id="the-hard-problems">The hard problems</h2>
+
+<p><strong>Session management.</strong> Browsers have cookies, local storage, and session state. If the agent logs into a site, that session persists across tasks. This is both useful (no re-authentication) and dangerous (the agent might act on the wrong account). There is no good solution here yet. Most systems use ephemeral profiles, which is safe but loses the convenience of persistent sessions.</p>
+
+<p><strong>Multi-tab coordination.</strong> Some workflows require multiple tabs: open a reference page in tab 1, fill a form in tab 2 using data from tab 1. Tab management is surprisingly hard. The extension needs to track which tab is active, route commands to the right tab, and handle tabs being closed or navigated away.</p>
+
+<p><strong>Anti-bot detection.</strong> Cloudflare, reCAPTCHA, and bot-detection services are optimized to detect automated browsers. Chrome controlled via DevTools protocol has detectable fingerprints (the <code class="language-plaintext highlighter-rouge">navigator.webdriver</code> flag, specific JS timing patterns). Workarounds exist but are fragile and ethically questionable.</p>
+
+<p><strong>Performance.</strong> Even with DOM-first actions, the round trip is:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>1. Model generates action        ~1-2s (LLM inference)
+2. Command sent to daemon        ~5ms (HTTP)
+3. Command relayed to extension  ~10-50ms (native messaging)
+4. Extension executes action     ~50-300ms (DOM manipulation + page load)
+5. Result relayed back           ~10-50ms
+6. Screenshot captured (if any)  ~100-200ms
+Total: ~1.5-3s per action
+</code></pre></div></div>
+
+<p>A human does the same action in 200-500ms. The agent is 3-6x slower per step, and it takes more steps because it needs verification screenshots.</p>
+
+<h2 id="the-state-of-open-source">The state of open source</h2>
+
+<p>Several open-source projects are tackling browser automation:</p>
+
+<p><strong>Playwright + LLM wrappers.</strong> The simplest approach: use Playwright for the browser automation, wrap it with an LLM that generates Playwright code or structured commands. This is reliable but requires the model to know Playwright’s API.</p>
+
+<p><strong>Browser-Use (open source project).</strong> DOM extraction + structured actions, similar to what I described. Growing community, active development. The challenge is handling the long tail of web page structures.</p>
+
+<p><strong>WebVoyager / WebArena.</strong> Research benchmarks for web agent tasks. Useful for evaluation but the benchmark tasks are simpler than real-world workflows.</p>
+
+<p>The common pattern across all of these: they started with screenshots and evolved toward DOM-first with screenshot fallback. The pixel-only approach is too slow and fragile for production use.</p>
+
+<h2 id="what-actually-works-in-production">What actually works in production</h2>
+
+<p>After running browser automation on real tasks for months, here is what reliably works:</p>
+
+<ol>
+  <li>
+    <p><strong>Read-only tasks.</strong> Extracting data from web pages, checking prices, reading articles. The <code class="language-plaintext highlighter-rouge">web_fetch</code> tool (HTTP GET + HTML-to-markdown conversion) handles 80% of these without any browser automation at all.</p>
+  </li>
+  <li>
+    <p><strong>Simple form submissions.</strong> One page, a few fields, one submit button. DOM selectors work reliably here.</p>
+  </li>
+  <li>
+    <p><strong>Authenticated read tasks.</strong> Once logged in (manually or via the agent), reading data from dashboards and portals. The persistent session makes this smooth.</p>
+  </li>
+</ol>
+
+<p>What does not reliably work:</p>
+
+<ol>
+  <li><strong>Multi-step purchase flows.</strong> Too many dynamic elements, loading states, and edge cases.</li>
+  <li><strong>Social media posting.</strong> Platforms actively fight automation. Selectors change frequently.</li>
+  <li><strong>Anything requiring visual verification of content.</strong> “Does this image look right?” is not something the model can reliably judge from a screenshot.</li>
+</ol>
+
+<h2 id="where-it-is-going">Where it is going</h2>
+
+<p>The convergence point is clear: <strong>browser agents will use a hierarchy of methods</strong>, choosing the simplest one that works for each step.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Priority 1: Direct API call (fastest, most reliable)
+Priority 2: HTTP request + HTML parsing (no browser needed)
+Priority 3: DOM-based browser automation (reliable, moderate speed)
+Priority 4: Screenshot + vision model (slow, general, last resort)
+</code></pre></div></div>
+
+<p>The model should know when to use each level. If the user says “check the weather”, do not open a browser – call a weather API. If they say “fill out this web form”, use DOM selectors. If the form has a CAPTCHA and the selectors fail, then fall back to screenshots.</p>
+
+<p>The next big improvement will be browser-native AI integration. Chrome is already experimenting with built-in AI APIs (<code class="language-plaintext highlighter-rouge">window.ai</code>). Imagine if the browser itself could identify interactive elements, fill forms from structured data, and handle navigation – with the AI model only needed for high-level planning, not pixel-level clicking.</p>
+
+<p>Until then, the pragmatic approach is: make the browser automation layer as thin as possible, push complexity to the model’s planning phase, and always have a fallback.</p>
+
+  </div>
+</article>
+
+  </main>
+
+  <footer class="site-footer">
+    <p>&copy; 2026 Arsalan Bashir</p>
+  </footer>
+
+  <script src="/assets/js/ascii.js"></script>
+  <script>
+    // Dark mode toggle
+    (function() {
+      var btn = document.getElementById('theme-toggle');
+      if (!btn) return;
+      btn.addEventListener('click', function() {
+        var html = document.documentElement;
+        var current = html.getAttribute('data-theme');
+        var next = current === 'dark' ? 'light' : 'dark';
+        html.setAttribute('data-theme', next);
+        localStorage.setItem('theme', next);
+      });
+    })();
+  </script>
+</body>
+</html>

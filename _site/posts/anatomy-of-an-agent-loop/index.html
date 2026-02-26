@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>while True: Break Production - arslnb</title>
+
+  
+  
+  
+
+  <!-- SEO -->
+  <meta name="description" content="Your agent loop fits on a whiteboard. Then it grows to 3,000 lines and you understand why.">
+  <meta name="author" content="Arsalan Bashir">
+  <link rel="canonical" href="http://localhost:4000/posts/anatomy-of-an-agent-loop/">
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="while True: Break Production">
+  <meta property="og:description" content="Your agent loop fits on a whiteboard. Then it grows to 3,000 lines and you understand why.">
+  <meta property="og:image" content="http://localhost:4000/assets/images/og-image.png">
+  <meta property="og:url" content="http://localhost:4000/posts/anatomy-of-an-agent-loop/">
+  <meta property="og:site_name" content="arslnb">
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:site" content="@arslnb">
+  <meta name="twitter:creator" content="@arslnb">
+  <meta name="twitter:title" content="while True: Break Production">
+  <meta name="twitter:description" content="Your agent loop fits on a whiteboard. Then it grows to 3,000 lines and you understand why.">
+  <meta name="twitter:image" content="http://localhost:4000/assets/images/og-image.png">
+
+  <!-- Favicons -->
+  <link rel="icon" type="image/svg+xml" href="/assets/images/favicon.svg">
+  <link rel="icon" type="image/png" sizes="32x32" href="/assets/images/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/assets/images/favicon-16x16.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/assets/images/apple-touch-icon.png">
+  <link rel="shortcut icon" href="/assets/images/favicon.ico">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/assets/css/main.css">
+  <script>
+    // Apply saved theme before paint to avoid flash
+    (function() {
+      var t = localStorage.getItem('theme');
+      if (t === 'dark' || (!t && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+        document.documentElement.setAttribute('data-theme', 'dark');
+      }
+    })();
+  </script>
+</head>
+<body>
+  <div class="ascii-banner" id="ascii-banner">
+    <canvas id="ascii-canvas"></canvas>
+  </div>
+
+  <header class="site-header">
+    <nav>
+      <a href="/" class="site-title">arslnb</a>
+      <div class="nav-links">
+        <a href="/">posts</a>
+        <a href="/about">about</a>
+        <a href="https://x.com/arslnb" target="_blank" rel="noopener" class="nav-twitter" title="Twitter/X">@arslnb</a>
+        <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Toggle dark mode">
+          <svg class="icon-sun" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+          <svg class="icon-moon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        </button>
+      </div>
+    </nav>
+  </header>
+
+  <main class="content">
+    <article class="post">
+  <header class="post-header">
+    <h1 class="post-title">while True: Break Production</h1>
+    <time class="post-date" datetime="2026-02-26T00:00:00-08:00">
+      February 26, 2026
+    </time>
+  </header>
+  <div class="post-content">
+    <p>Most people building with LLMs stop at the chat completion API. You send a message, you get a response. But the interesting systems – the ones that actually do work – are built around a loop. A real agent loop, where the model calls tools, observes results, and decides what to do next, indefinitely, until the task is done or something blocks it.</p>
+
+<p>I spent the last year building one. Here is what I learned.</p>
+
+<h2 id="the-core-abstraction">The core abstraction</h2>
+
+<p>An agent loop is conceptually simple. Pseudocode:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>function run_agent_loop(messages, tools):
+    while true:
+        response = call_model(messages, tools)
+
+        if response.stop_reason == "end_turn":
+            return response.text
+
+        if response.stop_reason == "tool_use":
+            for tool_call in response.tool_calls:
+                result = execute_tool(tool_call.name, tool_call.input)
+                messages.append(tool_result(tool_call.id, result))
+
+        messages.append(assistant_message(response))
+</code></pre></div></div>
+
+<p>That is the skeleton. It fits on a whiteboard. But every real system I have seen diverges from this in at least six important ways, and the divergences are where the actual engineering lives.</p>
+
+<h2 id="divergence-1-no-round-cap">Divergence 1: No round cap</h2>
+
+<p>The naive approach is to set a maximum number of rounds. “Run for at most 10 tool calls.” This is a mistake. Real tasks – installing dependencies, debugging build errors, writing five files – can easily require 30, 50, 100 tool calls. If you cap the loop, the model hits a wall mid-task and returns a half-finished answer.</p>
+
+<p>The correct design is to run until the model explicitly says it is done (stop_reason == “end_turn”) or until it is cancelled externally. No artificial ceiling.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># Bad
+</span><span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nf">range</span><span class="p">(</span><span class="n">MAX_ROUNDS</span><span class="p">):</span>
+    <span class="n">response</span> <span class="o">=</span> <span class="nf">call_model</span><span class="p">(</span><span class="n">messages</span><span class="p">,</span> <span class="n">tools</span><span class="p">)</span>
+    <span class="bp">...</span>
+
+<span class="c1"># Good
+</span><span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
+    <span class="n">response</span> <span class="o">=</span> <span class="nf">call_model</span><span class="p">(</span><span class="n">messages</span><span class="p">,</span> <span class="n">tools</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">response</span><span class="p">.</span><span class="n">stop_reason</span> <span class="o">==</span> <span class="sh">"</span><span class="s">end_turn</span><span class="sh">"</span><span class="p">:</span>
+        <span class="k">break</span>
+    <span class="bp">...</span>
+</code></pre></div></div>
+
+<h2 id="divergence-2-safe-points-and-cancellation">Divergence 2: Safe points and cancellation</h2>
+
+<p>If the loop runs indefinitely, you need a way to interrupt it. But you cannot just kill the loop at any point – you might be mid-tool-execution, holding a file handle, or halfway through an API call.</p>
+
+<p>The solution is safe points. You drain an inbox of control events at well-defined stages:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>function drain_safe_point(run_id, messages, stage):
+    events = inbox.drain(run_id)
+    for event in events:
+        if event.type == "CANCEL":
+            return CANCELLED
+        if event.type == "PAUSE":
+            wait_until_resumed_or_cancelled(run_id)
+        if event.type == "USER_STEER":
+            messages.append(user_message(event.text))
+    return OK
+</code></pre></div></div>
+
+<p>You check this before calling the model, after the model returns, and after each tool execution. Three safe points per round. This gives you clean cancellation semantics without race conditions.</p>
+
+<p>The inbox itself is a bounded per-execution queue. Control events (cancel, pause, resume) are high priority. User steers (follow-up messages injected mid-run) are normal priority. Telemetry is low priority.</p>
+
+<h2 id="divergence-3-approval-gates">Divergence 3: Approval gates</h2>
+
+<p>Some tools are dangerous. Sending an email. Deleting a file. Running a shell command that modifies the filesystem. You need an approval system.</p>
+
+<p>The pattern looks like this:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>if tool_requires_approval(tool_name):
+    approval = await approval_callback(tool_name, tool_input)
+    if approval.denied:
+        result = "approval_denied"
+        continue
+    if approval.cancelled:
+        return CANCELLED
+    token = approval.token
+    validate_and_consume_token(token, run_id, tool_name)
+</code></pre></div></div>
+
+<p>The key insight: approval tokens are single-use. You generate a token when the user approves, validate it before execution, and consume it atomically. This prevents replay attacks where a stale approval is reused for a different invocation.</p>
+
+<p>You also need a retry path. When a sandboxed command fails with permission denied, the loop can request expanded permissions, get a new approval, and retry the same tool call with augmented scope. One retry, not infinite.</p>
+
+<h2 id="divergence-4-context-window-management">Divergence 4: Context window management</h2>
+
+<p>Long-running loops accumulate messages. Tool results can be enormous – a web page fetch might return 80K characters. Eventually you hit the context window limit.</p>
+
+<p>Two mechanisms handle this:</p>
+
+<p><strong>Truncation at the tool level.</strong> Every tool result is capped at a fixed character limit before it enters the message history. In practice, 80K chars per tool result is generous enough for most use cases while keeping the window manageable.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">MAX_TOOL_RESULT_CHARS</span> <span class="o">=</span> <span class="mi">80_000</span>
+
+<span class="n">result_str</span> <span class="o">=</span> <span class="nf">truncate_with_marker</span><span class="p">(</span><span class="n">result_str</span><span class="p">,</span> <span class="n">MAX_TOOL_RESULT_CHARS</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p><strong>Compaction on overflow.</strong> When the model returns a context-window-exceeded error, the loop compacts older messages into a bounded summary and retries. You keep the most recent N messages verbatim and summarize everything before them into a single text block.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>function compact_messages(messages, reason):
+    tail = messages[-KEEP_TAIL:]
+    older = messages[:-KEEP_TAIL]
+    summary = summarize(older, max_chars=12000)
+    return [system_message(summary)] + tail
+</code></pre></div></div>
+
+<p>This gives you a maximum of two compaction attempts before giving up. If two compactions are not enough, the task was probably too large for a single run.</p>
+
+<h2 id="divergence-5-crm-enforcement">Divergence 5: CRM enforcement</h2>
+
+<p>If your agent sends messages to people (email, iMessage), you need to ensure it records the interaction in your CRM. The naive approach is to trust the model to remember. The correct approach is to enforce it at the loop level.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>pending_crm_updates = 0
+
+for tool_call in response.tool_calls:
+    result = execute(tool_call)
+    if tool_call.name == "send_imessage" and result.status == "sent":
+        pending_crm_updates += 1
+    if tool_call.name == "people_record_interaction" and result.ok:
+        pending_crm_updates -= 1
+
+if response.stop_reason == "end_turn" and pending_crm_updates &gt; 0:
+    messages.append("You must call people_record_interaction before ending.")
+    continue  # force the loop to keep going
+</code></pre></div></div>
+
+<p>The loop literally refuses to terminate until the CRM write-back is complete. The model cannot end its turn with pending outbound communication that has not been recorded.</p>
+
+<h2 id="divergence-6-streaming-with-tool-interleaving">Divergence 6: Streaming with tool interleaving</h2>
+
+<p>Users expect to see text as it is generated, not after the entire loop completes. But the model alternates between text output and tool calls, sometimes in the same response.</p>
+
+<p>The pattern is an async generator that yields incremental steps:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">async</span> <span class="k">def</span> <span class="nf">run_tool_loop</span><span class="p">(</span><span class="n">messages</span><span class="p">,</span> <span class="n">tools</span><span class="p">):</span>
+    <span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
+        <span class="k">async</span> <span class="k">with</span> <span class="n">model</span><span class="p">.</span><span class="nf">stream</span><span class="p">(</span><span class="n">messages</span><span class="p">,</span> <span class="n">tools</span><span class="p">)</span> <span class="k">as</span> <span class="n">stream</span><span class="p">:</span>
+            <span class="n">accumulated</span> <span class="o">=</span> <span class="sh">""</span>
+            <span class="k">async</span> <span class="k">for</span> <span class="n">event</span> <span class="ow">in</span> <span class="n">stream</span><span class="p">:</span>
+                <span class="n">text</span> <span class="o">=</span> <span class="nf">extract_text_delta</span><span class="p">(</span><span class="n">event</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">text</span><span class="p">:</span>
+                    <span class="n">accumulated</span> <span class="o">+=</span> <span class="n">text</span>
+                    <span class="k">yield</span> <span class="p">{</span><span class="sh">"</span><span class="s">text</span><span class="sh">"</span><span class="p">:</span> <span class="n">accumulated</span><span class="p">,</span> <span class="sh">"</span><span class="s">is_final</span><span class="sh">"</span><span class="p">:</span> <span class="bp">False</span><span class="p">}</span>
+
+            <span class="n">response</span> <span class="o">=</span> <span class="k">await</span> <span class="n">stream</span><span class="p">.</span><span class="nf">get_final_message</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">response</span><span class="p">.</span><span class="n">stop_reason</span> <span class="o">==</span> <span class="sh">"</span><span class="s">end_turn</span><span class="sh">"</span><span class="p">:</span>
+            <span class="k">yield</span> <span class="p">{</span><span class="sh">"</span><span class="s">text</span><span class="sh">"</span><span class="p">:</span> <span class="n">accumulated</span><span class="p">,</span> <span class="sh">"</span><span class="s">is_final</span><span class="sh">"</span><span class="p">:</span> <span class="bp">True</span><span class="p">}</span>
+            <span class="k">return</span>
+
+        <span class="k">for</span> <span class="n">tool_call</span> <span class="ow">in</span> <span class="n">response</span><span class="p">.</span><span class="n">tool_calls</span><span class="p">:</span>
+            <span class="k">yield</span> <span class="p">{</span><span class="sh">"</span><span class="s">tool_activity</span><span class="sh">"</span><span class="p">:</span> <span class="nf">describe</span><span class="p">(</span><span class="n">tool_call</span><span class="p">)}</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="nf">execute</span><span class="p">(</span><span class="n">tool_call</span><span class="p">)</span>
+            <span class="n">messages</span><span class="p">.</span><span class="nf">append</span><span class="p">(</span><span class="nf">tool_result</span><span class="p">(</span><span class="n">result</span><span class="p">))</span>
+</code></pre></div></div>
+
+<p>Each yield is a step: partial text, a tool activity indicator, a tool output preview, or a final response. The consumer (your UI) renders these incrementally. The user sees “Searching the web for X” while the tool runs, then sees the response stream in real time.</p>
+
+<h2 id="the-meta-lesson">The meta-lesson</h2>
+
+<p>The skeleton of an agent loop is trivial. The engineering is in the six divergences above, plus a hundred smaller details: how you handle model fallbacks when a model name is not found, how you strip inline images when a provider does not support them, how you manage per-execution sandbox state, how you route between Anthropic and OpenAI-compatible providers with the same loop structure.</p>
+
+<p>Every one of these details is a lesson learned from a production failure. The loop looks simple on a whiteboard because the complexity is distributed across the edges.</p>
+
+<p>If you are building an agent system, start with the simple loop. Then let your production traffic teach you which divergences matter for your use case. Do not over-engineer upfront. But do not be surprised when the loop file grows to 3,000 lines.</p>
+
+  </div>
+</article>
+
+  </main>
+
+  <footer class="site-footer">
+    <p>&copy; 2026 Arsalan Bashir</p>
+  </footer>
+
+  <script src="/assets/js/ascii.js"></script>
+  <script>
+    // Dark mode toggle
+    (function() {
+      var btn = document.getElementById('theme-toggle');
+      if (!btn) return;
+      btn.addEventListener('click', function() {
+        var html = document.documentElement;
+        var current = html.getAttribute('data-theme');
+        var next = current === 'dark' ? 'light' : 'dark';
+        html.setAttribute('data-theme', next);
+        localStorage.setItem('theme', next);
+      });
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Guess First, Verify Later - arslnb</title>
+
+  
+  
+  
+
+  <!-- SEO -->
+  <meta name="description" content="Speculative decoding gets you 2-3x LLM throughput with zero quality loss. The trick: verification is almost free.">
+  <meta name="author" content="Arsalan Bashir">
+  <link rel="canonical" href="http://localhost:4000/posts/speculative-decoding/">
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Guess First, Verify Later">
+  <meta property="og:description" content="Speculative decoding gets you 2-3x LLM throughput with zero quality loss. The trick: verification is almost free.">
+  <meta property="og:image" content="http://localhost:4000/assets/images/og-image.png">
+  <meta property="og:url" content="http://localhost:4000/posts/speculative-decoding/">
+  <meta property="og:site_name" content="arslnb">
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:site" content="@arslnb">
+  <meta name="twitter:creator" content="@arslnb">
+  <meta name="twitter:title" content="Guess First, Verify Later">
+  <meta name="twitter:description" content="Speculative decoding gets you 2-3x LLM throughput with zero quality loss. The trick: verification is almost free.">
+  <meta name="twitter:image" content="http://localhost:4000/assets/images/og-image.png">
+
+  <!-- Favicons -->
+  <link rel="icon" type="image/svg+xml" href="/assets/images/favicon.svg">
+  <link rel="icon" type="image/png" sizes="32x32" href="/assets/images/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/assets/images/favicon-16x16.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/assets/images/apple-touch-icon.png">
+  <link rel="shortcut icon" href="/assets/images/favicon.ico">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/assets/css/main.css">
+  <script>
+    // Apply saved theme before paint to avoid flash
+    (function() {
+      var t = localStorage.getItem('theme');
+      if (t === 'dark' || (!t && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+        document.documentElement.setAttribute('data-theme', 'dark');
+      }
+    })();
+  </script>
+</head>
+<body>
+  <div class="ascii-banner" id="ascii-banner">
+    <canvas id="ascii-canvas"></canvas>
+  </div>
+
+  <header class="site-header">
+    <nav>
+      <a href="/" class="site-title">arslnb</a>
+      <div class="nav-links">
+        <a href="/">posts</a>
+        <a href="/about">about</a>
+        <a href="https://x.com/arslnb" target="_blank" rel="noopener" class="nav-twitter" title="Twitter/X">@arslnb</a>
+        <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Toggle dark mode">
+          <svg class="icon-sun" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+          <svg class="icon-moon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        </button>
+      </div>
+    </nav>
+  </header>
+
+  <main class="content">
+    <article class="post">
+  <header class="post-header">
+    <h1 class="post-title">Guess First, Verify Later</h1>
+    <time class="post-date" datetime="2026-02-24T00:00:00-08:00">
+      February 24, 2026
+    </time>
+  </header>
+  <div class="post-content">
+    <p>Autoregressive language models generate one token at a time. Each token requires a full forward pass through the model. For a 70B parameter model, that means 70 billion multiply-accumulate operations per token, bottlenecked by memory bandwidth. At 30 tokens per second, generating a 1,000-token response takes 33 seconds.</p>
+
+<p>Speculative decoding is the most elegant trick I have seen to make this faster without touching the model weights, without retraining, and without sacrificing output quality. Here is how it works.</p>
+
+<h2 id="the-bottleneck">The bottleneck</h2>
+
+<p>LLM inference is memory-bandwidth-bound, not compute-bound. A single token generation requires reading the entire model from memory (or at least the KV cache and the active weight matrices). On an A100 with 2 TB/s memory bandwidth, reading 140 GB of weights (70B params in fp16) takes ~70ms. That gives you about 14 tokens per second, regardless of how fast your matrix multiply hardware is.</p>
+
+<p>The GPU’s tensor cores are idle most of the time. They can do the math in microseconds, but they are waiting for data to arrive from HBM.</p>
+
+<p>This is the key insight: verification is almost free when you batch it.</p>
+
+<h2 id="the-core-idea">The core idea</h2>
+
+<p>Speculative decoding uses two models:</p>
+
+<ul>
+  <li>A <strong>draft model</strong> (small, fast, cheap) that generates candidate tokens quickly.</li>
+  <li>A <strong>target model</strong> (large, slow, accurate) that verifies the candidates in parallel.</li>
+</ul>
+
+<p>The draft model generates K tokens speculatively. The target model then verifies all K tokens in a single forward pass. If the draft tokens match what the target would have generated, you get K tokens for the cost of one target forward pass. If some tokens are wrong, you keep the correct prefix and re-draft from the rejection point.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>function speculative_decode(target, draft, prompt, K):
+    tokens = prompt
+    while not done:
+        # Draft phase: generate K candidates cheaply
+        draft_tokens = []
+        draft_probs = []
+        for i in range(K):
+            p_draft = draft.forward(tokens + draft_tokens)
+            t = sample(p_draft)
+            draft_tokens.append(t)
+            draft_probs.append(p_draft[t])
+
+        # Verify phase: run target on all K candidates at once
+        # This is ONE forward pass, not K forward passes
+        target_probs = target.forward_batch(
+            tokens, draft_tokens  # all positions in parallel
+        )
+
+        # Accept/reject each draft token
+        accepted = 0
+        for i in range(K):
+            p_t = target_probs[i][draft_tokens[i]]
+            p_d = draft_probs[i]
+
+            if p_t &gt;= p_d:
+                # Target agrees: accept unconditionally
+                accepted += 1
+            else:
+                # Rejection sampling: accept with probability p_t / p_d
+                if random() &lt; p_t / p_d:
+                    accepted += 1
+                else:
+                    # Reject: sample from adjusted distribution
+                    adjusted = normalize(max(0, target_probs[i] - draft_probs_i))
+                    correction_token = sample(adjusted)
+                    tokens.extend(draft_tokens[:i] + [correction_token])
+                    break
+
+        if accepted == K:
+            # All accepted, bonus: sample one more from target
+            bonus = sample(target_probs[K])
+            tokens.extend(draft_tokens + [bonus])
+
+    return tokens
+</code></pre></div></div>
+
+<h2 id="why-verification-is-cheap">Why verification is cheap</h2>
+
+<p>The magic is that verifying K tokens costs almost the same as generating one token. In the standard autoregressive case:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Generate 1 token:   read weights once, compute one output position
+Generate K tokens:  read weights K times, compute K output positions
+</code></pre></div></div>
+
+<p>But with batched verification:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Verify K tokens:    read weights once, compute K output positions in parallel
+</code></pre></div></div>
+
+<p>The weight-reading cost (the bottleneck) is paid once. The compute for K positions is parallelized across tensor cores that were otherwise idle. For K=5, you get nearly 5x throughput if the draft model’s acceptance rate is high enough.</p>
+
+<h2 id="the-acceptance-rate-matters">The acceptance rate matters</h2>
+
+<p>The speedup is:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>speedup = (accepted_tokens + 1) / (time_draft_K + time_target_1)
+</code></pre></div></div>
+
+<p>If the draft model is good (high acceptance rate), you accept most tokens and get close to Kx speedup. If the draft model is bad, you reject early and fall back to normal decoding with some overhead.</p>
+
+<p>In practice, the acceptance rate depends on how well the draft model approximates the target. Some empirical numbers from the literature:</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Draft model</th>
+      <th>Target model</th>
+      <th>Acceptance rate</th>
+      <th>Speedup</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>125M GPT-2</td>
+      <td>1.5B GPT-2</td>
+      <td>~70%</td>
+      <td>2-3x</td>
+    </tr>
+    <tr>
+      <td>7B LLaMA</td>
+      <td>70B LLaMA</td>
+      <td>~60-80%</td>
+      <td>2-3x</td>
+    </tr>
+    <tr>
+      <td>1B distilled</td>
+      <td>8B base</td>
+      <td>~75%</td>
+      <td>2.5x</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>The acceptance rate varies by domain. Code completion tends to be more predictable (higher acceptance) than creative writing (lower acceptance). Structured outputs like JSON are very high acceptance because the draft model can predict formatting tokens nearly perfectly.</p>
+
+<h2 id="the-math-why-it-is-lossless">The math: why it is lossless</h2>
+
+<p>The remarkable property of speculative decoding is that it produces the exact same output distribution as the target model alone. This is not an approximation.</p>
+
+<p>The rejection sampling step ensures this. When the draft proposes token x with probability q(x) and the target would generate it with probability p(x):</p>
+
+<ul>
+  <li>If p(x) &gt;= q(x): accept always. The draft underestimated this token; accepting is safe.</li>
+  <li>If p(x) &lt; q(x): accept with probability p(x)/q(x). Reject with probability 1 - p(x)/q(x), and in that case, sample from the residual distribution norm(max(0, p - q)).</li>
+</ul>
+
+<p>This is a standard importance sampling correction. The resulting distribution over generated tokens is exactly p(x), the target model’s distribution. No quality loss.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Proof sketch:
+P(accept x) = q(x) * min(1, p(x)/q(x))
+            = min(q(x), p(x))
+
+P(reject at position i, then sample y from residual)
+            = (1 - sum_x min(q(x), p(x))) * (p(y) - min(q(y), p(y))) / Z
+
+Sum of both: p(x) for all x. QED.
+</code></pre></div></div>
+
+<h2 id="practical-considerations">Practical considerations</h2>
+
+<p><strong>Draft model selection.</strong> The draft model needs to be much faster than the target. A good rule of thumb: the draft should be 10-50x smaller. If your target is 70B, use a 1-7B draft. The draft model does not need to be architecturally identical, but sharing the tokenizer is important.</p>
+
+<p><strong>Choosing K.</strong> Larger K means more speculative tokens and higher potential throughput, but also more wasted compute on rejected tokens. K=4 to K=8 is the sweet spot for most configurations. Beyond K=8, the marginal acceptance rate drops below the compute cost.</p>
+
+<p><strong>Tree-structured speculation.</strong> Instead of generating one draft sequence, generate a tree of candidates and verify the whole tree in one pass. This increases the expected number of accepted tokens but adds implementation complexity.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Standard:   a -&gt; b -&gt; c -&gt; d -&gt; e       (one path, K=5)
+
+Tree:       a -&gt; b -&gt; c -&gt; d
+                 |         \-&gt; e
+                 \-&gt; f -&gt; g
+                          \-&gt; h         (multiple paths, same verify cost)
+</code></pre></div></div>
+
+<p>Medusa (ICML 2024) and SpecInfer use this approach. The tree structure can push effective acceptance rates above 90%.</p>
+
+<p><strong>Self-speculation.</strong> You do not strictly need a separate draft model. Early-exit techniques use the target model’s intermediate layers as the draft. Layer 16 of a 64-layer model is a weak but fast predictor. This avoids serving two models entirely.</p>
+
+<p><strong>KV cache management.</strong> Draft tokens that are rejected create wasted KV cache entries. You need to efficiently roll back the KV cache to the last accepted position. This is straightforward but easy to get wrong in a production serving framework.</p>
+
+<h2 id="where-it-is-headed">Where it is headed</h2>
+
+<p>Speculative decoding is becoming standard infrastructure. vLLM, TensorRT-LLM, and SGLang all support it natively. The interesting frontier is:</p>
+
+<ol>
+  <li>
+    <p><strong>Adaptive K.</strong> Adjust the speculation length per token based on the draft model’s confidence. High-confidence runs get K=8, low-confidence runs get K=2.</p>
+  </li>
+  <li>
+    <p><strong>Speculative tool use.</strong> In an agent loop, the model often follows predictable patterns: read file, think, edit file. You could speculatively execute the tool call before the model finishes generating, and verify the output matches. If the model was going to call <code class="language-plaintext highlighter-rouge">file_read("main.py")</code> and you already read it, you save the I/O latency.</p>
+  </li>
+  <li>
+    <p><strong>Cascade speculation.</strong> Three models: tiny (100M), small (1B), large (70B). The tiny model drafts, the small model verifies and re-drafts rejections, the large model does final verification. Each stage filters out easy tokens, so the large model only sees the hard decisions.</p>
+  </li>
+  <li>
+    <p><strong>Hardware co-design.</strong> The speculation paradigm changes the optimal hardware balance. You want more memory bandwidth (for the target pass) and more parallel compute (for tree verification), but less sequential throughput. This favors wide, memory-bandwidth-optimized chips over deep pipelines.</p>
+  </li>
+</ol>
+
+<h2 id="the-takeaway">The takeaway</h2>
+
+<p>Speculative decoding is rare in ML: a technique that gives you a 2-3x speedup with zero quality loss and no retraining. It works because it exploits a fundamental asymmetry in transformer inference – verification is parallel, generation is sequential.</p>
+
+<p>If you are serving LLMs in production and not using speculative decoding, you are leaving 50-70% of your throughput on the table.</p>
+
+  </div>
+</article>
+
+  </main>
+
+  <footer class="site-footer">
+    <p>&copy; 2026 Arsalan Bashir</p>
+  </footer>
+
+  <script src="/assets/js/ascii.js"></script>
+  <script>
+    // Dark mode toggle
+    (function() {
+      var btn = document.getElementById('theme-toggle');
+      if (!btn) return;
+      btn.addEventListener('click', function() {
+        var html = document.documentElement;
+        var current = html.getAttribute('data-theme');
+        var next = current === 'dark' ? 'light' : 'dark';
+        html.setAttribute('data-theme', next);
+        localStorage.setItem('theme', next);
+      });
+    })();
+  </script>
+</body>
+</html>

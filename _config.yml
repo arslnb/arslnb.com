@@ -1,0 +1,34 @@
+title: arslnb
+description: "ML, data, chess, and things that interest me."
+author: Arsalan Bashir
+twitter: https://x.com/arslnb
+url: "https://arslnb.github.io"
+baseurl: "/blog"
+
+markdown: kramdown
+highlighter: rouge
+permalink: /posts/:title/
+
+kramdown:
+  input: GFM
+  syntax_highlighter: rouge
+  syntax_highlighter_opts:
+    block:
+      line_numbers: false
+
+exclude:
+  - Gemfile
+  - Gemfile.lock
+  - README.md
+  - vendor
+
+collections:
+  posts:
+    output: true
+
+defaults:
+  - scope:
+      path: ""
+      type: "posts"
+    values:
+      layout: "post"
