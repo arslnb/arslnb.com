@@ -1,3 +1,0 @@
-current directory: /Users/arslnb/zeus-projects/blog/vendor/bundle/ruby/4.0.0/gems/google-protobuf-4.33.5/ext/google/protobuf_c
-/opt/homebrew/opt/ruby/bin/ruby -rrubygems /Users/arslnb/zeus-projects/blog/vendor/bundle/ruby/4.0.0/gems/rake-13.3.1/exe/rake RUBYARCHDIR\=/Users/arslnb/zeus-projects/blog/vendor/bundle/ruby/4.0.0/extensions/arm64-darwin-25/4.0.0/google-protobuf-4.33.5 RUBYLIBDIR\=/Users/arslnb/zeus-projects/blog/vendor/bundle/ruby/4.0.0/extensions/arm64-darwin-25/4.0.0/google-protobuf-4.33.5
-Skipping build of FFI; `gem install ffi-compiler` to enable.
