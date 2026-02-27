@@ -2,8 +2,8 @@ title: arslnb
 description: "ML, data, chess, and things that interest me."
 author: Arsalan Bashir
 twitter: https://x.com/arslnb
-url: "https://arslnb.github.io"
-baseurl: "/blog"
+url: "https://arslnb.com"
+baseurl: ""
 
 markdown: kramdown
 highlighter: rouge
