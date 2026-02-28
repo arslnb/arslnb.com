@@ -4,9 +4,9 @@
    Dark mode support.
    ============================================ */
 
-/* ---- Light theme (default) ---- */
-:root,
-[data-theme="light"] {
+/* ---- Theme tokens (default: light) ---- */
+:root {
+  color-scheme: light dark;
   --text: #3a3a3a;
   --text-light: #777;
   --text-faint: #aaa;
@@ -33,8 +33,9 @@
   --syn-op: #333;
 }
 
-/* ---- Dark theme ---- */
-[data-theme="dark"] {
+/* ---- Dark theme (system) ---- */
+@media (prefers-color-scheme: dark) {
+  :root {
   --text: #c9c9c9;
   --text-light: #8a8a8a;
   --text-faint: #5a5a5a;
@@ -54,6 +55,7 @@
   --syn-attr: #9cdcfe;
   --syn-tag: #c9a0dc;
   --syn-op: #d4d4d4;
+  }
 }
 
 /* Reset */
@@ -148,31 +150,6 @@ body {
   opacity: 1;
 }
 
-/* ---- Dark mode toggle ---- */
-.theme-toggle {
-  background: none;
-  border: 1px solid var(--border);
-  border-radius: 4px;
-  padding: 3px 6px;
-  cursor: pointer;
-  color: var(--text-light);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: color 0.15s, border-color 0.15s;
-  line-height: 1;
-}
-
-.theme-toggle:hover {
-  color: var(--text);
-  border-color: var(--text-faint);
-}
-
-/* Show sun in dark mode, moon in light mode */
-[data-theme="light"] .icon-sun { display: none; }
-[data-theme="light"] .icon-moon { display: block; }
-[data-theme="dark"] .icon-sun { display: block; }
-[data-theme="dark"] .icon-moon { display: none; }
 
 /* ---- Main Content ---- */
 .content {

@@ -45,7 +45,7 @@
   }
 
   function isDark() {
-    return document.documentElement.getAttribute('data-theme') === 'dark';
+    return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
   }
 
   function resize() {
