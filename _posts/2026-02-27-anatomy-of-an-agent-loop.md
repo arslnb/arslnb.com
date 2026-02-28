@@ -1,8 +1,8 @@
 ---
 layout: post
-title: "while True: Break Production"
-description: "Your agent loop fits on a whiteboard. Then it grows to 3,000 lines and you understand why."
-date: 2026-02-26
+title: "Anatomy of an Agent Loop"
+description: "Tool-calling loops, context management, error recovery, and the engineering that turns a chat completion into an autonomous system."
+date: 2026-02-27
 ---
 
 Most people building with LLMs stop at the chat completion API. You send a message, you get a response. But the interesting systems -- the ones that actually do work -- are built around a loop. A real agent loop, where the model calls tools, observes results, and decides what to do next, indefinitely, until the task is done or something blocks it.

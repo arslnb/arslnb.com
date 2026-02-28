@@ -1,8 +1,8 @@
 ---
 layout: post
-title: "Guess First, Verify Later"
-description: "Speculative decoding gets you 2-3x LLM throughput with zero quality loss. The trick: verification is almost free."
-date: 2026-02-24
+title: "Speculative Decoding: How It Works"
+description: "Draft-then-verify inference that yields 2-3x throughput with zero quality loss, and why verification is nearly free."
+date: 2026-02-11
 ---
 
 Autoregressive language models generate one token at a time. Each token requires a full forward pass through the model. For a 70B parameter model, that means 70 billion multiply-accumulate operations per token, bottlenecked by memory bandwidth. At 30 tokens per second, generating a 1,000-token response takes 33 seconds.

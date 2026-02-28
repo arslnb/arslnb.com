@@ -1,8 +1,8 @@
 ---
 layout: post
-title: "Computer Use Is a Human Wearing Oven Mitts"
-description: "I built computer use into a production agent, then largely moved away from it. Here is why pixels are the wrong primitive."
-date: 2026-02-23
+title: "The State of Computer Use"
+description: "Screenshot-to-action agents in production: what works, what breaks, and why structured APIs still win over pixel-level control."
+date: 2026-02-04
 ---
 
 "Computer use" is the idea that an AI agent can control a computer the way a human does: moving a mouse, clicking buttons, typing into text fields, reading what is on screen. Anthropic shipped it in October 2024. OpenAI followed. Google followed. Everyone has a version now.

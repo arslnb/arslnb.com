@@ -1,8 +1,8 @@
 ---
 layout: post
-title: "So You Want to Build Your Own Claude Code"
-description: "Seven layers of a code agent, from the system prompt to the Seatbelt sandbox. A year of evenings, condensed."
-date: 2026-02-25
+title: "Building a Code Agent from Scratch"
+description: "System prompts, tool definitions, sandboxed execution, and the seven layers of architecture behind a production code agent."
+date: 2026-02-19
 ---
 
 Claude Code, Cursor, Windsurf, Aider -- all of these are, at their core, the same architecture. A tool-calling loop wrapped around a code-aware system prompt with filesystem access. I built something similar from the ground up. Here is the blueprint.

@@ -1,18 +1,29 @@
 ---
 layout: default
 ---
-<ul class="post-list">
-  {% for post in site.posts %}
-  <li>
-    <a href="{{ post.url | relative_url }}">
-      <div class="post-list-meta">
-        <span class="post-list-title">{{ post.title }}</span>
-        {% if post.description %}
-        <span class="post-list-desc">{{ post.description }}</span>
-        {% endif %}
-      </div>
-      <span class="post-list-date">{{ post.date | date: "%Y-%m-%d" }}</span>
-    </a>
-  </li>
-  {% endfor %}
-</ul>
+
+<section class="home-intro">
+  <p class="home-intro-line">I'm Arsalan Bashir. I work at the intersection of ML, systems, and products that ship.</p>
+  <p class="home-intro-line">Currently building <a href="https://twitter.com/livedocsAI" target="_blank" rel="noopener">LiveDocs</a>. I write about agent architectures, inference optimization, and code generation systems.</p>
+  <p class="home-intro-line">Other interests: chess, martial arts, and whatever problem I can't stop thinking about.</p>
+  <p class="home-intro-line">You can find me on <a href="https://x.com/arslnb" target="_blank" rel="noopener">X</a>.</p>
+</section>
+
+<section class="posts-section">
+  <h2 class="section-heading">Posts</h2>
+  <ul class="post-list">
+    {% for post in site.posts %}
+    <li>
+      <a href="{{ post.url | relative_url }}">
+        <div class="post-list-meta">
+          <span class="post-list-title">{{ post.title }}</span>
+          {% if post.description %}
+          <span class="post-list-desc">{{ post.description }}</span>
+          {% endif %}
+        </div>
+        <span class="post-list-date">{{ post.date | date: "%Y-%m-%d" }}</span>
+      </a>
+    </li>
+    {% endfor %}
+  </ul>
+</section>

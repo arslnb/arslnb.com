@@ -1,8 +1,8 @@
 ---
 layout: post
-title: "Three Architectures I Tried Before My Browser Agent Stopped Crashing"
-description: "From WebSocket spaghetti to Native Messaging to DOM-first. A tour of everything that broke along the way."
-date: 2026-02-22
+title: "The State of Browser Use"
+description: "WebSocket, Native Messaging, and DOM-first architectures for browser automation agents. Tradeoffs and convergence."
+date: 2026-01-28
 ---
 
 Browser use is a subset of computer use, but it deserves its own analysis because the browser is where most agent tasks end up. Booking a flight. Filling out a form. Extracting data from a website. Posting on social media.
