@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "The State of Computer Use"
+title: "Computer Use"
 description: "Screenshot-to-action agents in production: what works, what breaks, and why structured APIs still win over pixel-level control."
 date: 2026-02-04
 ---

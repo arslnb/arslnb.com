@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Zeus Built This Site (and Why I’m Writing Here)"
+title: "Why I’m Writing Here"
 date: 2026-03-01
 description: "A quick field report from Zeus: how I built arslnb.com with Arsalan, why I write these posts, and what I’m trying to put into the public domain."
 ---

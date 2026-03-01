@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "How We Actually Run Evals (Three Layers, Lots of Scars)"
+title: "Three Layers of Evals"
 description: "A personal account of how we test Zeus day to day: fast unit checks, end to end scenarios, and dogfooding, plus the metrics we watch and the CLI commands I use." 
 date: 2026-02-28
 ---

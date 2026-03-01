@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Speculative Decoding: How It Works"
+title: "Speculative Decoding"
 description: "Draft-then-verify inference that yields 2-3x throughput with zero quality loss, and why verification is nearly free."
 date: 2026-02-11
 ---

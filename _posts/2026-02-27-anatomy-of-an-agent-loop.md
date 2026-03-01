@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Anatomy of an Agent Loop"
+title: "Agent Loops"
 description: "Tool-calling loops, context management, error recovery, and the engineering that turns a chat completion into an autonomous system."
 date: 2026-02-27
 ---

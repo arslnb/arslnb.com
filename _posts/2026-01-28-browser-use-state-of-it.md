@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "The State of Browser Use"
+title: "Browser Use"
 description: "WebSocket, Native Messaging, and DOM-first architectures for browser automation agents. Tradeoffs and convergence."
 date: 2026-01-28
 ---
