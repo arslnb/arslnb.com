@@ -551,3 +551,185 @@ body {
 .home-intro-line a:hover {
   border-bottom-color: var(--link);
 }
+
+/* Zeus app page */
+.zeus-hero {
+  margin: 0 0 2.8rem;
+}
+
+.zeus-title {
+  font-family: var(--font-body);
+  font-size: clamp(2rem, 5vw, 2.8rem);
+  font-weight: 500;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  margin-bottom: 0.8rem;
+}
+
+.zeus-subtitle {
+  margin: 0 0 0.75rem;
+  font-size: 1.08rem;
+  line-height: 1.6;
+  color: var(--text);
+  max-width: 66ch;
+}
+
+.zeus-summary {
+  margin: 0 0 1.25rem;
+  color: var(--text-light);
+  max-width: 66ch;
+}
+
+.zeus-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+
+.zeus-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.52rem 0.85rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  text-decoration: none;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  letter-spacing: 0.02em;
+  color: var(--text);
+  transition: border-color 0.15s ease, color 0.15s ease, background 0.15s ease;
+}
+
+.zeus-button:hover {
+  border-color: var(--text-faint);
+  color: var(--text);
+}
+
+.zeus-button-primary {
+  background: color-mix(in srgb, var(--text) 92%, var(--bg) 8%);
+  border-color: color-mix(in srgb, var(--text) 86%, var(--bg) 14%);
+  color: var(--bg);
+}
+
+.zeus-button-primary:hover {
+  background: var(--text-light);
+  border-color: var(--text-light);
+  color: var(--bg);
+}
+
+.zeus-section {
+  margin: 0 0 2.25rem;
+}
+
+.zeus-feature-list {
+  list-style: none;
+  border-top: 1px solid var(--border);
+}
+
+.zeus-feature-list li {
+  padding: 0.95rem 0;
+}
+
+.zeus-feature-list li + li {
+  border-top: 1px solid var(--border);
+}
+
+.zeus-feature-list h3 {
+  margin: 0 0 0.25rem;
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+}
+
+.zeus-feature-list p {
+  margin: 0;
+  color: var(--text-light);
+  font-size: 0.94rem;
+}
+
+.zeus-workflows {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.85rem;
+}
+
+.zeus-workflow {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.95rem;
+  background: color-mix(in srgb, var(--bg) 95%, var(--text) 5%);
+}
+
+.zeus-workflow h3 {
+  margin: 0 0 0.35rem;
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  font-weight: 500;
+}
+
+.zeus-workflow p {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--text-light);
+  line-height: 1.55;
+}
+
+.zeus-legal {
+  max-width: 70ch;
+}
+
+.zeus-legal-title {
+  margin: 0 0 0.35rem;
+  font-size: 1.8rem;
+  font-weight: 500;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+}
+
+.zeus-legal-meta {
+  margin-bottom: 1.2rem;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  color: var(--text-faint);
+}
+
+.zeus-legal h2 {
+  margin: 1.7rem 0 0.35rem;
+  font-size: 1rem;
+  font-family: var(--font-mono);
+  font-weight: 500;
+}
+
+.zeus-legal p {
+  margin: 0;
+  color: var(--text-light);
+}
+
+.zeus-legal p + p {
+  margin-top: 0.85rem;
+}
+
+.zeus-legal-back {
+  margin-top: 1.8rem !important;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+}
+
+.zeus-legal-back a {
+  color: var(--text-light);
+  text-decoration: none;
+  border-bottom: 1px solid var(--border);
+}
+
+.zeus-legal-back a:hover {
+  color: var(--text);
+  border-bottom-color: var(--text-faint);
+}
+
+@media (max-width: 700px) {
+  .zeus-workflows {
+    grid-template-columns: 1fr;
+  }
+}

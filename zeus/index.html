@@ -1,93 +1,63 @@
-<!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Zeus</title>
-  <style>
-    :root {
-      color-scheme: light;
-      --bg: #f4f6fb;
-      --surface: #ffffff;
-      --text: #111827;
-      --muted: #4b5563;
-      --accent: #0f766e;
-      --accent-hover: #115e59;
-      --border: #dbe1ea;
-    }
+---
+layout: default
+title: Zeus
+description: "Zeus is a Mac-native autonomous desktop app for high-trust workflows."
+---
 
-    * {
-      box-sizing: border-box;
-    }
+<section class="zeus-hero">
+  <p class="section-heading">Mac App</p>
+  <h1 class="zeus-title">Zeus</h1>
+  <p class="zeus-subtitle">
+    An autonomous desktop copilot for macOS that can plan tasks, use apps, and
+    ask for approval before high-impact actions.
+  </p>
+  <p class="zeus-summary">
+    Same agent-loop philosophy, but packaged as a focused Mac app for teams that
+    need speed without giving up control.
+  </p>
+  <div class="zeus-actions">
+    <a class="zeus-button zeus-button-primary" href="https://github.com/arslnb/zeus" target="_blank" rel="noopener">View on GitHub</a>
+    <a class="zeus-button" href="{{ '/zeus/privacy/' | relative_url }}">Privacy</a>
+    <a class="zeus-button" href="{{ '/zeus/terms/' | relative_url }}">Terms</a>
+  </div>
+</section>
 
-    body {
-      margin: 0;
-      font-family: "Avenir Next", "Segoe UI", system-ui, -apple-system, sans-serif;
-      background:
-        radial-gradient(circle at 10% 10%, #d1fae5 0, transparent 36%),
-        radial-gradient(circle at 90% 0, #dbeafe 0, transparent 28%),
-        var(--bg);
-      color: var(--text);
-      min-height: 100vh;
-      display: grid;
-      place-items: center;
-      padding: 24px;
-    }
+<section class="zeus-section" id="features">
+  <h2 class="section-heading">Core Capabilities</h2>
+  <ul class="zeus-feature-list">
+    <li>
+      <h3>Desktop-Native Control</h3>
+      <p>Runs directly on Mac and interacts with real UI state instead of mocked browser-only flows.</p>
+    </li>
+    <li>
+      <h3>Approval Gates</h3>
+      <p>Insert human checkpoints before sending emails, publishing content, or making irreversible changes.</p>
+    </li>
+    <li>
+      <h3>Composable Tools</h3>
+      <p>Blend file operations, app actions, and model calls into repeatable workflows for daily operations.</p>
+    </li>
+    <li>
+      <h3>Auditable Runs</h3>
+      <p>Every action is traceable, making it easy to debug, review, and improve long-running automations.</p>
+    </li>
+  </ul>
+</section>
 
-    .card {
-      width: min(760px, 100%);
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 20px;
-      padding: 36px;
-      box-shadow: 0 18px 40px rgba(15, 23, 42, 0.08);
-    }
-
-    h1 {
-      margin: 0 0 12px;
-      font-size: clamp(2rem, 4vw, 3rem);
-      line-height: 1.05;
-      letter-spacing: -0.02em;
-    }
-
-    p {
-      margin: 0 0 20px;
-      color: var(--muted);
-      line-height: 1.65;
-    }
-
-    nav {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-    }
-
-    a {
-      text-decoration: none;
-      font-weight: 600;
-      color: white;
-      background: var(--accent);
-      border-radius: 10px;
-      padding: 10px 14px;
-      transition: background 0.16s ease;
-    }
-
-    a:hover {
-      background: var(--accent-hover);
-    }
-  </style>
-</head>
-<body>
-  <main class="card">
-    <h1>Zeus</h1>
-    <p>
-      This is a fully standalone static section. It does not depend on the blog
-      layout, includes, or shared styles.
-    </p>
-    <nav>
-      <a href="./privacy/">Privacy Policy</a>
-      <a href="./terms/">Terms of Service</a>
-    </nav>
-  </main>
-</body>
-</html>
+<section class="zeus-section">
+  <h2 class="section-heading">How Teams Use Zeus</h2>
+  <div class="zeus-workflows">
+    <article class="zeus-workflow">
+      <h3>Support + Inbox Ops</h3>
+      <p>Draft replies, categorize threads, and prep follow-ups while humans approve outbound messages.</p>
+    </article>
+    <article class="zeus-workflow">
+      <h3>Growth Execution</h3>
+      <p>Collect metrics, prepare weekly updates, and assemble launch checklists from multiple apps.</p>
+    </article>
+    <article class="zeus-workflow">
+      <h3>Founder Workflows</h3>
+      <p>Handle repetitive desktop tasks so founder time stays focused on strategy and product decisions.</p>
+    </article>
+  </div>
+</section>
