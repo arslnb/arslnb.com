@@ -1,63 +1,156 @@
 ---
-layout: default
+layout: zeus
 title: Zeus
-description: "Zeus is a Mac-native autonomous desktop app for high-trust workflows."
+description: "Zeus is a Mac-native autonomous desktop agent that lives in your notch."
 ---
 
-<section class="zeus-hero">
-  <p class="section-heading">Mac App</p>
+<div class="zeus-ascii-hero">
+  <canvas id="zeus-ascii-canvas"></canvas>
+  <div class="zeus-ascii-fade"></div>
+</div>
+
+<main class="content">
+
+<section class="zeus-intro">
   <h1 class="zeus-title">Zeus</h1>
-  <p class="zeus-subtitle">
-    An autonomous desktop copilot for macOS that can plan tasks, use apps, and
-    ask for approval before high-impact actions.
-  </p>
-  <p class="zeus-summary">
-    Same agent-loop philosophy, but packaged as a focused Mac app for teams that
-    need speed without giving up control.
+  <p class="zeus-subtitle">An agent that works in the background while you do your thing.</p>
+  <p class="zeus-desc">
+    Runs on your Mac. No Mac Mini required. Zeus handles your inbox, calendar,
+    code, research, and messaging — quietly, safely, with approval before anything
+    that matters. Supports skills, tools, and multi-step workflows. Free and local.
   </p>
   <div class="zeus-actions">
-    <a class="zeus-button zeus-button-primary" href="https://github.com/arslnb/zeus" target="_blank" rel="noopener">View on GitHub</a>
-    <a class="zeus-button" href="{{ '/zeus/privacy/' | relative_url }}">Privacy</a>
-    <a class="zeus-button" href="{{ '/zeus/terms/' | relative_url }}">Terms</a>
+    <a class="zeus-button zeus-button-primary" href="https://github.com/arslnb/zeus/releases" target="_blank" rel="noopener">Download for Mac</a>
+    <span class="zeus-actions-sep">/</span>
+    <a class="zeus-button" href="https://github.com/arslnb/zeus" target="_blank" rel="noopener">Source</a>
   </div>
 </section>
 
-<section class="zeus-section" id="features">
-  <h2 class="section-heading">Core Capabilities</h2>
+<section class="zeus-section zeus-screenshot-section">
+  <div class="zeus-screen">
+    <div class="zeus-notch" id="zeus-notch">
+      <div class="zeus-notch-pill">
+        <div class="zeus-notch-cam"></div>
+      </div>
+      <div class="zeus-notch-panel">
+        <div class="zeus-notch-chat" id="zeus-notch-chat"></div>
+        <div class="zeus-notch-thinking" id="zeus-notch-thinking">
+          <div class="zeus-grid-icon" id="zeus-grid-icon">
+            <span></span><span></span><span></span>
+            <span></span><span></span><span></span>
+            <span></span><span></span><span></span>
+          </div>
+          <span class="zeus-thinking-text">Zeus is thinking<span class="zeus-thinking-dots" id="zeus-thinking-dots"></span></span>
+        </div>
+        <div class="zeus-notch-input">
+          <div class="zeus-input-bubble">
+            <span class="zeus-input-text" id="zeus-input-text">Ask Zeus anything...</span>
+            <span class="zeus-input-mic">&#9679;</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="zeus-screen-menubar">
+      <span class="zeus-menubar-left">
+        <span class="zeus-menubar-apple">&#63743;</span>
+        <span>Finder</span>
+        <span>File</span>
+        <span>Edit</span>
+        <span>View</span>
+      </span>
+      <span class="zeus-menubar-right">
+        <span>100%</span>
+        <span>Wi-Fi</span>
+        <span>Sat 10:32</span>
+      </span>
+    </div>
+    <div class="zeus-screen-desktop" id="zeus-desktop"></div>
+    <div class="zeus-dock">
+      <div class="zeus-dock-icon zeus-dock-finder"></div>
+      <div class="zeus-dock-icon zeus-dock-safari"></div>
+      <div class="zeus-dock-icon zeus-dock-mail"></div>
+      <div class="zeus-dock-icon zeus-dock-messages"></div>
+      <div class="zeus-dock-icon zeus-dock-calendar"></div>
+      <div class="zeus-dock-icon zeus-dock-notes"></div>
+      <div class="zeus-dock-icon zeus-dock-terminal"></div>
+      <div class="zeus-dock-icon zeus-dock-vscode"></div>
+      <div class="zeus-dock-sep"></div>
+      <div class="zeus-dock-icon zeus-dock-downloads"></div>
+      <div class="zeus-dock-icon zeus-dock-trash"></div>
+    </div>
+  </div>
+</section>
+
+<div class="zeus-tabs">
+  <button class="zeus-tab active" data-scenario="0">Organize Desktop</button>
+  <button class="zeus-tab" data-scenario="1">Deep Research</button>
+  <button class="zeus-tab" data-scenario="2">Morning Briefing</button>
+  <button class="zeus-tab" data-scenario="3">Schedule Meeting</button>
+  <button class="zeus-tab" data-scenario="4">Book a Table</button>
+</div>
+
+<section class="zeus-section">
+  <h2 class="section-heading">Simple Setup</h2>
+  <div class="zeus-steps">
+    <div class="zeus-step">
+      <span class="zeus-step-num">01</span>
+      <h3>Install the Mac app</h3>
+      <p>Download and run Zeus. It lives in your menu bar and notch — grant permissions and you're set.</p>
+    </div>
+    <div class="zeus-step">
+      <span class="zeus-step-num">02</span>
+      <h3>Deploy the messaging server</h3>
+      <p>One-click deploy the cloud relay for Telegram, WhatsApp, and iMessage channel support.</p>
+    </div>
+    <div class="zeus-step">
+      <span class="zeus-step-num">03</span>
+      <h3>Add the Chrome extension</h3>
+      <p>Install the browser extension for web automation — form filling, screenshots, and page control.</p>
+    </div>
+  </div>
+</section>
+
+<section class="zeus-section">
+  <h2 class="section-heading">Capabilities</h2>
   <ul class="zeus-feature-list">
     <li>
-      <h3>Desktop-Native Control</h3>
-      <p>Runs directly on Mac and interacts with real UI state instead of mocked browser-only flows.</p>
+      <h3>Inbox & Calendar</h3>
+      <p>Reads, drafts, and sends email and iMessages. Manages Apple and Google Calendar.</p>
+    </li>
+    <li>
+      <h3>Code & Shell</h3>
+      <p>Runs commands in a sandboxed shell. Reads, edits, and searches your codebase.</p>
+    </li>
+    <li>
+      <h3>Research & Web</h3>
+      <p>Browses the web, fetches pages, and runs background research autonomously.</p>
+    </li>
+    <li>
+      <h3>Skills & Tools</h3>
+      <p>Extensible with custom skills and MCP tool servers. Compose multi-step workflows.</p>
     </li>
     <li>
       <h3>Approval Gates</h3>
-      <p>Insert human checkpoints before sending emails, publishing content, or making irreversible changes.</p>
+      <p>Nothing leaves your machine without your say-so. Every sensitive action requires approval.</p>
     </li>
     <li>
-      <h3>Composable Tools</h3>
-      <p>Blend file operations, app actions, and model calls into repeatable workflows for daily operations.</p>
-    </li>
-    <li>
-      <h3>Auditable Runs</h3>
-      <p>Every action is traceable, making it easy to debug, review, and improve long-running automations.</p>
+      <h3>Memory</h3>
+      <p>Learns your preferences, contacts, and context over time. Gets better the more you use it.</p>
     </li>
   </ul>
 </section>
 
-<section class="zeus-section">
-  <h2 class="section-heading">How Teams Use Zeus</h2>
-  <div class="zeus-workflows">
-    <article class="zeus-workflow">
-      <h3>Support + Inbox Ops</h3>
-      <p>Draft replies, categorize threads, and prep follow-ups while humans approve outbound messages.</p>
-    </article>
-    <article class="zeus-workflow">
-      <h3>Growth Execution</h3>
-      <p>Collect metrics, prepare weekly updates, and assemble launch checklists from multiple apps.</p>
-    </article>
-    <article class="zeus-workflow">
-      <h3>Founder Workflows</h3>
-      <p>Handle repetitive desktop tasks so founder time stays focused on strategy and product decisions.</p>
-    </article>
+</main>
+
+<footer class="zeus-footer">
+  <div class="zeus-footer-inner">
+    <p class="zeus-footer-copy">&copy; {{ 'now' | date: '%Y' }} {{ site.author }}</p>
+    <div class="zeus-footer-links">
+      <a href="{{ '/zeus/privacy/' | relative_url }}">Privacy</a>
+      <a href="{{ '/zeus/terms/' | relative_url }}">Terms</a>
+      <a href="https://github.com/arslnb/zeus" target="_blank" rel="noopener">GitHub</a>
+    </div>
   </div>
-</section>
+</footer>
+
+<script src="{{ '/assets/js/zeus-ascii.js' | relative_url }}"></script>
