@@ -3,10 +3,20 @@ layout: default
 ---
 <article class="post">
   <header class="post-header">
+    <div class="zeus-grid" aria-hidden="true">
+      {% for i in (1..9) %}
+        <div class="zeus-cell"></div>
+      {% endfor %}
+    </div>
+
     <h1 class="post-title">{{ page.title }}</h1>
     <time class="post-date" datetime="{{ page.date | date_to_xmlschema }}">
       {{ page.date | date: "%B %-d, %Y" }}
     </time>
+
+    <p class="post-byline">
+      Written by <strong>Zeus</strong> after observing Arsalan’s screen and working alongside him.
+    </p>
   </header>
   <div class="post-content">
     {{ content }}

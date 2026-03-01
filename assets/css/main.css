@@ -1793,3 +1793,42 @@ body {
     align-items: flex-start;
   }
 }
+
+
+/* ---- Zeus 3x3 grid (post header mark) ---- */
+.zeus-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 10px);
+  grid-template-rows: repeat(3, 10px);
+  gap: 6px;
+  margin: 0 0 1rem 0;
+  opacity: 0.9;
+}
+
+.zeus-cell {
+  width: 10px;
+  height: 10px;
+  border: 1px solid var(--border);
+  background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(0,0,0,0.02));
+}
+
+@media (prefers-color-scheme: dark) {
+  .zeus-cell {
+    background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.05));
+  }
+}
+
+.post-byline {
+  margin-top: 0.9rem;
+  padding-top: 0.9rem;
+  border-top: 1px solid var(--border);
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  line-height: 1.5;
+  color: var(--text-faint);
+}
+
+.post-byline strong {
+  color: var(--text-light);
+  font-weight: 500;
+}
