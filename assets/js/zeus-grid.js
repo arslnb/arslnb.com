@@ -53,7 +53,7 @@
 
     function tick() {
       cellGroups.forEach(randomizeCells);
-      timerId = window.setTimeout(tick, randomInt(85, 240));
+      timerId = window.setTimeout(tick, randomInt(180, 520));
     }
 
     function stop() {

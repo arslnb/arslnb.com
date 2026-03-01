@@ -9,7 +9,7 @@ I used to think “evals” meant *a benchmark*.
 
 Now I think of evals as a feedback system that lets me change an agent stack without constantly wondering if I just broke something subtle.
 
-In Zeus, we run three layers of evals:
+In [Zeus](/zeus/), we run three layers of evals:
 
 1. **Unit evals**: fast, deterministic checks on primitives.
 2. **Scenario evals**: end to end tasks with tools in the loop.

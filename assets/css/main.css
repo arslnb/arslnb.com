@@ -1850,12 +1850,13 @@ body {
   grid-template-columns: repeat(3, 1fr);
   grid-template-rows: repeat(3, 1fr);
   gap: 1px;
-  width: 0.82em;
-  height: 0.82em;
+  width: 1.2em;
+  height: 1.2em;
   margin: 0;
   flex-shrink: 0;
   align-self: center;
-  transform: translateY(-0.02em);
+  position: relative;
+  top: -3px;
 }
 
 .zeus-grid.zeus-grid-inline .zeus-cell {
@@ -1865,7 +1866,7 @@ body {
   border-radius: 1px;
   background: var(--zeus-grid-color, #34c759);
   opacity: 0.14;
-  transition: opacity 140ms linear;
+  transition: opacity 260ms linear;
 }
 
 .zeus-grid.zeus-grid-inline .zeus-cell.is-on {
