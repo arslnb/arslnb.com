@@ -1850,8 +1850,8 @@ body {
   grid-template-columns: repeat(3, 1fr);
   grid-template-rows: repeat(3, 1fr);
   gap: 1px;
-  width: 0.72em;
-  height: 0.72em;
+  width: 0.82em;
+  height: 0.82em;
   margin: 0;
   flex-shrink: 0;
   align-self: center;
