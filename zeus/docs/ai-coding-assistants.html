@@ -35,6 +35,19 @@ Read these first and use them as source of truth:
 - https://github.com/arslnb/zeus-plugins
 - https://github.com/arslnb/zeus-plugins/tree/main/schemas
 
+Project scaffolding (use this flow first):
+1) If this repo is not zeus-plugins yet:
+   - git clone https://github.com/arslnb/zeus-plugins.git
+   - cd zeus-plugins
+   - python3 -m venv .venv
+   - source .venv/bin/activate
+   - python -m pip install -e .
+2) Generate scaffold with Zeus CLI:
+   - zeus plugin init <plugin_id> --runtime <daemon|channel|hybrid> --owner <owner>
+3) Validate immediately:
+   - zeus plugin check plugins/<plugin_id> --json
+4) If there are validation issues, fix them before adding new features.
+
 Requirements:
 1) Create zeus.plugin.json with schema_version, id, name, version, components, and config_schema.
 2) Create matching Python entrypoint files for all declared components.
@@ -45,7 +58,18 @@ Requirements:
 Output:
 - file tree
 - full file contents
-- exact commands for local verification</code></pre>
+- exact commands for local verification
+
+Plugin request (fill this in before running):
+- plugin_id:
+- plugin_name:
+- runtime: daemon | channel | hybrid
+- what this plugin should do:
+- external APIs/services:
+- required secrets/config:
+- expected input/output shape:
+- constraints (security, approvals, no-network, etc.):
+- done criteria (what must work end-to-end):</code></pre>
 </section>
 
 <section class="card">
