@@ -1,0 +1,5 @@
+# arslnb.com AI-readable Index
+
+- Zeus docs overview: https://arslnb.com/zeus/docs/
+- Zeus docs llms map: https://arslnb.com/zeus/docs/llms.txt
+- Zeus docs JSON index: https://arslnb.com/zeus/docs/agent-index.json

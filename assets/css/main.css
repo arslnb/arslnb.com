@@ -860,6 +860,34 @@ body {
   outline-offset: 1px;
 }
 
+.zeus-launch-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+  margin-top: 0.35rem;
+}
+
+.zeus-launch-btn {
+  border: 1px solid var(--border);
+  background: color-mix(in srgb, var(--bg) 93%, var(--text) 7%);
+  color: var(--text);
+  font-family: var(--font-mono);
+  font-size: 0.74rem;
+  border-radius: 999px;
+  padding: 0.45rem 0.8rem;
+  cursor: pointer;
+}
+
+.zeus-launch-btn:hover {
+  border-color: var(--text-faint);
+  background: color-mix(in srgb, var(--bg) 90%, var(--text) 10%);
+}
+
+.zeus-launch-btn:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--text) 40%, transparent);
+  outline-offset: 1px;
+}
+
 .zeus-docs-page code {
   font-family: var(--font-mono);
   font-size: 0.84rem;

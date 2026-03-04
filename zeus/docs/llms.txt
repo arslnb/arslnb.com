@@ -1,0 +1,16 @@
+# Zeus Documentation
+
+This file is for automated agents that need a concise map of Zeus docs pages.
+
+## Pages
+- How to Integrate with Zeus: https://arslnb.com/zeus/docs/ - Use these guides to connect your tools, channels, and workflows to Zeus.
+- Build Plugins with Codex and Claude Code: https://arslnb.com/zeus/docs/ai-coding-assistants/ - A practical guide to getting coding assistants to generate a Zeus plugin scaffold you can ship.
+- Zeus Plugins - API Reference: https://arslnb.com/zeus/docs/api-reference/ - Endpoints for install/search/config, OAuth flows, server activation, channels, and custom webhooks.
+- Zeus Plugins - Channel Plugin Example: https://arslnb.com/zeus/docs/examples-channel-plugin/ - Server-side channel adapter plus custom webhook route for provider callbacks.
+- Zeus Plugins - Channel Runtime: https://arslnb.com/zeus/docs/channel-plugins/ - How server plugins expose channels, custom webhooks, and outbound send operations.
+- Zeus Plugins - Daemon Plugin Example: https://arslnb.com/zeus/docs/examples-daemon-plugin/ - Python client component with tools, hooks, command/service/CLI/provider/gateway/http operations, and OAuth declaration.
+- Zeus Plugins - Daemon Runtime: https://arslnb.com/zeus/docs/daemon-plugins/ - How Zeus loads and executes plugin-defined tools, operations, and hooks on the Mac daemon.
+- Zeus Plugins - Getting Started: https://arslnb.com/zeus/docs/getting-started/ - Bare minimum files, manifest structure, and first install for Zeus plugins.
+- Zeus Plugins - Manifest Reference: https://arslnb.com/zeus/docs/manifest-reference/ - Complete contract for zeus.plugin.json (Zeus Native Plugins).
+- Zeus Plugins - OpenClaw Differences: https://arslnb.com/zeus/docs/openclaw-differences/ - Zeus plugins are loosely inspired by OpenClaw concepts, but are Zeus-native and Python-first.
+- Zeus Plugins - Troubleshooting: https://arslnb.com/zeus/docs/troubleshooting/ - Common plugin failures and fast fixes.

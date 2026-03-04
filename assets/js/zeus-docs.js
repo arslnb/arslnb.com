@@ -40,6 +40,52 @@
     });
   }
 
+  function bindAssistantLaunchButtons() {
+    var deepLinks = {
+      codex: 'codex://new?prompt=',
+      claude: 'claude://new?prompt='
+    };
+
+    var webLinks = {
+      codex: 'https://chatgpt.com/?q=',
+      claude: 'https://claude.ai/new?q='
+    };
+
+    var buttons = document.querySelectorAll('.zeus-launch-btn');
+    buttons.forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var assistant = btn.getAttribute('data-assistant');
+        var promptSelector = btn.getAttribute('data-prompt-source');
+        var promptEl = promptSelector ? document.querySelector(promptSelector) : null;
+        var prompt = (promptEl ? (promptEl.innerText || promptEl.textContent || '') : '').trim();
+        if (!assistant || !prompt) return;
+
+        copyText(prompt).catch(function () {});
+
+        var deep = deepLinks[assistant];
+        var web = webLinks[assistant];
+        if (!web) return;
+
+        var encoded = encodeURIComponent(prompt);
+        var didHide = false;
+
+        function onVisibilityChange() {
+          if (document.hidden) didHide = true;
+        }
+
+        document.addEventListener('visibilitychange', onVisibilityChange, { once: true });
+
+        if (deep) {
+          window.location.href = deep + encoded;
+        }
+
+        window.setTimeout(function () {
+          if (!didHide) window.open(web + encoded, '_blank', 'noopener');
+        }, 850);
+      });
+    });
+  }
+
   function attachCopyButtons() {
     var blocks = document.querySelectorAll('.zeus-docs-page pre');
     blocks.forEach(function (pre) {
@@ -87,6 +133,7 @@
   function init() {
     highlightBlocks();
     attachCopyButtons();
+    bindAssistantLaunchButtons();
   }
 
   if (document.readyState === 'loading') {

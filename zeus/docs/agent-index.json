@@ -1,0 +1,68 @@
+[
+  {
+    "slug": "index",
+    "title": "How to Integrate with Zeus",
+    "url": "/zeus/docs/",
+    "description": "Use these guides to connect your tools, channels, and workflows to Zeus."
+  },
+  {
+    "slug": "ai-coding-assistants",
+    "title": "Build Plugins with Codex and Claude Code",
+    "url": "/zeus/docs/ai-coding-assistants/",
+    "description": "A practical guide to getting coding assistants to generate a Zeus plugin scaffold you can ship."
+  },
+  {
+    "slug": "api-reference",
+    "title": "Zeus Plugins - API Reference",
+    "url": "/zeus/docs/api-reference/",
+    "description": "Endpoints for install/search/config, OAuth flows, server activation, channels, and custom webhooks."
+  },
+  {
+    "slug": "examples-channel-plugin",
+    "title": "Zeus Plugins - Channel Plugin Example",
+    "url": "/zeus/docs/examples-channel-plugin/",
+    "description": "Server-side channel adapter plus custom webhook route for provider callbacks."
+  },
+  {
+    "slug": "channel-plugins",
+    "title": "Zeus Plugins - Channel Runtime",
+    "url": "/zeus/docs/channel-plugins/",
+    "description": "How server plugins expose channels, custom webhooks, and outbound send operations."
+  },
+  {
+    "slug": "examples-daemon-plugin",
+    "title": "Zeus Plugins - Daemon Plugin Example",
+    "url": "/zeus/docs/examples-daemon-plugin/",
+    "description": "Python client component with tools, hooks, command/service/CLI/provider/gateway/http operations, and OAuth declaration."
+  },
+  {
+    "slug": "daemon-plugins",
+    "title": "Zeus Plugins - Daemon Runtime",
+    "url": "/zeus/docs/daemon-plugins/",
+    "description": "How Zeus loads and executes plugin-defined tools, operations, and hooks on the Mac daemon."
+  },
+  {
+    "slug": "getting-started",
+    "title": "Zeus Plugins - Getting Started",
+    "url": "/zeus/docs/getting-started/",
+    "description": "Bare minimum files, manifest structure, and first install for Zeus plugins."
+  },
+  {
+    "slug": "manifest-reference",
+    "title": "Zeus Plugins - Manifest Reference",
+    "url": "/zeus/docs/manifest-reference/",
+    "description": "Complete contract for zeus.plugin.json (Zeus Native Plugins)."
+  },
+  {
+    "slug": "openclaw-differences",
+    "title": "Zeus Plugins - OpenClaw Differences",
+    "url": "/zeus/docs/openclaw-differences/",
+    "description": "Zeus plugins are loosely inspired by OpenClaw concepts, but are Zeus-native and Python-first."
+  },
+  {
+    "slug": "troubleshooting",
+    "title": "Zeus Plugins - Troubleshooting",
+    "url": "/zeus/docs/troubleshooting/",
+    "description": "Common plugin failures and fast fixes."
+  }
+]

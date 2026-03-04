@@ -1,6 +1,7 @@
 ---
 layout: zeus-docs
 title: "Build Plugins with Codex and Claude Code"
+description: "A practical guide to getting coding assistants to generate a Zeus plugin scaffold you can ship."
 doc_slug: "ai-coding-assistants"
 permalink: "/zeus/docs/ai-coding-assistants/"
 ---
@@ -10,6 +11,33 @@ permalink: "/zeus/docs/ai-coding-assistants/"
   <h1>Build Plugins with Codex and Claude Code</h1>
   <p>A practical guide to getting coding assistants to generate a Zeus plugin scaffold you can ship.</p>
 </header>
+
+<section class="card">
+  <h2>Start with One Click</h2>
+  <p>These buttons copy a starter prompt, attempt to open the desktop app, and fall back to a prefilled web composer.</p>
+  <div class="zeus-launch-row">
+    <button class="zeus-launch-btn" data-assistant="codex" data-prompt-source="#zeus-assistant-starter-prompt" type="button">Open in Codex</button>
+    <button class="zeus-launch-btn" data-assistant="claude" data-prompt-source="#zeus-assistant-starter-prompt" type="button">Open in Claude</button>
+  </div>
+  <p class="note">If deep-linking is blocked on your system, the prompt is still copied and opened in a browser tab.</p>
+</section>
+
+<section class="card">
+  <h2>Starter Prompt</h2>
+  <pre><code id="zeus-assistant-starter-prompt">Build a Zeus plugin scaffold in this repository.
+
+Requirements:
+1) Create zeus.plugin.json with schema_version, id, name, version, components, and config_schema.
+2) Create matching Python entrypoint files for all declared components.
+3) Implement one real end-to-end capability (no TODO placeholders).
+4) Include install and config API calls I can run immediately.
+5) Add a short troubleshooting section for common setup failures.
+
+Output:
+- file tree
+- full file contents
+- exact commands for local verification</code></pre>
+</section>
 
 <section class="card">
   <h2>What to Ask For</h2>
