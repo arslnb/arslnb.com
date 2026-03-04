@@ -631,7 +631,7 @@ body {
 }
 
 .zeus-docs-content {
-  max-width: 1180px;
+  max-width: 1080px;
   padding-top: 1.15rem;
 }
 
@@ -645,10 +645,9 @@ body {
 .zeus-docs-sidebar {
   position: sticky;
   top: 1rem;
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 0.9rem 0.85rem;
-  background: color-mix(in srgb, var(--bg) 97%, var(--text) 3%);
+  border-left: 1px solid var(--border);
+  padding: 0 0 0 0.85rem;
+  background: transparent;
 }
 
 .zeus-docs-sidebar-title {
@@ -668,8 +667,8 @@ body {
 
 .zeus-docs-sidebar-nav a {
   display: block;
-  padding: 0.38rem 0.5rem;
-  border-radius: 7px;
+  padding: 0.35rem 0.45rem;
+  border-radius: 6px;
   font-family: var(--font-mono);
   font-size: 0.74rem;
   line-height: 1.4;
@@ -679,12 +678,12 @@ body {
 
 .zeus-docs-sidebar-nav a:hover {
   color: var(--text);
-  background: color-mix(in srgb, var(--bg) 92%, var(--text) 8%);
+  background: color-mix(in srgb, var(--bg) 94%, var(--text) 6%);
 }
 
 .zeus-docs-sidebar-nav a.is-active {
   color: var(--text);
-  background: color-mix(in srgb, var(--bg) 88%, var(--text) 12%);
+  background: color-mix(in srgb, var(--bg) 90%, var(--text) 10%);
 }
 
 .zeus-docs-article {
@@ -696,14 +695,12 @@ body {
 }
 
 .zeus-docs-page .hero {
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 1rem 1.1rem;
+  border: 0;
+  border-bottom: 1px solid var(--border);
+  border-radius: 0;
+  padding: 0 0 0.95rem;
   margin-bottom: 1rem;
-  background:
-    linear-gradient(170deg,
-      color-mix(in srgb, var(--bg) 90%, var(--text) 10%) 0%,
-      color-mix(in srgb, var(--bg) 95%, var(--text) 5%) 100%);
+  background: transparent;
 }
 
 .zeus-docs-page .hero h1 {
@@ -740,12 +737,25 @@ body {
   background: color-mix(in srgb, var(--bg) 94%, var(--text) 6%);
 }
 
-.zeus-docs-page .card {
-  background: color-mix(in srgb, var(--bg) 97%, var(--text) 3%);
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  padding: 0.95rem 1rem;
-  margin-bottom: 0.75rem;
+.zeus-docs-page > .card {
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  padding: 0;
+  margin: 0 0 1.35rem;
+}
+
+.zeus-docs-page > .card + .card {
+  padding-top: 1rem;
+  border-top: 1px solid var(--border);
+}
+
+.zeus-docs-page .grid > .card {
+  background: transparent;
+  border: 1px solid color-mix(in srgb, var(--border) 70%, transparent);
+  border-radius: 8px;
+  padding: 0.75rem;
+  margin: 0;
 }
 
 .zeus-docs-page .card h2 {
@@ -833,6 +843,8 @@ body {
   width: 100%;
   border-collapse: collapse;
   margin: 0.65rem 0;
+  display: block;
+  overflow-x: auto;
 }
 
 .zeus-docs-page th,
@@ -872,12 +884,21 @@ body {
 
   .zeus-docs-sidebar {
     position: static;
+    border-left: 0;
+    padding-left: 0;
   }
 
   .zeus-docs-sidebar-nav {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    display: flex;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    padding-bottom: 0.2rem;
     gap: 0.25rem;
+  }
+
+  .zeus-docs-sidebar-nav a {
+    white-space: nowrap;
+    border: 1px solid var(--border);
   }
 
   .zeus-docs-content {
@@ -885,7 +906,30 @@ body {
   }
 
   .zeus-docs-page .card {
-    padding: 0.85rem;
+    padding: 0;
+  }
+}
+
+@media (min-width: 701px) and (max-width: 980px) {
+  .zeus-docs-shell {
+    grid-template-columns: 1fr;
+    gap: 0.8rem;
+  }
+
+  .zeus-docs-sidebar {
+    position: static;
+    border-left: 0;
+    padding-left: 0;
+  }
+
+  .zeus-docs-sidebar-nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.3rem;
+  }
+
+  .zeus-docs-sidebar-nav a {
+    border: 1px solid var(--border);
   }
 }
 
