@@ -13,9 +13,9 @@
   },
   {
     "slug": "plugin-registry",
-    "title": "Publish to the Zeus Plugin Registry",
+    "title": "Publish a Plugin",
     "url": "/zeus/docs/plugin-registry/",
-    "description": "How to submit your plugin via pull request so Zeus users can discover and install it."
+    "description": "How to submit your Zeus plugin so it appears in the public directory."
   },
   {
     "slug": "api-reference",

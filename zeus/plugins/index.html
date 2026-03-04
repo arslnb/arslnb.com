@@ -1,0 +1,52 @@
+---
+layout: zeus
+title: Plugins
+description: "Browse community Zeus plugins from the shared zeus-plugins registry."
+permalink: "/zeus/plugins/"
+---
+
+<div class="zeus-ascii-hero">
+  <canvas id="zeus-ascii-canvas"></canvas>
+  <div class="zeus-ascii-fade"></div>
+</div>
+
+<header class="zeus-docs-masthead">
+  <div class="zeus-docs-masthead-inner">
+    <p class="zeus-docs-kicker">
+      <span class="zeus-grid zeus-grid-inline zeus-docs-kicker-grid" aria-hidden="true">
+        {% for i in (1..9) %}
+          <span class="zeus-cell"></span>
+        {% endfor %}
+      </span>
+      Zeus Plugin Directory
+    </p>
+    <nav class="zeus-docs-links" aria-label="Plugins links">
+      <a href="{{ '/zeus/' | relative_url }}">about</a>
+      <a href="{{ '/zeus/docs/' | relative_url }}">docs</a>
+      <a href="{{ '/zeus/plugins/' | relative_url }}">plugins</a>
+    </nav>
+  </div>
+</header>
+
+<main class="content zeus-plugins-content">
+  <section class="zeus-plugins-intro">
+    <h1>Community Plugins</h1>
+    <p>
+      Live index from
+      <a href="https://github.com/arslnb/zeus-plugins" target="_blank" rel="noopener">github.com/arslnb/zeus-plugins</a>.
+      Use <code>zeus plugin init</code> to scaffold and <code>zeus plugin check --json</code> before opening a PR.
+    </p>
+    <div class="zeus-plugins-meta" id="plugins-meta" aria-live="polite">Loading plugin index…</div>
+  </section>
+
+  <section class="zeus-plugins-grid" id="plugins-grid" aria-live="polite"></section>
+
+  <section class="zeus-plugins-empty" id="plugins-empty" hidden>
+    <p>Could not load plugins right now.</p>
+    <p>Try the source repo directly: <a href="https://github.com/arslnb/zeus-plugins" target="_blank" rel="noopener">arslnb/zeus-plugins</a>.</p>
+  </section>
+</main>
+
+<script src="{{ '/assets/js/zeus-ascii.js' | relative_url }}"></script>
+<script src="{{ '/assets/js/zeus-grid.js' | relative_url }}"></script>
+<script src="{{ '/assets/js/plugins-directory.js' | relative_url }}"></script>
