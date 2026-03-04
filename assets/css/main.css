@@ -631,8 +631,64 @@ body {
 }
 
 .zeus-docs-content {
-  max-width: 1080px;
-  padding-top: 1.25rem;
+  max-width: 1180px;
+  padding-top: 1.15rem;
+}
+
+.zeus-docs-shell {
+  display: grid;
+  grid-template-columns: 250px minmax(0, 1fr);
+  gap: 1rem;
+  align-items: start;
+}
+
+.zeus-docs-sidebar {
+  position: sticky;
+  top: 1rem;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 0.9rem 0.85rem;
+  background: color-mix(in srgb, var(--bg) 97%, var(--text) 3%);
+}
+
+.zeus-docs-sidebar-title {
+  margin: 0 0 0.55rem;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: var(--text-faint);
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+}
+
+.zeus-docs-sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 0.18rem;
+}
+
+.zeus-docs-sidebar-nav a {
+  display: block;
+  padding: 0.38rem 0.5rem;
+  border-radius: 7px;
+  font-family: var(--font-mono);
+  font-size: 0.74rem;
+  line-height: 1.4;
+  color: var(--text-light);
+  text-decoration: none;
+}
+
+.zeus-docs-sidebar-nav a:hover {
+  color: var(--text);
+  background: color-mix(in srgb, var(--bg) 92%, var(--text) 8%);
+}
+
+.zeus-docs-sidebar-nav a.is-active {
+  color: var(--text);
+  background: color-mix(in srgb, var(--bg) 88%, var(--text) 12%);
+}
+
+.zeus-docs-article {
+  min-width: 0;
 }
 
 .zeus-docs-page {
@@ -664,10 +720,7 @@ body {
 }
 
 .zeus-docs-page .topnav {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-  margin: 0 0 1rem;
+  display: none;
 }
 
 .zeus-docs-page .topnav a {
@@ -697,9 +750,10 @@ body {
 
 .zeus-docs-page .card h2 {
   margin-top: 0;
-  margin-bottom: 0.55rem;
-  font-size: 1.15rem;
-  line-height: 1.3;
+  margin-bottom: 0.6rem;
+  font-size: 1.2rem;
+  line-height: 1.28;
+  letter-spacing: -0.01em;
 }
 
 .zeus-docs-page .card h3 {
@@ -711,7 +765,7 @@ body {
 }
 
 .zeus-docs-page p {
-  margin: 0.55rem 0;
+  margin: 0.62rem 0;
   color: var(--text-light);
   line-height: 1.65;
 }
@@ -809,6 +863,21 @@ body {
     flex-direction: column;
     align-items: flex-start;
     gap: 0.5rem;
+  }
+
+  .zeus-docs-shell {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+
+  .zeus-docs-sidebar {
+    position: static;
+  }
+
+  .zeus-docs-sidebar-nav {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.25rem;
   }
 
   .zeus-docs-content {

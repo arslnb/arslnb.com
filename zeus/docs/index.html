@@ -1,8 +1,9 @@
 ---
 layout: zeus-docs
 title: "Zeus Plugin Developer Docs"
+doc_slug: "index"
+permalink: "/zeus/docs/"
 ---
-
 {% raw %}
 <div class="zeus-docs-page">
 <header class="hero">
@@ -10,27 +11,14 @@ title: "Zeus Plugin Developer Docs"
       <p>Build Zeus-native Python plugins for local daemon runtime and server channel runtime.</p>
     </header>
 
-    <nav class="topnav">
-      <a href="/zeus/docs/index.html">Home</a>
-      <a href="/zeus/docs/getting-started.html">Getting Started</a>
-      <a href="/zeus/docs/manifest-reference.html">Manifest</a>
-      <a href="/zeus/docs/daemon-plugins.html">Daemon Runtime</a>
-      <a href="/zeus/docs/channel-plugins.html">Channel Runtime</a>
-      <a href="/zeus/docs/api-reference.html">APIs</a>
-      <a href="/zeus/docs/examples-daemon-plugin.html">Daemon Example</a>
-      <a href="/zeus/docs/examples-channel-plugin.html">Channel Example</a>
-      <a href="/zeus/docs/openclaw-differences.html">OpenClaw Differences</a>
-      <a href="/zeus/docs/troubleshooting.html">Troubleshooting</a>
-    </nav>
-
     <section class="card">
       <h2>Recommended Reading Order</h2>
       <ol>
-        <li><a href="/zeus/docs/getting-started.html">Getting Started</a> for minimum files and first install.</li>
-        <li><a href="/zeus/docs/manifest-reference.html">Manifest Reference</a> for full schema and policy fields.</li>
-        <li><a href="/zeus/docs/daemon-plugins.html">Daemon Runtime</a> and <a href="/zeus/docs/channel-plugins.html">Channel Runtime</a> for execution behavior.</li>
-        <li><a href="/zeus/docs/api-reference.html">API Reference</a> for install, config, OAuth, and channel routes.</li>
-        <li><a href="/zeus/docs/examples-daemon-plugin.html">Daemon Example</a> and <a href="/zeus/docs/examples-channel-plugin.html">Channel Example</a>.</li>
+        <li><a href="/zeus/docs/getting-started/">Getting Started</a> for minimum files and first install.</li>
+        <li><a href="/zeus/docs/manifest-reference/">Manifest Reference</a> for full schema and policy fields.</li>
+        <li><a href="/zeus/docs/daemon-plugins/">Daemon Runtime</a> and <a href="/zeus/docs/channel-plugins/">Channel Runtime</a> for execution behavior.</li>
+        <li><a href="/zeus/docs/api-reference/">API Reference</a> for install, config, OAuth, and channel routes.</li>
+        <li><a href="/zeus/docs/examples-daemon-plugin/">Daemon Example</a> and <a href="/zeus/docs/examples-channel-plugin/">Channel Example</a>.</li>
       </ol>
     </section>
 
@@ -78,13 +66,13 @@ title: "Zeus Plugin Developer Docs"
         <li>At least one entry file matching your manifest: <code>client/plugin.py</code> and/or <code>server/plugin.py</code>.</li>
         <li><code>config_schema</code> entries for all required runtime config/secrets.</li>
       </ul>
-      <p class="note">Start with <a href="/zeus/docs/getting-started.html">Getting Started</a> for a copy/paste minimal scaffold.</p>
+      <p class="note">Start with <a href="/zeus/docs/getting-started/">Getting Started</a> for a copy/paste minimal scaffold.</p>
     </section>
 
     <section class="card">
       <h2>Design Lineage</h2>
       <p>Zeus plugin architecture is loosely inspired by OpenClaw plugin concepts, but implemented as Python-first runtime contracts and Zeus-specific APIs/security semantics.</p>
-      <p>See <a href="/zeus/docs/openclaw-differences.html">OpenClaw Differences</a> before porting existing plugins.</p>
+      <p>See <a href="/zeus/docs/openclaw-differences/">OpenClaw Differences</a> before porting existing plugins.</p>
     </section>
 
     <footer>

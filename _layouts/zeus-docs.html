@@ -16,7 +16,7 @@ layout: zeus
       </span>
       Zeus Plugin Developer Docs
     </p>
-    <nav class="zeus-docs-links">
+    <nav class="zeus-docs-links" aria-label="Zeus links">
       <a href="{{ '/zeus/' | relative_url }}">Zeus</a>
       <a href="{{ '/zeus/docs/' | relative_url }}">Docs Home</a>
     </nav>
@@ -24,7 +24,27 @@ layout: zeus
 </header>
 
 <main class="content zeus-docs-content">
-  {{ content }}
+  <div class="zeus-docs-shell">
+    <aside class="zeus-docs-sidebar" aria-label="Documentation sections">
+      <p class="zeus-docs-sidebar-title">Plugin Docs</p>
+      <nav class="zeus-docs-sidebar-nav">
+        <a class="{% if page.doc_slug == 'index' %}is-active{% endif %}" href="{{ '/zeus/docs/' | relative_url }}">Overview</a>
+        <a class="{% if page.doc_slug == 'getting-started' %}is-active{% endif %}" href="{{ '/zeus/docs/getting-started/' | relative_url }}">Getting Started</a>
+        <a class="{% if page.doc_slug == 'manifest-reference' %}is-active{% endif %}" href="{{ '/zeus/docs/manifest-reference/' | relative_url }}">Manifest Reference</a>
+        <a class="{% if page.doc_slug == 'daemon-plugins' %}is-active{% endif %}" href="{{ '/zeus/docs/daemon-plugins/' | relative_url }}">Daemon Runtime</a>
+        <a class="{% if page.doc_slug == 'channel-plugins' %}is-active{% endif %}" href="{{ '/zeus/docs/channel-plugins/' | relative_url }}">Channel Runtime</a>
+        <a class="{% if page.doc_slug == 'api-reference' %}is-active{% endif %}" href="{{ '/zeus/docs/api-reference/' | relative_url }}">API Reference</a>
+        <a class="{% if page.doc_slug == 'examples-daemon-plugin' %}is-active{% endif %}" href="{{ '/zeus/docs/examples-daemon-plugin/' | relative_url }}">Daemon Example</a>
+        <a class="{% if page.doc_slug == 'examples-channel-plugin' %}is-active{% endif %}" href="{{ '/zeus/docs/examples-channel-plugin/' | relative_url }}">Channel Example</a>
+        <a class="{% if page.doc_slug == 'openclaw-differences' %}is-active{% endif %}" href="{{ '/zeus/docs/openclaw-differences/' | relative_url }}">OpenClaw Differences</a>
+        <a class="{% if page.doc_slug == 'troubleshooting' %}is-active{% endif %}" href="{{ '/zeus/docs/troubleshooting/' | relative_url }}">Troubleshooting</a>
+      </nav>
+    </aside>
+
+    <article class="zeus-docs-article">
+      {{ content }}
+    </article>
+  </div>
 </main>
 
 <script src="{{ '/assets/js/zeus-ascii.js' | relative_url }}"></script>
