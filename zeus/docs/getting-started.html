@@ -53,6 +53,23 @@ permalink: "/zeus/docs/getting-started/"
     </section>
 
     <section class="card">
+      <h2>Fast Path: Scaffold with Zeus CLI</h2>
+      <p>Use the shared registry repo tooling to generate a valid starter plugin quickly.</p>
+      <pre><code>git clone https://github.com/arslnb/zeus-plugins.git
+cd zeus-plugins
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install -e .
+
+# Create scaffold
+zeus plugin init acme_demo --runtime daemon --owner acme
+
+# Validate with machine-readable output
+zeus plugin check plugins/acme_demo --json</code></pre>
+      <p class="note">Registry repo: <a href="https://github.com/arslnb/zeus-plugins" target="_blank" rel="noopener">github.com/arslnb/zeus-plugins</a>.</p>
+    </section>
+
+    <section class="card">
       <h2>3) Bare Minimum Manifest</h2>
       <pre><code>{
   "schema_version": 1,

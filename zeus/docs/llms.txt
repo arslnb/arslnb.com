@@ -2,6 +2,10 @@
 
 This file is for automated agents that need a concise map of Zeus docs pages.
 
+## Registry
+- Zeus plugins repo: https://github.com/arslnb/zeus-plugins
+- Zeus public plugin directory: https://arslnb.com/plugins/
+
 ## Pages
 - How to Integrate with Zeus: https://arslnb.com/zeus/docs/ - Use these guides to connect your tools, channels, and workflows to Zeus.
 - Build Plugins with Codex and Claude Code: https://arslnb.com/zeus/docs/ai-coding-assistants/ - A practical guide to getting coding assistants to generate a Zeus plugin scaffold you can ship.

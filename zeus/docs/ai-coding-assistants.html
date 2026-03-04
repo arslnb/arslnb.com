@@ -141,6 +141,13 @@ Constraints:
 </section>
 
 <section class="card">
+  <h2>Use the Shared CLI + Schemas</h2>
+  <p>Ask agents to work inside <a href="https://github.com/arslnb/zeus-plugins" target="_blank" rel="noopener">arslnb/zeus-plugins</a> so scaffold and validation are standardized.</p>
+  <pre><code>zeus plugin init my_plugin --runtime daemon --owner yourname
+zeus plugin check plugins/my_plugin --json</code></pre>
+</section>
+
+<section class="card">
   <h2>Quality Checklist Before You Ship</h2>
   <ul class="compact">
     <li>Manifest fields match actual entry files.</li>

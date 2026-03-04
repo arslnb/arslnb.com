@@ -14,7 +14,7 @@ permalink: "/zeus/docs/plugin-registry/"
 
 <section class="card">
   <h2>Should This Be a Separate Repo?</h2>
-  <p><strong>Yes.</strong> Keep plugin registry submissions in a dedicated repository (for example: <code>zeus-plugin-registry</code>).</p>
+  <p><strong>Yes.</strong> Keep plugin registry submissions in a dedicated repository: <a href="https://github.com/arslnb/zeus-plugins" target="_blank" rel="noopener"><code>arslnb/zeus-plugins</code></a>.</p>
   <ul class="compact">
     <li>Cleaner trust boundary: plugin submissions are reviewed separately from Zeus core.</li>
     <li>Faster iteration: registry metadata and plugin updates can ship independently.</li>
@@ -25,14 +25,32 @@ permalink: "/zeus/docs/plugin-registry/"
 
 <section class="card">
   <h2>Submission Mechanism</h2>
-  <p>Use a standard pull-request flow against <code>arslnb/zeus-plugin-registry</code>:</p>
+  <p>Use a standard pull-request flow against <code>arslnb/zeus-plugins</code>:</p>
   <ol>
     <li>Contributor forks the registry repo and creates a branch.</li>
     <li>They add one folder under <code>plugins/&lt;plugin_id&gt;/</code> with manifest, metadata, and docs.</li>
     <li>They open a PR using a required PR template.</li>
     <li>CI validates JSON schema, required fields, and file presence.</li>
-    <li>On merge, Zeus reads the updated registry index and exposes new plugins to all users.</li>
+    <li>On merge, Zeus reads <code>index.json</code> and exposes new plugins to all users.</li>
   </ol>
+</section>
+
+<section class="card">
+  <h2>Use Zeus CLI for Scaffold + Validation</h2>
+  <pre><code>git clone https://github.com/arslnb/zeus-plugins.git
+cd zeus-plugins
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install -e .
+
+# Generate a plugin starter
+zeus plugin init acme_demo --runtime daemon --owner acme
+
+# Check a plugin (machine-readable)
+zeus plugin check plugins/acme_demo --json
+
+# Check full registry before PR
+zeus plugin check . --registry --json</code></pre>
 </section>
 
 <section class="card">
@@ -42,11 +60,11 @@ permalink: "/zeus/docs/plugin-registry/"
     <button class="zeus-launch-btn" data-assistant="codex" data-prompt-source="#zeus-registry-pr-prompt" type="button">Open in Codex</button>
     <button class="zeus-launch-btn" data-assistant="claude" data-prompt-source="#zeus-registry-pr-prompt" type="button">Open in Claude</button>
   </div>
-  <pre><code id="zeus-registry-pr-prompt">Prepare this plugin for submission to the Zeus plugin registry repository.
+  <pre><code id="zeus-registry-pr-prompt">Prepare this plugin for submission to github.com/arslnb/zeus-plugins.
 
 Tasks:
 1) Validate zeus.plugin.json and ensure runtime entries are real.
-2) Add a registry listing file with slug, title, version, categories, and compatibility.
+2) Add metadata.json and index.json entry.
 3) Add install/config examples and a short README.
 4) Add a PR summary with:
    - capability overview
@@ -63,7 +81,7 @@ Return:
 
 <section class="card">
   <h2>Recommended Registry Structure</h2>
-  <pre><code>zeus-plugin-registry/
+  <pre><code>zeus-plugins/
   .github/
     pull_request_template.md
     workflows/
@@ -159,8 +177,8 @@ jobs:
 <section class="card">
   <h2>PR Workflow</h2>
   <h3>1) Fork + branch</h3>
-  <pre><code>git clone https://github.com/arslnb/zeus-plugin-registry.git
-cd zeus-plugin-registry
+  <pre><code>git clone https://github.com/arslnb/zeus-plugins.git
+cd zeus-plugins
 git checkout -b add-acme-demo-1-0-0</code></pre>
 
   <h3>2) Add plugin files</h3>
@@ -173,7 +191,7 @@ git commit -m "Add acme_demo plugin v1.0.0"</code></pre>
 
   <h3>4) Push and open PR</h3>
   <pre><code>git push origin add-acme-demo-1-0-0
-gh pr create --repo arslnb/zeus-plugin-registry \
+gh pr create --repo arslnb/zeus-plugins \
   --title "Add acme_demo plugin v1.0.0" \
   --body "Adds acme_demo plugin with install/config examples and metadata."</code></pre>
 </section>
@@ -190,7 +208,7 @@ gh pr create --repo arslnb/zeus-plugin-registry \
 </section>
 
 <footer>
-  Publish from a separate registry repo; keep Zeus core and community plugin ingestion decoupled.
+  Publish from <code>arslnb/zeus-plugins</code>; browse live listings at <a href="/plugins/">/plugins</a>.
 </footer>
 </div>
 {% endraw %}
