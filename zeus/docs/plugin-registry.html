@@ -1,0 +1,196 @@
+---
+layout: zeus-docs
+title: "Publish to the Zeus Plugin Registry"
+description: "How to submit your plugin via pull request so Zeus users can discover and install it."
+doc_slug: "plugin-registry"
+permalink: "/zeus/docs/plugin-registry/"
+---
+{% raw %}
+<div class="zeus-docs-page">
+<header class="hero">
+  <h1>Publish to the Zeus Plugin Registry</h1>
+  <p>Once your plugin works locally, open a PR to a shared registry so the community can use it.</p>
+</header>
+
+<section class="card">
+  <h2>Should This Be a Separate Repo?</h2>
+  <p><strong>Yes.</strong> Keep plugin registry submissions in a dedicated repository (for example: <code>zeus-plugin-registry</code>).</p>
+  <ul class="compact">
+    <li>Cleaner trust boundary: plugin submissions are reviewed separately from Zeus core.</li>
+    <li>Faster iteration: registry metadata and plugin updates can ship independently.</li>
+    <li>Simpler governance: contributors only need registry access patterns, not core repo internals.</li>
+    <li>Better discoverability: one canonical place for all public plugin listings.</li>
+  </ul>
+</section>
+
+<section class="card">
+  <h2>Submission Mechanism</h2>
+  <p>Use a standard pull-request flow against <code>arslnb/zeus-plugin-registry</code>:</p>
+  <ol>
+    <li>Contributor forks the registry repo and creates a branch.</li>
+    <li>They add one folder under <code>plugins/&lt;plugin_id&gt;/</code> with manifest, metadata, and docs.</li>
+    <li>They open a PR using a required PR template.</li>
+    <li>CI validates JSON schema, required fields, and file presence.</li>
+    <li>On merge, Zeus reads the updated registry index and exposes new plugins to all users.</li>
+  </ol>
+</section>
+
+<section class="card">
+  <h2>One-Click Prompt for PR Packaging</h2>
+  <p>Use this prompt to have Codex or Claude prepare a registry-ready submission package.</p>
+  <div class="zeus-launch-row">
+    <button class="zeus-launch-btn" data-assistant="codex" data-prompt-source="#zeus-registry-pr-prompt" type="button">Open in Codex</button>
+    <button class="zeus-launch-btn" data-assistant="claude" data-prompt-source="#zeus-registry-pr-prompt" type="button">Open in Claude</button>
+  </div>
+  <pre><code id="zeus-registry-pr-prompt">Prepare this plugin for submission to the Zeus plugin registry repository.
+
+Tasks:
+1) Validate zeus.plugin.json and ensure runtime entries are real.
+2) Add a registry listing file with slug, title, version, categories, and compatibility.
+3) Add install/config examples and a short README.
+4) Add a PR summary with:
+   - capability overview
+   - required secrets/config
+   - security notes
+   - test commands and output
+5) Generate the exact git/gh commands needed to open the PR.
+
+Return:
+- full file tree for the registry submission
+- complete file contents
+- copy-paste commands to open a PR.</code></pre>
+</section>
+
+<section class="card">
+  <h2>Recommended Registry Structure</h2>
+  <pre><code>zeus-plugin-registry/
+  .github/
+    pull_request_template.md
+    workflows/
+      validate-registry.yml
+  plugins/
+    acme_demo/
+      zeus.plugin.json
+      README.md
+      CHANGELOG.md
+      examples/
+        install.json
+        config.json
+      metadata.json
+  index.json
+  CONTRIBUTING.md
+  LICENSE</code></pre>
+</section>
+
+<section class="card">
+  <h2>Metadata Format (Suggested)</h2>
+  <pre><code>{
+  "id": "acme_demo",
+  "name": "Acme Demo",
+  "version": "1.0.0",
+  "summary": "Looks up customer records and syncs notes",
+  "owner": "acme",
+  "runtime": ["client", "server"],
+  "categories": ["support", "crm"],
+  "min_zeus_version": "1.0.0",
+  "source_repo": "https://github.com/acme/zeus-acme-plugin",
+  "license": "MIT"
+}</code></pre>
+</section>
+
+<section class="card">
+  <h2>Required PR Template (Suggested)</h2>
+  <pre><code>## Plugin Summary
+- Plugin ID:
+- Version:
+- Runtime: daemon / channel / hybrid
+- Repository URL:
+
+## What This Plugin Does
+- 
+
+## Required Config and Secrets
+- 
+
+## Safety Notes
+- Network/tooling access:
+- Sensitive operations:
+
+## Validation
+- [ ] Manifest parsed
+- [ ] Required files exist
+- [ ] Example install/config payload included
+- [ ] Local smoke test command + output included</code></pre>
+</section>
+
+<section class="card">
+  <h2>CI Validation Gate (Suggested)</h2>
+  <pre><code>name: validate-registry
+on:
+  pull_request:
+    paths:
+      - "plugins/**"
+      - "index.json"
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: python scripts/validate_registry.py</code></pre>
+</section>
+
+<section class="card">
+  <h2>How Zeus Should Read the Registry</h2>
+  <p>Keep a root <code>index.json</code> containing all published plugins with stable IDs and source refs.</p>
+  <pre><code>[
+  {
+    "id": "acme_demo",
+    "version": "1.0.0",
+    "metadata_path": "plugins/acme_demo/metadata.json",
+    "manifest_path": "plugins/acme_demo/zeus.plugin.json"
+  }
+]</code></pre>
+  <p>Zeus can sync this index on boot and periodically (or on webhook) to make new plugins globally discoverable.</p>
+</section>
+
+<section class="card">
+  <h2>PR Workflow</h2>
+  <h3>1) Fork + branch</h3>
+  <pre><code>git clone https://github.com/arslnb/zeus-plugin-registry.git
+cd zeus-plugin-registry
+git checkout -b add-acme-demo-1-0-0</code></pre>
+
+  <h3>2) Add plugin files</h3>
+  <pre><code>mkdir -p plugins/acme_demo/examples
+# copy zeus.plugin.json, metadata.json, README, examples/*</code></pre>
+
+  <h3>3) Validate and commit</h3>
+  <pre><code>git add plugins/acme_demo
+git commit -m "Add acme_demo plugin v1.0.0"</code></pre>
+
+  <h3>4) Push and open PR</h3>
+  <pre><code>git push origin add-acme-demo-1-0-0
+gh pr create --repo arslnb/zeus-plugin-registry \
+  --title "Add acme_demo plugin v1.0.0" \
+  --body "Adds acme_demo plugin with install/config examples and metadata."</code></pre>
+</section>
+
+<section class="card">
+  <h2>Review Checklist</h2>
+  <ul class="compact">
+    <li>Manifest parses and declared runtime entry files exist.</li>
+    <li>Required config and secret refs are documented.</li>
+    <li>Example install/config payloads are valid JSON.</li>
+    <li>No unsafe defaults (network, approvals, unrestricted tool surface).</li>
+    <li>Plugin version and changelog are consistent.</li>
+  </ul>
+</section>
+
+<footer>
+  Publish from a separate registry repo; keep Zeus core and community plugin ingestion decoupled.
+</footer>
+</div>
+{% endraw %}

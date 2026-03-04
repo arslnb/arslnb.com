@@ -10,6 +10,7 @@
   {% assign page_url = page.url | absolute_url %}
 
   <meta name="description" content="{{ page_description }}">
+  <meta name="robots" content="index,follow,max-image-preview:large">
   <meta name="author" content="{{ site.author }}">
   <link rel="canonical" href="{{ page_url }}">
 
@@ -41,6 +42,29 @@
   {% if page.layout == 'zeus-docs' %}
   <link rel="stylesheet" media="(prefers-color-scheme: light)" href="{{ '/assets/css/highlight-github.min.css' | relative_url }}">
   <link rel="stylesheet" media="(prefers-color-scheme: dark)" href="{{ '/assets/css/highlight-github-dark.min.css' | relative_url }}">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "{% if page.doc_slug == 'index' %}CollectionPage{% else %}TechArticle{% endif %}",
+    "headline": {{ page.title | jsonify }},
+    "description": {{ page_description | jsonify }},
+    "url": {{ page_url | jsonify }},
+    "mainEntityOfPage": {{ page_url | jsonify }},
+    "author": { "@type": "Person", "name": {{ site.author | jsonify }} },
+    "publisher": { "@type": "Person", "name": {{ site.author | jsonify }} },
+    "about": {
+      "@type": "SoftwareApplication",
+      "name": "Zeus",
+      "applicationCategory": "DeveloperApplication",
+      "url": {{ '/zeus/' | absolute_url | jsonify }}
+    },
+    "isPartOf": {
+      "@type": "CreativeWorkSeries",
+      "name": "How to Integrate with Zeus",
+      "url": {{ '/zeus/docs/' | absolute_url | jsonify }}
+    }
+  }
+  </script>
   {% endif %}
 </head>
 <body>

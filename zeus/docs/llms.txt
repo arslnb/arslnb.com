@@ -5,6 +5,7 @@ This file is for automated agents that need a concise map of Zeus docs pages.
 ## Pages
 - How to Integrate with Zeus: https://arslnb.com/zeus/docs/ - Use these guides to connect your tools, channels, and workflows to Zeus.
 - Build Plugins with Codex and Claude Code: https://arslnb.com/zeus/docs/ai-coding-assistants/ - A practical guide to getting coding assistants to generate a Zeus plugin scaffold you can ship.
+- Publish to the Zeus Plugin Registry: https://arslnb.com/zeus/docs/plugin-registry/ - How to submit your plugin via pull request so Zeus users can discover and install it.
 - Zeus Plugins - API Reference: https://arslnb.com/zeus/docs/api-reference/ - Endpoints for install/search/config, OAuth flows, server activation, channels, and custom webhooks.
 - Zeus Plugins - Channel Plugin Example: https://arslnb.com/zeus/docs/examples-channel-plugin/ - Server-side channel adapter plus custom webhook route for provider callbacks.
 - Zeus Plugins - Channel Runtime: https://arslnb.com/zeus/docs/channel-plugins/ - How server plugins expose channels, custom webhooks, and outbound send operations.

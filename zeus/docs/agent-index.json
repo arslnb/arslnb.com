@@ -12,6 +12,12 @@
     "description": "A practical guide to getting coding assistants to generate a Zeus plugin scaffold you can ship."
   },
   {
+    "slug": "plugin-registry",
+    "title": "Publish to the Zeus Plugin Registry",
+    "url": "/zeus/docs/plugin-registry/",
+    "description": "How to submit your plugin via pull request so Zeus users can discover and install it."
+  },
+  {
     "slug": "api-reference",
     "title": "Zeus Plugins - API Reference",
     "url": "/zeus/docs/api-reference/",
