@@ -14,11 +14,12 @@ layout: zeus
           <span class="zeus-cell"></span>
         {% endfor %}
       </span>
-      Zeus Plugin Developer Docs
+      How to Integrate with Zeus
     </p>
     <nav class="zeus-docs-links" aria-label="Zeus links">
-      <a href="{{ '/zeus/' | relative_url }}">Zeus</a>
-      <a href="{{ '/zeus/docs/' | relative_url }}">Docs Home</a>
+      <a href="{{ '/zeus/' | relative_url }}">about zeus</a>
+      <a href="{{ '/zeus/docs/' | relative_url }}">documentation</a>
+      <a href="https://x.com/arslnb" target="_blank" rel="noopener">ask a question</a>
     </nav>
   </div>
 </header>
@@ -26,10 +27,11 @@ layout: zeus
 <main class="content zeus-docs-content">
   <div class="zeus-docs-shell">
     <aside class="zeus-docs-sidebar" aria-label="Documentation sections">
-      <p class="zeus-docs-sidebar-title">Plugin Docs</p>
+      <p class="zeus-docs-sidebar-title">Integration Guide</p>
       <nav class="zeus-docs-sidebar-nav">
         <a class="{% if page.doc_slug == 'index' %}is-active{% endif %}" href="{{ '/zeus/docs/' | relative_url }}">Overview</a>
         <a class="{% if page.doc_slug == 'getting-started' %}is-active{% endif %}" href="{{ '/zeus/docs/getting-started/' | relative_url }}">Getting Started</a>
+        <a class="{% if page.doc_slug == 'ai-coding-assistants' %}is-active{% endif %}" href="{{ '/zeus/docs/ai-coding-assistants/' | relative_url }}">Build with Codex/Claude</a>
         <a class="{% if page.doc_slug == 'manifest-reference' %}is-active{% endif %}" href="{{ '/zeus/docs/manifest-reference/' | relative_url }}">Manifest Reference</a>
         <a class="{% if page.doc_slug == 'daemon-plugins' %}is-active{% endif %}" href="{{ '/zeus/docs/daemon-plugins/' | relative_url }}">Daemon Runtime</a>
         <a class="{% if page.doc_slug == 'channel-plugins' %}is-active{% endif %}" href="{{ '/zeus/docs/channel-plugins/' | relative_url }}">Channel Runtime</a>
@@ -49,3 +51,5 @@ layout: zeus
 
 <script src="{{ '/assets/js/zeus-ascii.js' | relative_url }}"></script>
 <script src="{{ '/assets/js/zeus-grid.js' | relative_url }}"></script>
+<script src="{{ '/assets/js/highlight.min.js' | relative_url }}"></script>
+<script src="{{ '/assets/js/zeus-docs.js' | relative_url }}"></script>

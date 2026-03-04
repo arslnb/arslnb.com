@@ -644,7 +644,7 @@ body {
 
 .zeus-docs-sidebar {
   position: sticky;
-  top: 1rem;
+  top: 2.6rem;
   border-left: 1px solid var(--border);
   padding: 0 0 0 0.85rem;
   background: transparent;
@@ -830,6 +830,36 @@ body {
   line-height: 1.45;
 }
 
+.zeus-docs-page pre.zeus-code-block {
+  position: relative;
+  padding-top: 2rem;
+}
+
+.zeus-copy-btn {
+  position: absolute;
+  top: 0.45rem;
+  right: 0.5rem;
+  border: 1px solid var(--border);
+  background: color-mix(in srgb, var(--bg) 94%, var(--text) 6%);
+  color: var(--text-light);
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  line-height: 1;
+  border-radius: 999px;
+  padding: 0.28rem 0.55rem;
+  cursor: pointer;
+}
+
+.zeus-copy-btn:hover {
+  color: var(--text);
+  border-color: var(--text-faint);
+}
+
+.zeus-copy-btn:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--text) 40%, transparent);
+  outline-offset: 1px;
+}
+
 .zeus-docs-page code {
   font-family: var(--font-mono);
   font-size: 0.84rem;
@@ -837,6 +867,12 @@ body {
 
 .zeus-docs-page pre code {
   font-size: 0.8rem;
+}
+
+.zeus-docs-page pre code.hljs {
+  background: transparent;
+  padding: 0;
+  color: inherit;
 }
 
 .zeus-docs-page table {

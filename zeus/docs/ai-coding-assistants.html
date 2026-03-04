@@ -1,0 +1,141 @@
+---
+layout: zeus-docs
+title: "Build Plugins with Codex and Claude Code"
+doc_slug: "ai-coding-assistants"
+permalink: "/zeus/docs/ai-coding-assistants/"
+---
+{% raw %}
+<div class="zeus-docs-page">
+<header class="hero">
+  <h1>Build Plugins with Codex and Claude Code</h1>
+  <p>A practical guide to getting coding assistants to generate a Zeus plugin scaffold you can ship.</p>
+</header>
+
+<section class="card">
+  <h2>What to Ask For</h2>
+  <p>Both tools work best when you ask for concrete files and checks, not broad brainstorming.</p>
+  <ul class="compact">
+    <li>Ask for a complete plugin tree with <code>zeus.plugin.json</code> plus entrypoints.</li>
+    <li>Specify daemon, channel, or hybrid plugin shape.</li>
+    <li>Require valid JSON and executable Python code.</li>
+    <li>Require test commands and expected outputs.</li>
+  </ul>
+</section>
+
+<section class="card">
+  <h2>Quick Decision Rule</h2>
+  <table>
+    <thead>
+      <tr><th>Task</th><th>Best First Tool</th><th>Why</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Fast scaffold + file edits</td><td>Codex</td><td>Strong at tight edit loops inside your repo.</td></tr>
+      <tr><td>Long design/spec prompt</td><td>Claude Code</td><td>Good with larger planning prompts and structured docs.</td></tr>
+      <tr><td>Final pass for edge cases</td><td>Use both</td><td>Cross-check catches schema and runtime mistakes.</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section class="card">
+  <h2>Prompt Template: Codex</h2>
+  <p>Use this when you want Codex to build a working plugin in-place.</p>
+  <pre><code>You are editing a Zeus plugin repo.
+Create a {daemon|channel|hybrid} plugin named {plugin_id}.
+
+Requirements:
+1) Create zeus.plugin.json with schema_version, id, name, version, components, config_schema.
+2) Create client/plugin.py and/or server/plugin.py to match the manifest.
+3) Include one real tool or adapter flow (no TODO stubs).
+4) Add a README with install/config/run instructions.
+5) Validate manifest JSON and show a minimal test command.
+
+Output:
+- File tree
+- Full file contents
+- Commands I should run to verify the plugin locally.</code></pre>
+</section>
+
+<section class="card">
+  <h2>Prompt Template: Claude Code</h2>
+  <p>Use this when you want a more detailed implementation plan before edits.</p>
+  <pre><code>Build a Zeus plugin from scratch in this repository.
+
+Plugin shape: {daemon|channel|hybrid}
+Plugin id: {plugin_id}
+Primary capability: {what it should do}
+External API dependencies: {none or list}
+
+Deliverables:
+- zeus.plugin.json
+- entry files for all declared components
+- config_schema + secret_refs guidance
+- one end-to-end happy path
+- troubleshooting notes for common setup failures
+
+Constraints:
+- No placeholder pseudocode
+- Keep handlers small and testable
+- Return exact commands for install and config API calls.</code></pre>
+</section>
+
+<section class="card">
+  <h2>Install/Config API Calls You Can Reuse</h2>
+  <h3>Install from local path</h3>
+  <pre><code>POST /api/plugins/install
+{
+  "source_type": "path",
+  "source": "/absolute/path/to/my_plugin",
+  "force": true
+}</code></pre>
+
+  <h3>Set config and secret refs</h3>
+  <pre><code>POST /api/plugins/config
+{
+  "plugin_id": "acme_demo",
+  "config": {
+    "client": { "api_base": "https://api.acme.dev" },
+    "server": {}
+  },
+  "secret_refs": {
+    "client": { "api_key": "acme_api_key" },
+    "server": {}
+  }
+}</code></pre>
+
+  <h3>Server install for server component</h3>
+  <pre><code>POST /v1/client/plugins/install
+{
+  "plugin_id": "acme_demo",
+  "version": "1.0.0",
+  "config": { "server": {} },
+  "secret_refs": { "server": {} }
+}</code></pre>
+</section>
+
+<section class="card">
+  <h2>Quality Checklist Before You Ship</h2>
+  <ul class="compact">
+    <li>Manifest fields match actual entry files.</li>
+    <li>All required config values and secret refs are documented.</li>
+    <li>Tool/adaptor output shape is deterministic and parseable.</li>
+    <li>Failure paths return useful errors, not raw tracebacks.</li>
+    <li>Install + config requests succeed on a clean environment.</li>
+  </ul>
+</section>
+
+<section class="card">
+  <h2>Recommended Workflow</h2>
+  <ol>
+    <li>Generate first scaffold with Codex or Claude Code.</li>
+    <li>Run install/config calls and capture exact failures.</li>
+    <li>Feed failures back into the model with logs and file paths.</li>
+    <li>Repeat until one happy path works end-to-end.</li>
+    <li>Only then add optional hooks, OAuth, and runtime policy controls.</li>
+  </ol>
+</section>
+
+<footer>
+  Tip: keep your first plugin narrow. One reliable workflow beats ten partial ones.
+</footer>
+</div>
+{% endraw %}

@@ -38,6 +38,10 @@
   <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   <meta name="color-scheme" content="light dark">
   <link rel="stylesheet" href="{{ '/assets/css/main.css' | relative_url }}">
+  {% if page.layout == 'zeus-docs' %}
+  <link rel="stylesheet" media="(prefers-color-scheme: light)" href="{{ '/assets/css/highlight-github.min.css' | relative_url }}">
+  <link rel="stylesheet" media="(prefers-color-scheme: dark)" href="{{ '/assets/css/highlight-github-dark.min.css' | relative_url }}">
+  {% endif %}
 </head>
 <body>
   {{ content }}
