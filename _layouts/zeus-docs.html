@@ -1,0 +1,31 @@
+---
+layout: zeus
+---
+<div class="zeus-ascii-hero">
+  <canvas id="zeus-ascii-canvas"></canvas>
+  <div class="zeus-ascii-fade"></div>
+</div>
+
+<header class="zeus-docs-masthead">
+  <div class="zeus-docs-masthead-inner">
+    <p class="zeus-docs-kicker">
+      <span class="zeus-grid zeus-grid-inline zeus-docs-kicker-grid" aria-hidden="true">
+        {% for i in (1..9) %}
+          <span class="zeus-cell"></span>
+        {% endfor %}
+      </span>
+      Zeus Plugin Developer Docs
+    </p>
+    <nav class="zeus-docs-links">
+      <a href="{{ '/zeus/' | relative_url }}">Zeus</a>
+      <a href="{{ '/zeus/docs/' | relative_url }}">Docs Home</a>
+    </nav>
+  </div>
+</header>
+
+<main class="content zeus-docs-content">
+  {{ content }}
+</main>
+
+<script src="{{ '/assets/js/zeus-ascii.js' | relative_url }}"></script>
+<script src="{{ '/assets/js/zeus-grid.js' | relative_url }}"></script>

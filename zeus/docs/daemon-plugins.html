@@ -1,0 +1,106 @@
+---
+layout: zeus-docs
+title: "Zeus Plugins - Daemon Runtime"
+---
+
+<div class="zeus-docs-page">
+<header class="hero">
+      <h1>Daemon Plugin Runtime</h1>
+      <p>How Zeus loads and executes plugin-defined tools, operations, and hooks on the Mac daemon.</p>
+    </header>
+
+    <nav class="topnav">
+      <a href="index.html">Home</a>
+      <a href="getting-started.html">Getting Started</a>
+      <a href="manifest-reference.html">Manifest</a>
+      <a href="daemon-plugins.html">Daemon Runtime</a>
+      <a href="channel-plugins.html">Channel Runtime</a>
+      <a href="api-reference.html">APIs</a>
+      <a href="examples-daemon-plugin.html">Daemon Example</a>
+      <a href="examples-channel-plugin.html">Channel Example</a>
+      <a href="openclaw-differences.html">OpenClaw Differences</a>
+      <a href="troubleshooting.html">Troubleshooting</a>
+    </nav>
+
+    <section class="card">
+      <h2>Load Conditions</h2>
+      <ul class="compact">
+        <li>Plugin exists in local <code>plugins_state.json</code>.</li>
+        <li>Plugin is <code>enabled</code> and entry file is present.</li>
+        <li><code>components.client.runtime</code> is <code>python</code>.</li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>Plugin Object Contract</h2>
+      <p>Client entry module exports <code>register(context)</code> and returns an object that may implement:</p>
+      <ul class="compact">
+        <li>Operation declarations: <code>tools()</code>, <code>commands()</code>, <code>services()</code>, <code>cli()</code>, <code>providers()</code>, <code>gateway()</code>, <code>http()</code>.</li>
+        <li>Operation handlers: <code>call_tool</code>, <code>call_command</code>, <code>call_service</code>, <code>call_cli</code>, <code>call_provider</code>, <code>call_gateway</code>, <code>call_http</code> (or <code>execute_*</code> variants).</li>
+        <li>Hooks: <code>before_model_resolve</code>, <code>before_prompt_build</code>, <code>before_tool_call</code>, <code>after_tool_call</code>.</li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>Hook Phase Behavior</h2>
+      <table>
+        <thead>
+          <tr><th>Phase</th><th>Typical Use</th><th>Blockable</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>before_model_resolve</code></td><td>Adjust model/provider selection inputs.</td><td>No (block ignored).</td></tr>
+          <tr><td><code>before_prompt_build</code></td><td>Mutate system prompt payload.</td><td>No (block ignored).</td></tr>
+          <tr><td><code>before_tool_call</code></td><td>Inspect/mutate tool input or prevent execution.</td><td>Yes.</td></tr>
+          <tr><td><code>after_tool_call</code></td><td>Normalize/augment tool results.</td><td>No (block ignored).</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="card">
+      <h2>Runtime Policy Enforcement</h2>
+      <ul class="compact">
+        <li><code>runtime_policy.network.socat_bypass</code> applies default network behavior.</li>
+        <li><code>runtime_policy.approval.mode</code> applies default approval behavior.</li>
+        <li><code>runtime_policy.tools.{tool}.enabled</code> controls per-tool enablement.</li>
+        <li><code>runtime_policy.tools.{tool}.allow_network</code> and <code>allow_without_approval</code> override defaults per tool.</li>
+      </ul>
+      <p>Default network posture is stricter for <code>tool/command/service/cli</code>, and more permissive for <code>provider/gateway/http</code>, unless overridden in policy.</p>
+    </section>
+
+    <section class="card">
+      <h2>Prerequisites and Environment Checks</h2>
+      <ul class="compact">
+        <li><code>prerequisites.cli[]</code> declares external CLI dependencies (example: <code>gh</code>).</li>
+        <li>Each CLI prerequisite can include <code>install_hint</code> and <code>install_url</code> for user guidance.</li>
+        <li><code>prerequisites.environment_check.client_function</code> points to a Python module function (for example <code>check_environment</code>).</li>
+        <li>The function should return readiness as <code>bool</code>, <code>(bool, message)</code>, or <code>{ "ok": bool, "message": "..." }</code>.</li>
+      </ul>
+      <p>If prerequisites/environment checks fail, Zeus keeps the plugin installed but does not load runtime operations until checks pass.</p>
+    </section>
+
+    <section class="card">
+      <h2>Context Passed to Plugin Runtime</h2>
+      <pre><code>{
+  "plugin_id": "sample_plugin",
+  "plugin_version": "1.0.0",
+  "config": {...},
+  "secret_refs": {...},
+  "secrets": {...},
+  "operations": {
+    "tools": [...],
+    "commands": [...],
+    "services": [...],
+    "cli": [...],
+    "providers": [...],
+    "gateway": [...],
+    "http": [...]
+  }
+}
+</code></pre>
+      <p class="note">Secrets are resolved from Zeus secret storage using references; plugins receive resolved values only at runtime context.</p>
+    </section>
+
+    <footer>
+      See <a href="examples-daemon-plugin.html">Daemon Example</a> for full implementation.
+    </footer>
+</div>

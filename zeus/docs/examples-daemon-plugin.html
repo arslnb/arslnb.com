@@ -1,0 +1,260 @@
+---
+layout: zeus-docs
+title: "Zeus Plugins - Daemon Plugin Example"
+---
+
+<div class="zeus-docs-page">
+<header class="hero">
+      <h1>Daemon Plugin Example</h1>
+      <p>Python client component with tools, hooks, command/service/CLI/provider/gateway/http operations, and OAuth declaration.</p>
+    </header>
+
+    <nav class="topnav">
+      <a href="index.html">Home</a>
+      <a href="getting-started.html">Getting Started</a>
+      <a href="manifest-reference.html">Manifest</a>
+      <a href="daemon-plugins.html">Daemon Runtime</a>
+      <a href="channel-plugins.html">Channel Runtime</a>
+      <a href="api-reference.html">APIs</a>
+      <a href="examples-daemon-plugin.html">Daemon Example</a>
+      <a href="examples-channel-plugin.html">Channel Example</a>
+      <a href="openclaw-differences.html">OpenClaw Differences</a>
+      <a href="troubleshooting.html">Troubleshooting</a>
+    </nav>
+
+    <section class="card">
+      <h2>zeus.plugin.json</h2>
+      <pre><code>{
+  "schema_version": 1,
+  "id": "sample_daemon_ops",
+  "name": "Sample Daemon Ops",
+  "version": "1.0.0",
+  "components": {
+    "client": {
+      "entry": "client/plugin.py",
+      "runtime": "python"
+    }
+  },
+  "tools": [
+    { "name": "lookup_customer", "enabled": true, "allow_network": true, "allow_without_approval": false }
+  ],
+  "commands": ["sync_customers"],
+  "services": ["customers_service"],
+  "cli": ["customers_cli"],
+  "providers": ["customers_provider"],
+  "gateway": ["customers_gateway"],
+  "http": ["customers_http"],
+  "hook_phases": [
+    "before_model_resolve",
+    "before_prompt_build",
+    "before_tool_call",
+    "after_tool_call"
+  ],
+  "runtime_policy": {
+    "network": { "socat_bypass": false },
+    "approval": { "mode": "ask_each_time" },
+    "tools": {
+      "lookup_customer": {
+        "enabled": true,
+        "allow_network": true,
+        "allow_without_approval": false
+      }
+    }
+  },
+  "prerequisites": {
+    "cli": [
+      {
+        "name": "GitHub CLI",
+        "binary": "gh",
+        "required": true,
+        "install_hint": "brew install gh",
+        "install_url": "https://cli.github.com/"
+      }
+    ],
+    "environment_check": {
+      "client_function": "check_environment"
+    }
+  },
+  "oauth": {
+    "providers": [
+      {
+        "id": "google",
+        "component": "client",
+        "authorization_url": "https://accounts.google.com/o/oauth2/v2/auth",
+        "token_url": "https://oauth2.googleapis.com/token",
+        "scopes": ["openid", "email"],
+        "pkce": "required",
+        "client_id_field": "google_client_id",
+        "client_secret_field": "google_client_secret",
+        "supports_refresh": true
+      }
+    ]
+  },
+  "config_schema": {
+    "client": {
+      "api_base": { "type": "string", "required": true, "secret": false },
+      "api_key": { "type": "string", "required": true, "secret": true },
+      "google_client_id": { "type": "string", "required": true, "secret": false },
+      "google_client_secret": { "type": "string", "required": true, "secret": true }
+    }
+  }
+}
+</code></pre>
+    </section>
+
+    <section class="card">
+      <h2>client/plugin.py</h2>
+      <pre><code>from __future__ import annotations
+
+import json
+import urllib.parse
+import urllib.request
+
+
+class SampleDaemonPlugin:
+    def __init__(self, ctx: dict):
+        self.ctx = dict(ctx)
+        self.config = dict(ctx.get("config") or {})
+
+    def tools(self):
+        return {
+            "lookup_customer": {
+                "description": "Lookup customer details by email.",
+                "input_schema": {
+                    "type": "object",
+                    "properties": {
+                        "email": {"type": "string"}
+                    },
+                    "required": ["email"]
+                },
+                "handler": self.lookup_customer,
+            }
+        }
+
+    def commands(self):
+        return {"sync_customers": {"description": "Run customer sync now."}}
+
+    def services(self):
+        return {"customers_service": {"description": "Service operation."}}
+
+    def cli(self):
+        return {"customers_cli": {"description": "CLI operation."}}
+
+    def providers(self):
+        return {"customers_provider": {"description": "Provider operation."}}
+
+    def gateway(self):
+        return {"customers_gateway": {"description": "Gateway operation."}}
+
+    def http(self):
+        return {"customers_http": {"description": "HTTP operation."}}
+
+    async def lookup_customer(self, payload, context):
+        email = str(payload.get("email") or "").strip()
+        if not email:
+            return {"status": "error", "error": "email_required"}
+
+        api_base = str(self.config.get("api_base") or "").rstrip("/")
+        if not api_base:
+            return {"status": "error", "error": "missing_api_base"}
+
+        api_key = str((context.get("secrets") or {}).get("api_key") or "")
+        if not api_key:
+            return {"status": "error", "error": "missing_api_key_secret"}
+
+        url = f"{api_base}/customers?email={urllib.parse.quote(email)}"
+        req = urllib.request.Request(url, method="GET", headers={"Authorization": f"Bearer {api_key}"})
+        with urllib.request.urlopen(req, timeout=20) as resp:
+            body = json.loads(resp.read().decode("utf-8"))
+
+        return {
+            "status": "ok",
+            "customer": body,
+            "source": "sample_daemon_ops"
+        }
+
+    async def call_command(self, name, payload, context):
+        return {"status": "ok", "kind": "command", "name": name, "accepted": True}
+
+    async def call_service(self, name, payload, context):
+        return {"status": "ok", "kind": "service", "name": name}
+
+    async def call_cli(self, name, payload, context):
+        return {"status": "ok", "kind": "cli", "name": name}
+
+    async def call_provider(self, name, payload, context):
+        return {"status": "ok", "kind": "provider", "name": name}
+
+    async def call_gateway(self, name, payload, context):
+        return {"status": "ok", "kind": "gateway", "name": name}
+
+    async def call_http(self, name, payload, context):
+        return {"status": "ok", "kind": "http", "name": name}
+
+    def before_tool_call(self, payload, context):
+        next_payload = dict(payload or {})
+        tool_input = dict(next_payload.get("tool_input") or {})
+        tool_input.setdefault("trace_id", context.get("context_payload", {}).get("run_id", ""))
+        next_payload["tool_input"] = tool_input
+        return {"payload": next_payload}
+
+    def after_tool_call(self, payload, context):
+        next_payload = dict(payload or {})
+        result_json = dict(next_payload.get("result_json") or {})
+        result_json["plugin_after_hook"] = True
+        next_payload["result_json"] = result_json
+        return {"payload": next_payload}
+
+    def before_prompt_build(self, payload, context):
+        next_payload = dict(payload or {})
+        prompt = str(next_payload.get("system_prompt") or "")
+        next_payload["system_prompt"] = prompt + "\\n[Plugin Note] Use lookup_customer for customer lookups."
+        return {"payload": next_payload}
+
+
+def check_environment(context):
+    import shutil
+    if not shutil.which("gh"):
+        return False, "please install gh with brew install gh"
+    return True, ""
+
+
+def register(context):
+    return SampleDaemonPlugin(context)
+</code></pre>
+    </section>
+
+    <section class="card">
+      <h2>Install + Configure</h2>
+      <pre><code>curl -sS http://127.0.0.1:PORT/api/plugins/install \
+  -H 'content-type: application/json' \
+  -d '{
+    "source_type": "path",
+    "source": "/absolute/path/to/sample_daemon_ops",
+    "force": true
+  }'
+
+curl -sS http://127.0.0.1:PORT/api/plugins/config \
+  -H 'content-type: application/json' \
+  -d '{
+    "plugin_id": "sample_daemon_ops",
+    "config": {
+      "client": {
+        "api_base": "https://api.acme.dev",
+        "google_client_id": "YOUR_CLIENT_ID"
+      }
+    },
+    "secret_refs": {
+      "client": {
+        "api_key": "acme_api_key",
+        "google_client_secret": "google_client_secret"
+      }
+    }
+  }'
+</code></pre>
+    </section>
+
+    <footer>
+      Pair this with <a href="examples-channel-plugin.html">Channel Example</a> for hybrid plugins.
+    </footer>
+</div>

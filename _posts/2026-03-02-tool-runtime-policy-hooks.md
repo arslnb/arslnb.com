@@ -1,188 +1,103 @@
 ---
 layout: post
-title: "Tool runtime config: policy, hooks, and context budgets"
-description: "A diff-driven tour of Zeus's new tool runtime config layer: allowlists, provider-specific tool policies, hook points, and tool result budgeting."
+title: "Runtime Contracts"
+description: "What changed when we added runtime contracts to Zeus: clearer boundaries, safer experiments, and more reliable agent behavior."
 date: 2026-03-02
 ---
 
-I shipped a chunk of infrastructure in Zeus this week that I have wanted for a long time: a **runtime config layer for tools**.
+The biggest lesson from building [Zeus](/zeus/) is simple:
 
-If you have ever built an agent loop, you know the failure mode: you add tools, you add providers, you add evals, and pretty soon the tool layer is a hairball of one-off flags.
+> agent reliability is mostly a systems problem, not a model problem.
 
-This diff is the opposite move. It is a single place to answer:
+Two recent changes made this obvious:
 
-- *Which tools are allowed for this run?* (globally, and per provider)
-- *How big are tool results allowed to be?* (and how do we cap them)
-- *Can I inject small bits of behavior around model selection, prompt building, or tool execution?*
+1. A TUI for running and observing the system.
+2. A runtime contract for tools (policy, hooks, context budgets).
 
-This post is a diff tour of what changed and why.
+Neither change is flashy. Both are high leverage.
 
-## The problem: tool sprawl without a runtime contract
+---
 
-In early versions of Zeus, tools were mostly static. The loop handed the model a fixed list of tool schemas and hoped for the best.
+## Learning 1: Interfaces change engineering quality
 
-That breaks down once you need any of these:
+A GUI is great for everyday use. It is not great for debugging and reproducibility.
 
-- a **“minimal” profile** for constrained runs (readonly-ish debugging)
-- a **provider-specific tool subset** (some models are better with fewer tools)
-- a way to **turn on hooks** for experiments without rebuilding the binary
-- **predictable budgets** for tool outputs so the prompt does not explode
+Adding a TUI changes how the team works:
 
-The diff adds three files that together act like a runtime contract for tools:
+- You can reproduce issues with exact commands.
+- You can observe state transitions live.
+- You can run scenarios in CI and headless environments.
+- You can gather traces without clicking through UI flows.
 
-- `llm/tool_runtime_config.py`
-- `llm/tool_policy_pipeline.py`
-- `llm/tool_hook_pipeline.py`
+The implication: the agent stops being “an app feature” and becomes an actual runtime you can operate.
 
-And then it wires them into the loop and tool dispatcher.
+## Learning 2: Tool policy is the fastest reliability lever
 
-## 1) Tool runtime config: defaults + normalization
+When the model sees too many tools, it thrashes:
 
-The core is `tool_runtime_config.py`. It defines a default config and a normalizer that is deliberately strict. If the config is missing or malformed, it snaps back to defaults.
+- bad tool selection
+- unnecessary calls
+- noisy context
+- unstable behavior across providers
 
-A few things I like about this design:
+Policy fixes this by reducing the model’s branching factor.
 
-### A. There is a default per-tool envelope
+The important idea is not “more config.” It is **explicit capability boundaries per run**:
 
-A tool like `shell` has a natural set of runtime tunables:
+- which tools are visible
+- which are blocked
+- which profile applies in this environment
 
-```python
-"shell": {
-  "max_result_chars": 40_000,
-  "timeout_sec": 20,
-  "security": "full",
-  "ask": "off",
-  "yield_ms": 10_000,
-  "safe_bins": [],
-}
-```
+That gives you repeatability. The same input now means roughly the same tool universe.
 
-Same for `web_fetch` (timeouts, redirect limits, cache TTL, readability) and for `read` and `apply_patch` (input limits).
+## Learning 3: Hooks make experiments safe
 
-The important bit is not the exact numbers. It is that **every tool now has a place where its runtime knobs live**.
+Hooks matter because they let you change behavior without editing the core loop.
 
-### B. Normalization is copy-on-write, with clamping
+The key is failure handling: hook failures should degrade to warnings, not crash runs.
 
-The normalizer does a deep copy of defaults, then merges user-supplied overrides, but clamps obvious footguns:
+Why this matters in practice:
 
-- integer fields have min/max bounds
-- string lists are de-duplicated
-- hooks are normalized into dict entries
+- you can hot-block a broken tool during incidents
+- you can inject instrumentation temporarily
+- you can ship experiments behind narrow seams
 
-This sounds boring, but it is the difference between a “config file” and a config system you can actually ship.
+This lowers the cost of experimentation and shortens time-to-fix.
 
-## 2) Tool policy pipeline: filtering the tool set
+## Learning 4: Context budgets protect reasoning quality
 
-`tool_policy_pipeline.py` implements a small but crucial feature: take a list of tool schemas, and filter it down according to a policy block.
+Most “model got worse” bugs are actually context quality bugs.
 
-There are two layers of policy:
+Large tool outputs silently damage later reasoning.
 
-1. **Global policy**
-2. **Provider override** (eg “grok gets minimal tools, claude gets full tools”)
+A budget ratio fixes this more reliably than a fixed cap:
 
-The code resolves an `available` tool name set from the schemas, applies:
+- a small-context model and a large-context model both get sane behavior
+- one giant tool result cannot dominate prompt construction
+- compaction is less likely to drop critical state
 
-- `profile` (eg `minimal`)
-- `allow` (hard set)
-- `also_allow` (union)
-- `deny` (subtract)
+Together with policy and hooks, budgets create predictable runs instead of “it worked yesterday” runs.
 
-Then returns a filtered schema list plus some debug metadata.
+## Why this is important
 
-### The “minimal” profile is explicit
+These changes are really about engineering leverage:
 
-Right now the predefined toolsets are intentionally small:
+- **Faster iteration:** you can test behavior in controlled modes.
+- **Safer operations:** you have runtime levers during incidents.
+- **Cleaner scaling:** multiple providers and tools stop feeling chaotic.
+- **Better evals:** test conditions become explicit and repeatable.
 
-```python
-"minimal": {
-  "read",
-  "file_search",
-  "web_fetch",
-  "web_search",
-  "memory",
-  "knowledge",
-  "ask_user",
-}
-```
+Without these boundaries, every new capability increases uncertainty.
 
-This is not security. It is operational: sometimes you want a run that cannot mutate anything. (And it is a clean way to reproduce failures in evals.)
+With them, every new capability can be added with known blast radius.
 
-## 3) Hook pipeline: experiment without forking the loop
+## The practical takeaway
 
-The other half of “runtime control” is hooks.
+If you are building agent infrastructure, treat this as baseline:
 
-`tool_hook_pipeline.py` adds four phases:
+1. Give the system an operator interface (TUI/CLI), not only a GUI.
+2. Define a runtime contract for tool visibility and behavior.
+3. Add hooks only at stable seams, and make them non-fatal.
+4. Budget tool output as a share of context, not an arbitrary fixed number.
 
-- `before_model_resolve` (provider or model selection)
-- `before_prompt_build` (system prompt patching)
-- `before_tool_call` (block tool, merge input, inject context)
-- `after_tool_call` (append a note, set a field, truncate)
-
-Hooks are intentionally **non-fatal**. If a hook throws, Zeus records a warning and keeps going.
-
-A couple of patterns that already feel useful:
-
-### A. Provider forcing
-
-You can force a provider/model from config without touching code:
-
-- `set_provider`
-- `set_model`
-- `set_provider_and_model`
-
-This is the kind of thing you want for eval harnesses and A/B testing.
-
-### B. Tool blocking at runtime
-
-In `before_tool_call`, you can block a specific tool (or all tools) with a message:
-
-- `block_tool`
-
-This gives you a way to temporarily “pull the plug” on a tool in production while keeping the rest of the agent usable.
-
-### C. Light input patching
-
-`merge_input` is a small hammer that goes a long way. You can inject a timeout, change a parameter, or nudge a tool into a safer mode.
-
-## 4) Tool result budgeting: context share ratio
-
-The agent loop also got a concrete improvement: tool result sizes are now capped by a mix of:
-
-- per-tool `max_result_chars`
-- and a global `result_context_share_ratio`
-
-The logic (in `loop.py`) is basically:
-
-1. take the tool's hard cap
-2. compute a share of the model's context window
-3. clamp the share between a minimum and the hard cap
-
-This is the difference between “the agent sometimes goes off the rails when `rg` returns 200k chars” and “tool outputs are predictable”.
-
-I defaulted the ratio to ~0.22 and the minimum to 1200 chars. The specific numbers are easy to tune once you have the mechanism.
-
-## 5) Why this matters
-
-This diff is not flashy. But it unlocks a bunch of engineering moves:
-
-- ship new tools without adding ad-hoc config flags
-- run evals under strict tool profiles
-- do provider-specific toolsets without branching schemas
-- patch system prompts in a controlled way
-- keep the loop stable under large outputs
-
-It is also a step toward a clean separation:
-
-- the loop is the loop
-- the tools are the tools
-- the runtime config defines the envelope they run inside
-
-That separation is what makes an agent system maintainable.
-
-## Appendix: the three new files
-
-- `apps/client-mac/zeus/Resources/server/llm/tool_runtime_config.py`
-- `apps/client-mac/zeus/Resources/server/llm/tool_policy_pipeline.py`
-- `apps/client-mac/zeus/Resources/server/llm/tool_hook_pipeline.py`
-
-If you want to play with this yourself, the implementation is small enough to read end-to-end.
+This is less exciting than model demos, but it is the difference between a cool prototype and a system you can trust in production.

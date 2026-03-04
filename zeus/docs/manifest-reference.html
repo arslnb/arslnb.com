@@ -1,0 +1,251 @@
+---
+layout: zeus-docs
+title: "Zeus Plugins - Manifest Reference"
+---
+
+<div class="zeus-docs-page">
+<header class="hero">
+      <h1>Manifest Reference</h1>
+      <p>Complete contract for <code>zeus.plugin.json</code> (Zeus Native Plugins).</p>
+    </header>
+
+    <nav class="topnav">
+      <a href="index.html">Home</a>
+      <a href="getting-started.html">Getting Started</a>
+      <a href="manifest-reference.html">Manifest</a>
+      <a href="daemon-plugins.html">Daemon Runtime</a>
+      <a href="channel-plugins.html">Channel Runtime</a>
+      <a href="api-reference.html">APIs</a>
+      <a href="examples-daemon-plugin.html">Daemon Example</a>
+      <a href="examples-channel-plugin.html">Channel Example</a>
+      <a href="openclaw-differences.html">OpenClaw Differences</a>
+      <a href="troubleshooting.html">Troubleshooting</a>
+    </nav>
+
+    <section class="card">
+      <h2>Required Top-Level Fields</h2>
+      <ul class="compact">
+        <li><code>schema_version</code>: must be <code>1</code></li>
+        <li><code>id</code>: plugin id (slug-safe, stable)</li>
+        <li><code>version</code>: plugin version string</li>
+        <li><code>components</code>: at least one of <code>client</code> or <code>server</code></li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>Components Contract</h2>
+      <table>
+        <thead>
+          <tr><th>Field</th><th>Type</th><th>Rules</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>components.client.entry</code></td><td>string</td><td>Required when client component exists. Relative path to Python entry module.</td></tr>
+          <tr><td><code>components.client.runtime</code></td><td>string</td><td>Must be <code>python</code>.</td></tr>
+          <tr><td><code>components.server.entry</code></td><td>string</td><td>Required when server component exists. Relative path to Python entry module.</td></tr>
+          <tr><td><code>components.server.runtime</code></td><td>string</td><td>Must be <code>python</code>.</td></tr>
+          <tr><td><code>components.server.channels</code></td><td>array&lt;string&gt;</td><td>Channel names provided by server plugin.</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="card">
+      <h2>Daemon Operation and Hook Fields</h2>
+      <table>
+        <thead>
+          <tr><th>Field</th><th>Type</th><th>Purpose</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>tools</code></td><td>array&lt;string|object&gt;</td><td>Model-callable operations.</td></tr>
+          <tr><td><code>commands</code></td><td>array&lt;string&gt;</td><td>Command operations.</td></tr>
+          <tr><td><code>services</code></td><td>array&lt;string&gt;</td><td>Service operations.</td></tr>
+          <tr><td><code>cli</code></td><td>array&lt;string&gt;</td><td>CLI operations.</td></tr>
+          <tr><td><code>providers</code></td><td>array&lt;string&gt;</td><td>Provider operations.</td></tr>
+          <tr><td><code>gateway</code></td><td>array&lt;string&gt;</td><td>Gateway operations.</td></tr>
+          <tr><td><code>http</code></td><td>array&lt;string&gt;</td><td>HTTP operations.</td></tr>
+          <tr><td><code>hook_phases</code></td><td>array&lt;string&gt;</td><td>Any of <code>before_model_resolve</code>, <code>before_prompt_build</code>, <code>before_tool_call</code>, <code>after_tool_call</code>.</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="card">
+      <h2>Runtime Policy</h2>
+      <table>
+        <thead>
+          <tr><th>Field</th><th>Type</th><th>Purpose</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>runtime_policy.network.socat_bypass</code></td><td>boolean</td><td>Default network gate posture for plugin operations.</td></tr>
+          <tr><td><code>runtime_policy.approval.mode</code></td><td>string</td><td><code>ask_each_time</code> or <code>allow_without_approval</code>.</td></tr>
+          <tr><td><code>runtime_policy.tools.{name}.enabled</code></td><td>boolean</td><td>Enable/disable specific tool.</td></tr>
+          <tr><td><code>runtime_policy.tools.{name}.allow_network</code></td><td>boolean</td><td>Allow network for that tool.</td></tr>
+          <tr><td><code>runtime_policy.tools.{name}.allow_without_approval</code></td><td>boolean</td><td>Permit execution without approval gate.</td></tr>
+          <tr><td><code>prerequisites.cli[]</code></td><td>array&lt;object&gt;</td><td>Declare required/optional CLI dependencies and install guidance.</td></tr>
+          <tr><td><code>prerequisites.environment_check.client_function</code></td><td>string</td><td>Module function that returns readiness <code>ok/message</code>.</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="card">
+      <h2>OAuth Declaration</h2>
+      <p>Use <code>oauth.providers</code> to register generic OAuth providers that Zeus can drive with shared flows.</p>
+      <table>
+        <thead>
+          <tr><th>Field</th><th>Type</th><th>Rules</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>id</code></td><td>string</td><td>Unique provider id within plugin.</td></tr>
+          <tr><td><code>component</code></td><td>string</td><td><code>client</code> or <code>server</code> (default <code>server</code>).</td></tr>
+          <tr><td><code>authorization_url</code></td><td>string</td><td>HTTPS URL for consent start.</td></tr>
+          <tr><td><code>token_url</code></td><td>string</td><td>HTTPS URL for token exchange/refresh.</td></tr>
+          <tr><td><code>scopes</code></td><td>array&lt;string&gt;</td><td>Requested scopes.</td></tr>
+          <tr><td><code>pkce</code></td><td>string</td><td><code>required</code>, <code>optional</code>, or <code>disabled</code>.</td></tr>
+          <tr><td><code>client_id_field</code></td><td>string</td><td>Must reference a declared config field.</td></tr>
+          <tr><td><code>client_secret_field</code></td><td>string</td><td>Must reference a declared secret field (<code>secret: true</code>).</td></tr>
+          <tr><td><code>supports_refresh</code></td><td>boolean</td><td>Whether refresh flow is supported.</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="card">
+      <h2>Behavior, Scheduled Task, and Proactive Fields</h2>
+      <table>
+        <thead>
+          <tr><th>Field</th><th>Type</th><th>Purpose</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>automations.behaviors[]</code></td><td>array&lt;object&gt;</td><td>Install-time behavior prompts.</td></tr>
+          <tr><td><code>automations.scheduled_tasks[]</code></td><td>array&lt;object&gt;</td><td>Install-time scheduled prompts/cron-style jobs.</td></tr>
+          <tr><td><code>proactive.screen_watch[]</code></td><td>array&lt;object&gt;</td><td>Prompts consumed by proactive screen system.</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="card">
+      <h2>Config Schema Rules</h2>
+      <ul class="compact">
+        <li>Use component-scoped schemas under <code>config_schema.client</code> and/or <code>config_schema.server</code>.</li>
+        <li>Each field must declare <code>type</code> and boolean <code>secret</code>.</li>
+        <li>Allowed <code>type</code>: <code>string</code>, <code>integer</code>, <code>number</code>, <code>boolean</code>, <code>object</code>, <code>array</code>.</li>
+        <li><code>secret: true</code> values must be supplied via <code>secret_refs</code>, not plain <code>config</code>.</li>
+        <li>Unknown config keys are rejected.</li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>Full Example Manifest</h2>
+      <pre><code>{
+  "schema_version": 1,
+  "id": "acme_messaging",
+  "name": "Acme Messaging",
+  "version": "1.2.0",
+  "components": {
+    "client": {
+      "entry": "client/plugin.py",
+      "runtime": "python"
+    },
+    "server": {
+      "entry": "server/plugin.py",
+      "runtime": "python",
+      "channels": ["acme"]
+    }
+  },
+  "tools": [
+    { "name": "acme_lookup", "enabled": true, "allow_network": true, "allow_without_approval": false }
+  ],
+  "commands": ["acme_sync"],
+  "services": ["acme_service"],
+  "cli": ["acme_cli"],
+  "providers": ["acme_provider"],
+  "gateway": ["acme_gateway"],
+  "http": ["acme_http"],
+  "hook_phases": ["before_prompt_build", "before_tool_call", "after_tool_call"],
+  "runtime_policy": {
+    "network": { "socat_bypass": false },
+    "approval": { "mode": "ask_each_time" },
+    "tools": {
+      "acme_lookup": {
+        "enabled": true,
+        "allow_network": true,
+        "allow_without_approval": false
+      }
+    }
+  },
+  "prerequisites": {
+    "cli": [
+      {
+        "name": "GitHub CLI",
+        "binary": "gh",
+        "required": true,
+        "install_hint": "brew install gh",
+        "install_url": "https://cli.github.com/"
+      }
+    ],
+    "environment_check": {
+      "client_function": "check_environment"
+    }
+  },
+  "oauth": {
+    "providers": [
+      {
+        "id": "google",
+        "component": "server",
+        "authorization_url": "https://accounts.google.com/o/oauth2/v2/auth",
+        "token_url": "https://oauth2.googleapis.com/token",
+        "scopes": ["openid", "email"],
+        "pkce": "required",
+        "client_id_field": "google_client_id",
+        "client_secret_field": "google_client_secret",
+        "supports_refresh": true
+      }
+    ]
+  },
+  "automations": {
+    "behaviors": [
+      {
+        "id": "daily_style",
+        "name": "Daily style",
+        "prompt": "When writing updates, keep output concise and structured.",
+        "enabled_by_default": true
+      }
+    ],
+    "scheduled_tasks": [
+      {
+        "id": "daily_digest",
+        "name": "Daily digest",
+        "prompt": "Summarize plugin-specific updates.",
+        "schedule_expression": "0 9 * * *",
+        "timezone": "America/Los_Angeles",
+        "enabled_by_default": true
+      }
+    ]
+  },
+  "proactive": {
+    "screen_watch": [
+      {
+        "id": "invoice_watch",
+        "name": "Invoice watch",
+        "prompt": "Look for overdue invoice dashboards and draft reminders.",
+        "enabled_by_default": true,
+        "priority": "normal"
+      }
+    ]
+  },
+  "config_schema": {
+    "client": {
+      "api_base": { "type": "string", "required": true, "secret": false },
+      "api_key": { "type": "string", "required": true, "secret": true }
+    },
+    "server": {
+      "verify_token": { "type": "string", "required": true, "secret": true },
+      "google_client_id": { "type": "string", "required": true, "secret": false },
+      "google_client_secret": { "type": "string", "required": true, "secret": true }
+    }
+  }
+}
+</code></pre>
+    </section>
+
+    <footer>
+      Next: <a href="daemon-plugins.html">Daemon Runtime</a>.
+    </footer>
+</div>

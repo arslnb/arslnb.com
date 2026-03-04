@@ -1,0 +1,95 @@
+---
+layout: zeus-docs
+title: "Zeus Plugins - Channel Runtime"
+---
+
+<div class="zeus-docs-page">
+<header class="hero">
+      <h1>Channel Plugin Runtime</h1>
+      <p>How server plugins expose channels, custom webhooks, and outbound send operations.</p>
+    </header>
+
+    <nav class="topnav">
+      <a href="index.html">Home</a>
+      <a href="getting-started.html">Getting Started</a>
+      <a href="manifest-reference.html">Manifest</a>
+      <a href="daemon-plugins.html">Daemon Runtime</a>
+      <a href="channel-plugins.html">Channel Runtime</a>
+      <a href="api-reference.html">APIs</a>
+      <a href="examples-daemon-plugin.html">Daemon Example</a>
+      <a href="examples-channel-plugin.html">Channel Example</a>
+      <a href="openclaw-differences.html">OpenClaw Differences</a>
+      <a href="troubleshooting.html">Troubleshooting</a>
+    </nav>
+
+    <section class="card">
+      <h2>Server Plugin Contract</h2>
+      <ul class="compact">
+        <li>Manifest includes <code>components.server.entry</code> with runtime <code>python</code>.</li>
+        <li>Server module exports <code>register(ctx)</code>.</li>
+        <li>Returned plugin object can implement <code>channels()</code> and/or <code>webhooks()</code>.</li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>Channel Adapter Interface</h2>
+      <table>
+        <thead>
+          <tr><th>Method</th><th>Required</th><th>Purpose</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>verify_webhook(request)</code></td><td>No</td><td>Handle provider verification requests (typically GET).</td></tr>
+          <tr><td><code>ingest_webhook(...)</code></td><td>Yes (for inbound)</td><td>Parse provider payload and return list of envelopes.</td></tr>
+          <tr><td><code>send(payload)</code></td><td>Yes (for outbound)</td><td>Send outbound message and return provider result.</td></tr>
+        </tbody>
+      </table>
+      <p><code>channels()</code> can return either <code>{channel_name: adapter}</code> or an ordered list aligned with <code>components.server.channels</code>.</p>
+    </section>
+
+    <section class="card">
+      <h2>Custom Webhook Interface</h2>
+      <p>Plugins can expose arbitrary provider routes through <code>webhooks()</code>:</p>
+      <pre><code>def webhooks(self):
+    return {
+      "stripe-events": {
+        "methods": ["POST"],
+        "handler": self.handle_stripe
+      },
+      "calendar-push": self.handle_calendar_push
+    }
+</code></pre>
+      <ul class="compact">
+        <li><code>"stripe-events"</code> maps to <code>/webhook/stripe-events</code>.</li>
+        <li>Allowed methods can be explicit or omitted (defaults to all methods).</li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>Runtime Routes</h2>
+      <ul class="compact">
+        <li><code>GET /v1/channels/{channel}/webhook</code> -> <code>verify_webhook</code></li>
+        <li><code>POST /v1/channels/{channel}/webhook</code> -> <code>ingest_webhook</code></li>
+        <li><code>POST /v1/client/channels/{channel}/send</code> -> <code>send</code> (signed device auth)</li>
+        <li><code>ANY /webhook/{route}</code> -> custom plugin webhook handler</li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>Event Stream Behavior</h2>
+      <p>Plugin channel/webhook handlers can return message envelopes (or return values convertible to envelopes). Zeus normalizes output and emits it onto the same secure client event stream consumed by standard message APIs.</p>
+    </section>
+
+    <section class="card">
+      <h2>Install and Activation Semantics</h2>
+      <ul class="compact">
+        <li>Install/update/enable/config goes through <code>/v1/client/plugins/*</code>.</li>
+        <li>Server performs controlled in-process reload.</li>
+        <li>On reload failure, previous plugin/channel map is restored.</li>
+        <li>On success, routes become available immediately.</li>
+      </ul>
+    </section>
+
+    <footer>
+      See <a href="examples-channel-plugin.html">Channel Example</a> for full code.
+    </footer>
+</div>

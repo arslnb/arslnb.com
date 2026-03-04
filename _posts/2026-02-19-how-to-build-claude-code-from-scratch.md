@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Code Agent, From Scratch"
+title: "Code Agent"
 description: "System prompts, tool definitions, sandboxed execution, and the seven layers of architecture behind a production code agent."
 date: 2026-02-19
 ---

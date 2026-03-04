@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Browser Use"
+title: "Browser Agents"
 description: "WebSocket, Native Messaging, and DOM-first architectures for browser automation agents. Tradeoffs and convergence."
 date: 2026-01-28
 ---

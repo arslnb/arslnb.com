@@ -1,0 +1,128 @@
+---
+layout: zeus-docs
+title: "Zeus Plugins - API Reference"
+---
+
+<div class="zeus-docs-page">
+<header class="hero">
+      <h1>Plugin API Reference</h1>
+      <p>Endpoints for install/search/config, OAuth flows, server activation, channels, and custom webhooks.</p>
+    </header>
+
+    <nav class="topnav">
+      <a href="index.html">Home</a>
+      <a href="getting-started.html">Getting Started</a>
+      <a href="manifest-reference.html">Manifest</a>
+      <a href="daemon-plugins.html">Daemon Runtime</a>
+      <a href="channel-plugins.html">Channel Runtime</a>
+      <a href="api-reference.html">APIs</a>
+      <a href="examples-daemon-plugin.html">Daemon Example</a>
+      <a href="examples-channel-plugin.html">Channel Example</a>
+      <a href="openclaw-differences.html">OpenClaw Differences</a>
+      <a href="troubleshooting.html">Troubleshooting</a>
+    </nav>
+
+    <section class="card">
+      <h2>Local Plugin Management (Daemon)</h2>
+      <table>
+        <thead><tr><th>Route</th><th>Method</th><th>Purpose</th></tr></thead>
+        <tbody>
+          <tr><td><code>/api/plugins</code></td><td>GET</td><td>List local plugin state.</td></tr>
+          <tr><td><code>/api/plugins/search</code></td><td>POST</td><td>Search curated plugin catalog.</td></tr>
+          <tr><td><code>/api/plugins/install</code></td><td>POST</td><td>Install from <code>registry</code>, <code>git</code>, or <code>path</code>.</td></tr>
+          <tr><td><code>/api/plugins/uninstall</code></td><td>POST</td><td>Uninstall local plugin.</td></tr>
+          <tr><td><code>/api/plugins/enabled</code></td><td>POST</td><td>Enable/disable local plugin.</td></tr>
+          <tr><td><code>/api/plugins/config</code></td><td>POST</td><td>Set local plugin config and secret refs.</td></tr>
+          <tr><td><code>/api/plugins/server-status</code></td><td>POST</td><td>Update server sync status metadata for UI/state.</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="card">
+      <h2>Local OAuth APIs</h2>
+      <table>
+        <thead><tr><th>Route</th><th>Method</th><th>Purpose</th></tr></thead>
+        <tbody>
+          <tr><td><code>/api/plugins/oauth/start</code></td><td>POST</td><td>Build consent URL and return redirect target.</td></tr>
+          <tr><td><code>/api/plugins/oauth/callback</code></td><td>POST</td><td>Handle returned auth code/state and exchange tokens.</td></tr>
+          <tr><td><code>/api/plugins/oauth/refresh</code></td><td>POST</td><td>Refresh access token when provider supports refresh.</td></tr>
+          <tr><td><code>/api/plugins/oauth/disconnect</code></td><td>POST</td><td>Disconnect provider and remove token refs.</td></tr>
+        </tbody>
+      </table>
+      <p class="note">Exact availability can depend on your current daemon build/runtime flags.</p>
+    </section>
+
+    <section class="card">
+      <h2>Server Plugin Control Plane</h2>
+      <p>All routes require signed device auth headers: <code>X-Device-Id</code>, <code>X-Timestamp</code>, <code>X-Nonce</code>, <code>X-Signature</code>.</p>
+      <table>
+        <thead><tr><th>Route</th><th>Method</th><th>Purpose</th></tr></thead>
+        <tbody>
+          <tr><td><code>/v1/client/plugins</code></td><td>GET</td><td>List server plugins, channel map, and webhook routes.</td></tr>
+          <tr><td><code>/v1/client/plugins/install</code></td><td>POST</td><td>Install plugin from curated registry and reload runtime.</td></tr>
+          <tr><td><code>/v1/client/plugins/uninstall</code></td><td>POST</td><td>Uninstall plugin and reload runtime.</td></tr>
+          <tr><td><code>/v1/client/plugins/enabled</code></td><td>POST</td><td>Enable/disable plugin and reload runtime.</td></tr>
+          <tr><td><code>/v1/client/plugins/config</code></td><td>POST</td><td>Update server plugin config/secret refs and reload runtime.</td></tr>
+          <tr><td><code>/v1/client/plugins/reload</code></td><td>POST</td><td>Force controlled in-process plugin reload.</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="card">
+      <h2>Channel and Webhook Routes</h2>
+      <table>
+        <thead><tr><th>Route</th><th>Method</th><th>Auth</th></tr></thead>
+        <tbody>
+          <tr><td><code>/v1/channels/{channel}/webhook</code></td><td>GET</td><td>No device auth (provider verify path).</td></tr>
+          <tr><td><code>/v1/channels/{channel}/webhook</code></td><td>POST</td><td>No device auth (provider ingest path).</td></tr>
+          <tr><td><code>/v1/client/channels/{channel}/send</code></td><td>POST</td><td>Signed device auth required.</td></tr>
+          <tr><td><code>/webhook/{route}</code></td><td>ANY</td><td>No device auth (plugin-defined webhook endpoint).</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="card">
+      <h2>Common Request Payloads</h2>
+      <h3>Install from local path (daemon)</h3>
+      <pre><code>POST /api/plugins/install
+{
+  "source_type": "path",
+  "source": "/absolute/path/to/plugin",
+  "force": true
+}
+</code></pre>
+
+      <h3>Set config + secret refs</h3>
+      <pre><code>POST /api/plugins/config
+{
+  "plugin_id": "acme_demo",
+  "config": {
+    "client": { "api_base": "https://api.acme.dev" },
+    "server": {}
+  },
+  "secret_refs": {
+    "client": { "api_key": "acme_api_key" },
+    "server": { "verify_token": "acme_verify_token" }
+  }
+}
+</code></pre>
+
+      <h3>Install on server</h3>
+      <pre><code>POST /v1/client/plugins/install
+{
+  "plugin_id": "acme_channel",
+  "version": "1.0.0",
+  "config": {
+    "server": { "endpoint_base": "https://api.acme.dev" }
+  },
+  "secret_refs": {
+    "server": { "verify_token": "acme_verify_token" }
+  }
+}
+</code></pre>
+    </section>
+
+    <footer>
+      For end-to-end payloads, see the example pages.
+    </footer>
+</div>

@@ -1,0 +1,73 @@
+---
+layout: zeus-docs
+title: "Zeus Plugins - OpenClaw Differences"
+---
+
+<div class="zeus-docs-page">
+<header class="hero">
+      <h1>OpenClaw Differences</h1>
+      <p>Zeus plugins are loosely inspired by OpenClaw concepts, but are Zeus-native and Python-first.</p>
+    </header>
+
+    <nav class="topnav">
+      <a href="index.html">Home</a>
+      <a href="getting-started.html">Getting Started</a>
+      <a href="manifest-reference.html">Manifest</a>
+      <a href="daemon-plugins.html">Daemon Runtime</a>
+      <a href="channel-plugins.html">Channel Runtime</a>
+      <a href="api-reference.html">APIs</a>
+      <a href="examples-daemon-plugin.html">Daemon Example</a>
+      <a href="examples-channel-plugin.html">Channel Example</a>
+      <a href="openclaw-differences.html">OpenClaw Differences</a>
+      <a href="troubleshooting.html">Troubleshooting</a>
+    </nav>
+
+    <section class="card">
+      <h2>Shared Ideas</h2>
+      <ul class="compact">
+        <li>Manifest-driven plugin capabilities.</li>
+        <li>Pluggable tools/hooks/channels abstraction.</li>
+        <li>Registry-oriented install and update model.</li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>Key Differences</h2>
+      <table>
+        <thead>
+          <tr><th>Area</th><th>OpenClaw style</th><th>Zeus Native</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Runtime language</td><td>TypeScript/Node-centric</td><td>Python runtime for both daemon and server components</td></tr>
+          <tr><td>Artifact contract</td><td>OpenClaw-specific manifest/host assumptions</td><td><code>zeus.plugin.json</code> with Zeus component/policy/OAuth/automation fields</td></tr>
+          <tr><td>Execution surfaces</td><td>Tool/plugin host-centric</td><td>Dual runtime: local daemon + server channel runtime</td></tr>
+          <tr><td>Channel model</td><td>Depends on OpenClaw host APIs</td><td>Generic <code>/v1/channels/{channel}/webhook</code>, <code>/v1/client/channels/{channel}/send</code>, and <code>/webhook/{route}</code></td></tr>
+          <tr><td>Install activation</td><td>Host dependent</td><td>Controlled in-process reload with rollback on failure</td></tr>
+          <tr><td>Security/auth</td><td>Host dependent</td><td>Signed device-authenticated server control endpoints + curated registry verification</td></tr>
+          <tr><td>Policy controls</td><td>Varies by host</td><td>Manifest-level runtime policy including tool enablement/network/approval defaults</td></tr>
+          <tr><td>OAuth flows</td><td>Plugin-host specific</td><td>Generic OAuth provider declarations linked to config schema and secret refs</td></tr>
+          <tr><td>Proactive + scheduled prompts</td><td>Not standardized across hosts</td><td>Manifest-native <code>automations</code> and <code>proactive</code> sections</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="card">
+      <h2>Porting Guidance</h2>
+      <ol>
+        <li>Map OpenClaw manifest metadata into <code>zeus.plugin.json</code>.</li>
+        <li>Re-implement runtime code in Python entry modules (<code>client/plugin.py</code> and/or <code>server/plugin.py</code>).</li>
+        <li>Translate tool-level permissions into Zeus <code>runtime_policy</code>.</li>
+        <li>Replace host-specific webhook routing with Zeus channel/custom webhook contracts.</li>
+        <li>Declare OAuth providers in manifest and move secrets to <code>secret_refs</code>.</li>
+      </ol>
+    </section>
+
+    <section class="card">
+      <h2>Compatibility Expectation</h2>
+      <p>Zeus does not treat OpenClaw packages as drop-in binaries. Migration is source-level porting to Zeus runtime contracts. Once ported, plugin behavior is managed entirely through Zeus APIs and policy controls.</p>
+    </section>
+
+    <footer>
+      Start implementation from <a href="getting-started.html">Getting Started</a>.
+    </footer>
+</div>

@@ -1,0 +1,98 @@
+---
+layout: zeus-docs
+title: "Zeus Plugins - Troubleshooting"
+---
+
+<div class="zeus-docs-page">
+<header class="hero">
+      <h1>Troubleshooting</h1>
+      <p>Common plugin failures and fast fixes.</p>
+    </header>
+
+    <nav class="topnav">
+      <a href="index.html">Home</a>
+      <a href="getting-started.html">Getting Started</a>
+      <a href="manifest-reference.html">Manifest</a>
+      <a href="daemon-plugins.html">Daemon Runtime</a>
+      <a href="channel-plugins.html">Channel Runtime</a>
+      <a href="api-reference.html">APIs</a>
+      <a href="examples-daemon-plugin.html">Daemon Example</a>
+      <a href="examples-channel-plugin.html">Channel Example</a>
+      <a href="openclaw-differences.html">OpenClaw Differences</a>
+      <a href="troubleshooting.html">Troubleshooting</a>
+    </nav>
+
+    <section class="card">
+      <h2>Manifest and Install Errors</h2>
+      <table>
+        <thead><tr><th>Error</th><th>Likely Cause</th><th>Fix</th></tr></thead>
+        <tbody>
+          <tr><td><code>unsupported manifest schema_version</code></td><td>Wrong schema version.</td><td>Set <code>schema_version</code> to <code>1</code>.</td></tr>
+          <tr><td><code>manifest id is required</code></td><td>Missing plugin id.</td><td>Add non-empty <code>id</code>.</td></tr>
+          <tr><td><code>components.client.entry is required</code></td><td>Client component missing entry path.</td><td>Provide valid <code>components.client.entry</code>.</td></tr>
+          <tr><td><code>server entry not found</code></td><td>Server entry path invalid.</td><td>Fix <code>components.server.entry</code> relative path.</td></tr>
+          <tr><td><code>artifact checksum mismatch</code></td><td>Registry metadata mismatch or tampered artifact.</td><td>Re-publish artifact and metadata with correct SHA256/signature.</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="card">
+      <h2>Config and Secret Errors</h2>
+      <table>
+        <thead><tr><th>Error</th><th>Cause</th><th>Fix</th></tr></thead>
+        <tbody>
+          <tr><td><code>missing required config field</code></td><td>Required field omitted in <code>config</code>.</td><td>Send full required component config.</td></tr>
+          <tr><td><code>missing required secret ref</code></td><td>Required secret field absent in <code>secret_refs</code>.</td><td>Add secret ref key for the field.</td></tr>
+          <tr><td><code>is secret and must be supplied via secret_refs</code></td><td>Secret value placed in plain config.</td><td>Move secret values into <code>secret_refs</code>.</td></tr>
+          <tr><td><code>contains unknown fields</code></td><td>Payload keys not declared in <code>config_schema</code>.</td><td>Align payload keys exactly to schema.</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="card">
+      <h2>OAuth Errors</h2>
+      <table>
+        <thead><tr><th>Error</th><th>Cause</th><th>Fix</th></tr></thead>
+        <tbody>
+          <tr><td><code>oauth provider not found</code></td><td>Provider id not declared in manifest.</td><td>Add provider under <code>oauth.providers</code> with matching id.</td></tr>
+          <tr><td><code>invalid redirect_uri</code></td><td>Redirect URI mismatch with OAuth app registration.</td><td>Update provider app config to exactly match Zeus callback URI.</td></tr>
+          <tr><td><code>token exchange failed</code></td><td>Bad client credentials, code, or scope mismatch.</td><td>Verify client id/secret refs and authorization request params.</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="card">
+      <h2>Runtime and Hook Issues</h2>
+      <ul class="compact">
+        <li><code>before_tool_call</code> with <code>blocked=true</code> stops execution by design.</li>
+        <li><code>before_model_resolve</code> and <code>before_prompt_build</code> ignore block flags.</li>
+        <li>If handler is not invoked, check operation name matches manifest declaration and policy enables it.</li>
+        <li>Verify handler signature supports expected call style (<code>payload</code>, <code>context</code>).</li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>Channel and Webhook Issues</h2>
+      <ol>
+        <li>Check plugin status via <code>GET /v1/client/plugins</code>.</li>
+        <li>Verify channel name and route name normalization (lowercase + underscore/hyphen policy used by your plugin).</li>
+        <li>Confirm provider callback URL matches <code>/v1/channels/{channel}/webhook</code> or <code>/webhook/{route}</code>.</li>
+        <li>Ensure <code>ingest_webhook</code> returns a list of valid envelope dicts.</li>
+      </ol>
+    </section>
+
+    <section class="card">
+      <h2>Quick Validation Checklist</h2>
+      <ul class="compact">
+        <li>Manifest passes validation and referenced entry files exist.</li>
+        <li>Required config and secret refs are present.</li>
+        <li>Local plugin appears in <code>/api/plugins</code>.</li>
+        <li>Server plugin appears in <code>/v1/client/plugins</code> (if server component exists).</li>
+        <li>At least one runtime call path succeeds (tool, send route, or webhook route).</li>
+      </ul>
+    </section>
+
+    <footer>
+      If still blocked, capture exact request payload + response body for the failing endpoint.
+    </footer>
+</div>

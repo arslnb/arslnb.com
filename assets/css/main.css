@@ -578,6 +578,232 @@ body {
   pointer-events: none;
 }
 
+/* Zeus docs */
+.zeus-docs-masthead {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+}
+
+.zeus-docs-masthead-inner {
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.8rem 0 0.75rem;
+}
+
+.zeus-docs-kicker {
+  margin: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-light);
+}
+
+.zeus-grid.zeus-grid-inline.zeus-docs-kicker-grid {
+  width: 0.95em;
+  height: 0.95em;
+  position: static;
+  top: auto;
+}
+
+.zeus-docs-links {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.85rem;
+}
+
+.zeus-docs-links a {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  color: var(--text-light);
+  text-decoration: none;
+}
+
+.zeus-docs-links a:hover {
+  color: var(--text);
+}
+
+.zeus-docs-content {
+  max-width: 1080px;
+  padding-top: 1.25rem;
+}
+
+.zeus-docs-page {
+  margin: 0 auto 2.2rem;
+}
+
+.zeus-docs-page .hero {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1rem 1.1rem;
+  margin-bottom: 1rem;
+  background:
+    linear-gradient(170deg,
+      color-mix(in srgb, var(--bg) 90%, var(--text) 10%) 0%,
+      color-mix(in srgb, var(--bg) 95%, var(--text) 5%) 100%);
+}
+
+.zeus-docs-page .hero h1 {
+  margin: 0 0 0.35rem;
+  font-size: clamp(1.45rem, 3.1vw, 2rem);
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  color: var(--text);
+}
+
+.zeus-docs-page .hero p {
+  margin: 0;
+  color: var(--text-light);
+}
+
+.zeus-docs-page .topnav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 0 0 1rem;
+}
+
+.zeus-docs-page .topnav a {
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 0.3rem 0.65rem;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: var(--text-light);
+  text-decoration: none;
+  transition: border-color 0.15s ease, color 0.15s ease, background 0.15s ease;
+}
+
+.zeus-docs-page .topnav a:hover {
+  color: var(--text);
+  border-color: var(--text-faint);
+  background: color-mix(in srgb, var(--bg) 94%, var(--text) 6%);
+}
+
+.zeus-docs-page .card {
+  background: color-mix(in srgb, var(--bg) 97%, var(--text) 3%);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 0.95rem 1rem;
+  margin-bottom: 0.75rem;
+}
+
+.zeus-docs-page .card h2 {
+  margin-top: 0;
+  margin-bottom: 0.55rem;
+  font-size: 1.15rem;
+  line-height: 1.3;
+}
+
+.zeus-docs-page .card h3 {
+  margin-top: 1rem;
+  margin-bottom: 0.45rem;
+  font-size: 0.97rem;
+  font-family: var(--font-mono);
+  font-weight: 500;
+}
+
+.zeus-docs-page .grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 0.6rem;
+}
+
+.zeus-docs-page .compact li {
+  margin: 0.28rem 0;
+}
+
+.zeus-docs-page .note {
+  color: var(--text-light);
+  font-size: 0.9rem;
+}
+
+.zeus-docs-page .badge {
+  display: inline-block;
+  padding: 0.1rem 0.45rem;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: color-mix(in srgb, var(--bg) 92%, var(--text) 8%);
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  margin-right: 0.35rem;
+}
+
+.zeus-docs-page .badge.ok { border-color: color-mix(in srgb, #7bd88f 50%, var(--border) 50%); }
+.zeus-docs-page .badge.warn { border-color: color-mix(in srgb, #ffd166 50%, var(--border) 50%); }
+.zeus-docs-page .badge.danger { border-color: color-mix(in srgb, #ff6b6b 50%, var(--border) 50%); }
+
+.zeus-docs-page pre {
+  background: var(--bg-code);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.78rem 0.85rem;
+  overflow: auto;
+  margin: 0.55rem 0 0.9rem;
+  line-height: 1.45;
+}
+
+.zeus-docs-page code {
+  font-family: var(--font-mono);
+  font-size: 0.84rem;
+}
+
+.zeus-docs-page pre code {
+  font-size: 0.8rem;
+}
+
+.zeus-docs-page table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 0.65rem 0;
+}
+
+.zeus-docs-page th,
+.zeus-docs-page td {
+  border: 1px solid var(--border);
+  text-align: left;
+  padding: 0.45rem 0.6rem;
+  vertical-align: top;
+}
+
+.zeus-docs-page th {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: var(--text-light);
+  background: color-mix(in srgb, var(--bg) 90%, var(--text) 10%);
+}
+
+.zeus-docs-page footer {
+  margin-top: 1rem;
+  font-family: var(--font-mono);
+  font-size: 0.74rem;
+  color: var(--text-faint);
+}
+
+@media (max-width: 700px) {
+  .zeus-docs-masthead-inner {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .zeus-docs-content {
+    padding-top: 0.9rem;
+  }
+
+  .zeus-docs-page .card {
+    padding: 0.85rem;
+  }
+}
+
 /* Intro */
 .zeus-intro {
   margin: 0 0 2.8rem;

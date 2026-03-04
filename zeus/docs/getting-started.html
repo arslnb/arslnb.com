@@ -1,0 +1,273 @@
+---
+layout: zeus-docs
+title: "Zeus Plugins - Getting Started"
+---
+
+<div class="zeus-docs-page">
+<header class="hero">
+      <h1>Getting Started</h1>
+      <p>Bare minimum files, manifest structure, and first install for Zeus plugins.</p>
+    </header>
+
+    <nav class="topnav">
+      <a href="index.html">Home</a>
+      <a href="getting-started.html">Getting Started</a>
+      <a href="manifest-reference.html">Manifest</a>
+      <a href="daemon-plugins.html">Daemon Runtime</a>
+      <a href="channel-plugins.html">Channel Runtime</a>
+      <a href="api-reference.html">APIs</a>
+      <a href="examples-daemon-plugin.html">Daemon Example</a>
+      <a href="examples-channel-plugin.html">Channel Example</a>
+      <a href="openclaw-differences.html">OpenClaw Differences</a>
+      <a href="troubleshooting.html">Troubleshooting</a>
+    </nav>
+
+    <section class="card">
+      <h2>1) Pick Your Plugin Shape</h2>
+      <table>
+        <thead>
+          <tr><th>Shape</th><th>Manifest Component</th><th>Use Case</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Daemon-only</td><td><code>components.client</code></td><td>Expose runtime tools/hooks inside local Zeus daemon.</td></tr>
+          <tr><td>Channel-only</td><td><code>components.server</code></td><td>Expose channel webhooks/send or custom webhook routes on server.</td></tr>
+          <tr><td>Hybrid</td><td><code>components.client</code> + <code>components.server</code></td><td>One plugin bundle for both local and server behavior.</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="card">
+      <h2>2) Bare Minimum Files</h2>
+      <h3>Daemon-only</h3>
+      <pre><code>my_daemon_plugin/
+  zeus.plugin.json
+  client/
+    plugin.py
+</code></pre>
+
+      <h3>Channel-only</h3>
+      <pre><code>my_channel_plugin/
+  zeus.plugin.json
+  server/
+    plugin.py
+</code></pre>
+
+      <h3>Hybrid</h3>
+      <pre><code>my_hybrid_plugin/
+  zeus.plugin.json
+  client/
+    plugin.py
+  server/
+    plugin.py
+</code></pre>
+    </section>
+
+    <section class="card">
+      <h2>3) Bare Minimum Manifest</h2>
+      <pre><code>{
+  "schema_version": 1,
+  "id": "acme_demo",
+  "name": "Acme Demo",
+  "version": "1.0.0",
+  "components": {
+    "client": { "entry": "client/plugin.py", "runtime": "python" }
+  },
+  "config_schema": {
+    "client": {
+      "api_base": { "type": "string", "required": true, "secret": false }
+    }
+  }
+}
+</code></pre>
+      <p class="note">For channel plugins, replace/add <code>components.server</code> with <code>entry</code>, <code>runtime</code>, and <code>channels</code>.</p>
+    </section>
+
+    <section class="card">
+      <h2>4) Minimal Runtime Code</h2>
+      <h3>Daemon plugin entry</h3>
+      <pre><code>class DemoPlugin:
+    def __init__(self, ctx):
+        self.ctx = ctx
+
+    def tools(self):
+        return {
+            "demo_tool": {
+                "description": "Simple demo tool",
+                "handler": self.demo_tool,
+            }
+        }
+
+    async def demo_tool(self, payload, context):
+        return {"ok": True, "echo": payload}
+
+
+def register(context):
+    return DemoPlugin(context)
+</code></pre>
+
+      <h3>Channel plugin entry</h3>
+      <pre><code>class DemoAdapter:
+    def ingest_webhook(self, *, request, body):
+        return [{"message_id": "demo:1", "channel": "demo", "text": "hello"}]
+
+    def send(self, payload):
+        return {"ok": True, "provider_message_id": "123"}
+
+
+class DemoChannelPlugin:
+    def __init__(self, ctx):
+        self.ctx = ctx
+
+    def channels(self):
+        return {"demo": DemoAdapter()}
+
+
+def register(ctx):
+    return DemoChannelPlugin(ctx)
+</code></pre>
+    </section>
+
+    <section class="card">
+      <h2>5) Add Common Features (Examples)</h2>
+      <h3>Tool + policy controls</h3>
+      <pre><code>{
+  "tools": [
+    { "name": "lookup_customer", "enabled": true, "allow_network": true, "allow_without_approval": false }
+  ],
+  "runtime_policy": {
+    "network": { "socat_bypass": false },
+    "approval": { "mode": "ask_each_time" },
+    "tools": {
+      "lookup_customer": {
+        "enabled": true,
+        "allow_network": true,
+        "allow_without_approval": false
+      }
+    }
+  }
+}
+</code></pre>
+
+      <h3>CLI prerequisites + environment check</h3>
+      <pre><code>{
+  "prerequisites": {
+    "cli": [
+      {
+        "name": "GitHub CLI",
+        "binary": "gh",
+        "required": true,
+        "install_hint": "brew install gh",
+        "install_url": "https://cli.github.com/"
+      }
+    ],
+    "environment_check": {
+      "client_function": "check_environment"
+    }
+  }
+}
+</code></pre>
+      <pre><code># client/plugin.py
+import shutil
+
+def check_environment(context):
+    if not shutil.which("gh"):
+        return False, "please install gh with brew install gh"
+    return True, ""
+</code></pre>
+
+      <h3>Hooks + operation kinds (<code>commands</code>/<code>services</code>/<code>cli</code>/<code>providers</code>)</h3>
+      <pre><code>{
+  "commands": ["sync_customers"],
+  "services": ["customers_service"],
+  "cli": ["customers_cli"],
+  "providers": ["customers_provider"],
+  "gateway": ["customers_gateway"],
+  "http": ["customers_http"],
+  "hook_phases": ["before_prompt_build", "before_tool_call", "after_tool_call"]
+}
+</code></pre>
+
+      <h3>OAuth provider declaration</h3>
+      <pre><code>{
+  "oauth": {
+    "providers": [
+      {
+        "id": "google",
+        "component": "server",
+        "authorization_url": "https://accounts.google.com/o/oauth2/v2/auth",
+        "token_url": "https://oauth2.googleapis.com/token",
+        "scopes": ["openid", "email"],
+        "pkce": "required",
+        "client_id_field": "google_client_id",
+        "client_secret_field": "google_client_secret",
+        "supports_refresh": true
+      }
+    ]
+  }
+}
+</code></pre>
+
+      <h3>Custom webhook route from plugin</h3>
+      <pre><code>def webhooks(self):
+    return {
+      "stripe-events": {
+        "methods": ["POST"],
+        "handler": self.handle_stripe
+      }
+    }
+
+# Exposed as: POST /webhook/stripe-events
+</code></pre>
+    </section>
+
+    <section class="card">
+      <h2>6) Install + Configure</h2>
+      <h3>Local install</h3>
+      <pre><code>POST /api/plugins/install
+{
+  "source_type": "path",
+  "source": "/absolute/path/to/my_plugin",
+  "force": true
+}
+</code></pre>
+
+      <h3>Set config + secret refs</h3>
+      <pre><code>POST /api/plugins/config
+{
+  "plugin_id": "acme_demo",
+  "config": {
+    "client": { "api_base": "https://api.acme.dev" },
+    "server": {}
+  },
+  "secret_refs": {
+    "client": { "api_key": "acme_api_key" },
+    "server": {}
+  }
+}
+</code></pre>
+
+      <h3>Server install (for server component)</h3>
+      <pre><code>POST /v1/client/plugins/install
+{
+  "plugin_id": "acme_demo",
+  "version": "1.0.0",
+  "config": { "server": {} },
+  "secret_refs": { "server": {} }
+}
+</code></pre>
+    </section>
+
+    <section class="card">
+      <h2>7) Validate It Works</h2>
+      <ul class="compact">
+        <li><code>GET /api/plugins</code> shows local plugin as installed/enabled.</li>
+        <li><code>GET /v1/client/plugins</code> shows server plugin status (if server component exists).</li>
+        <li>Tool appears in daemon runtime and can be invoked.</li>
+        <li>Channel route and/or custom webhook route responds as expected.</li>
+      </ul>
+    </section>
+
+    <footer>
+      Next: <a href="manifest-reference.html">Manifest Reference</a> and full examples.
+    </footer>
+</div>
