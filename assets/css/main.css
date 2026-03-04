@@ -710,6 +710,22 @@ body {
   font-weight: 500;
 }
 
+.zeus-docs-page p {
+  margin: 0.55rem 0;
+  color: var(--text-light);
+  line-height: 1.65;
+}
+
+.zeus-docs-page ul,
+.zeus-docs-page ol {
+  margin: 0.55rem 0;
+  padding-left: 1.3rem;
+}
+
+.zeus-docs-page li {
+  margin: 0.3rem 0;
+}
+
 .zeus-docs-page .grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
