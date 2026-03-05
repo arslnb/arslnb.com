@@ -1,242 +1,143 @@
 ---
 layout: zeus-docs
 title: "Zeus Plugins - Manifest Reference"
-description: "Complete contract for zeus.plugin.json (Zeus Native Plugins)."
+description: "Contract for zeus.plugin.json including setup, auth, skills, and secret storage."
 doc_slug: "manifest-reference"
 permalink: "/zeus/docs/manifest-reference/"
 ---
 {% raw %}
 <div class="zeus-docs-page">
 <header class="hero">
-      <h1>Manifest Reference</h1>
-      <p>Complete contract for <code>zeus.plugin.json</code> (Zeus Native Plugins).</p>
-    </header>
+  <h1>Manifest Reference</h1>
+  <p>Contract for <code>zeus.plugin.json</code> (schema version <code>1</code>).</p>
+</header>
 
-    <section class="card">
-      <h2>Required Top-Level Fields</h2>
-      <ul class="compact">
-        <li><code>schema_version</code>: must be <code>1</code></li>
-        <li><code>id</code>: plugin id (slug-safe, stable)</li>
-        <li><code>version</code>: plugin version string</li>
-        <li><code>components</code>: at least one of <code>client</code> or <code>server</code></li>
-      </ul>
-    </section>
+<section class="card">
+  <h2>Required Top-Level Fields</h2>
+  <ul class="compact">
+    <li><code>schema_version</code>: must be <code>1</code> (integer)</li>
+    <li><code>id</code>: slug-safe plugin id</li>
+    <li><code>name</code>, <code>version</code>, <code>description</code></li>
+    <li><code>components</code>: at least one of <code>client</code> or <code>server</code></li>
+    <li><code>config_schema</code>: object with <code>client</code> and <code>server</code> field maps</li>
+  </ul>
+</section>
 
-    <section class="card">
-      <h2>Components Contract</h2>
-      <table>
-        <thead>
-          <tr><th>Field</th><th>Type</th><th>Rules</th></tr>
-        </thead>
-        <tbody>
-          <tr><td><code>components.client.entry</code></td><td>string</td><td>Required when client component exists. Relative path to Python entry module.</td></tr>
-          <tr><td><code>components.client.runtime</code></td><td>string</td><td>Must be <code>python</code>.</td></tr>
-          <tr><td><code>components.server.entry</code></td><td>string</td><td>Required when server component exists. Relative path to Python entry module.</td></tr>
-          <tr><td><code>components.server.runtime</code></td><td>string</td><td>Must be <code>python</code>.</td></tr>
-          <tr><td><code>components.server.channels</code></td><td>array&lt;string&gt;</td><td>Channel names provided by server plugin.</td></tr>
-        </tbody>
-      </table>
-    </section>
+<section class="card">
+  <h2>Component Contract</h2>
+  <table>
+    <thead>
+      <tr><th>Field</th><th>Type</th><th>Rules</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><code>components.client.runtime</code></td><td>string</td><td>Must be <code>python</code>.</td></tr>
+      <tr><td><code>components.client.entry</code></td><td>string</td><td>Required when client component exists. Relative <code>.py</code> path.</td></tr>
+      <tr><td><code>components.server.runtime</code></td><td>string</td><td>Must be <code>python</code>.</td></tr>
+      <tr><td><code>components.server.entry</code></td><td>string</td><td>Required when server component exists. Relative <code>.py</code> path.</td></tr>
+      <tr><td><code>components.server.channels</code></td><td>array&lt;string&gt;</td><td>Optional channel names.</td></tr>
+    </tbody>
+  </table>
+</section>
 
-    <section class="card">
-      <h2>Daemon Operation and Hook Fields</h2>
-      <table>
-        <thead>
-          <tr><th>Field</th><th>Type</th><th>Purpose</th></tr>
-        </thead>
-        <tbody>
-          <tr><td><code>tools</code></td><td>array&lt;string|object&gt;</td><td>Model-callable operations.</td></tr>
-          <tr><td><code>commands</code></td><td>array&lt;string&gt;</td><td>Command operations.</td></tr>
-          <tr><td><code>services</code></td><td>array&lt;string&gt;</td><td>Service operations.</td></tr>
-          <tr><td><code>cli</code></td><td>array&lt;string&gt;</td><td>CLI operations.</td></tr>
-          <tr><td><code>providers</code></td><td>array&lt;string&gt;</td><td>Provider operations.</td></tr>
-          <tr><td><code>gateway</code></td><td>array&lt;string&gt;</td><td>Gateway operations.</td></tr>
-          <tr><td><code>http</code></td><td>array&lt;string&gt;</td><td>HTTP operations.</td></tr>
-          <tr><td><code>hook_phases</code></td><td>array&lt;string&gt;</td><td>Any of <code>before_model_resolve</code>, <code>before_prompt_build</code>, <code>before_tool_call</code>, <code>after_tool_call</code>.</td></tr>
-        </tbody>
-      </table>
-    </section>
+<section class="card">
+  <h2>Config Schema Rules</h2>
+  <ul class="compact">
+    <li>Define fields under <code>config_schema.client</code> and/or <code>config_schema.server</code>.</li>
+    <li>Each field requires <code>type</code> and <code>secret</code> (boolean).</li>
+    <li>Allowed <code>type</code>: <code>string</code>, <code>integer</code>, <code>number</code>, <code>boolean</code>, <code>object</code>, <code>array</code>.</li>
+    <li>Use <code>required: true</code> to enforce user input in Configure Plugin flow.</li>
+    <li>For secret fields, values are submitted through configure form and persisted in Zeus secret vault; only secret refs are stored in plugin state.</li>
+  </ul>
+</section>
 
-    <section class="card">
-      <h2>Runtime Policy</h2>
-      <table>
-        <thead>
-          <tr><th>Field</th><th>Type</th><th>Purpose</th></tr>
-        </thead>
-        <tbody>
-          <tr><td><code>runtime_policy.network.socat_bypass</code></td><td>boolean</td><td>Default network gate posture for plugin operations.</td></tr>
-          <tr><td><code>runtime_policy.approval.mode</code></td><td>string</td><td><code>ask_each_time</code> or <code>allow_without_approval</code>.</td></tr>
-          <tr><td><code>runtime_policy.tools.{name}.enabled</code></td><td>boolean</td><td>Enable/disable specific tool.</td></tr>
-          <tr><td><code>runtime_policy.tools.{name}.allow_network</code></td><td>boolean</td><td>Allow network for that tool.</td></tr>
-          <tr><td><code>runtime_policy.tools.{name}.allow_without_approval</code></td><td>boolean</td><td>Permit execution without approval gate.</td></tr>
-          <tr><td><code>prerequisites.cli[]</code></td><td>array&lt;object&gt;</td><td>Declare required/optional CLI dependencies and install guidance.</td></tr>
-          <tr><td><code>prerequisites.environment_check.client_function</code></td><td>string</td><td>Module function that returns readiness <code>ok/message</code>.</td></tr>
-        </tbody>
-      </table>
-    </section>
+<section class="card">
+  <h2>Secret Storage</h2>
+  <p>V1 supports vault-only storage.</p>
+  <pre><code>"secret_storage": "vault"
 
-    <section class="card">
-      <h2>OAuth Declaration</h2>
-      <p>Use <code>oauth.providers</code> to register generic OAuth providers that Zeus can drive with shared flows.</p>
-      <table>
-        <thead>
-          <tr><th>Field</th><th>Type</th><th>Rules</th></tr>
-        </thead>
-        <tbody>
-          <tr><td><code>id</code></td><td>string</td><td>Unique provider id within plugin.</td></tr>
-          <tr><td><code>component</code></td><td>string</td><td><code>client</code> or <code>server</code> (default <code>server</code>).</td></tr>
-          <tr><td><code>authorization_url</code></td><td>string</td><td>HTTPS URL for consent start.</td></tr>
-          <tr><td><code>token_url</code></td><td>string</td><td>HTTPS URL for token exchange/refresh.</td></tr>
-          <tr><td><code>scopes</code></td><td>array&lt;string&gt;</td><td>Requested scopes.</td></tr>
-          <tr><td><code>pkce</code></td><td>string</td><td><code>required</code>, <code>optional</code>, or <code>disabled</code>.</td></tr>
-          <tr><td><code>client_id_field</code></td><td>string</td><td>Must reference a declared config field.</td></tr>
-          <tr><td><code>client_secret_field</code></td><td>string</td><td>Must reference a declared secret field (<code>secret: true</code>).</td></tr>
-          <tr><td><code>supports_refresh</code></td><td>boolean</td><td>Whether refresh flow is supported.</td></tr>
-        </tbody>
-      </table>
-    </section>
-
-    <section class="card">
-      <h2>Behavior, Scheduled Task, and Proactive Fields</h2>
-      <table>
-        <thead>
-          <tr><th>Field</th><th>Type</th><th>Purpose</th></tr>
-        </thead>
-        <tbody>
-          <tr><td><code>automations.behaviors[]</code></td><td>array&lt;object&gt;</td><td>Install-time behavior prompts.</td></tr>
-          <tr><td><code>automations.scheduled_tasks[]</code></td><td>array&lt;object&gt;</td><td>Install-time scheduled prompts/cron-style jobs.</td></tr>
-          <tr><td><code>proactive.screen_watch[]</code></td><td>array&lt;object&gt;</td><td>Prompts consumed by proactive screen system.</td></tr>
-        </tbody>
-      </table>
-    </section>
-
-    <section class="card">
-      <h2>Config Schema Rules</h2>
-      <ul class="compact">
-        <li>Use component-scoped schemas under <code>config_schema.client</code> and/or <code>config_schema.server</code>.</li>
-        <li>Each field must declare <code>type</code> and boolean <code>secret</code>.</li>
-        <li>Allowed <code>type</code>: <code>string</code>, <code>integer</code>, <code>number</code>, <code>boolean</code>, <code>object</code>, <code>array</code>.</li>
-        <li><code>secret: true</code> values must be supplied via <code>secret_refs</code>, not plain <code>config</code>.</li>
-        <li>Unknown config keys are rejected.</li>
-      </ul>
-    </section>
-
-    <section class="card">
-      <h2>Full Example Manifest</h2>
-      <pre><code>{
-  "schema_version": 1,
-  "id": "acme_messaging",
-  "name": "Acme Messaging",
-  "version": "1.2.0",
-  "components": {
-    "client": {
-      "entry": "client/plugin.py",
-      "runtime": "python"
-    },
-    "server": {
-      "entry": "server/plugin.py",
-      "runtime": "python",
-      "channels": ["acme"]
-    }
-  },
-  "tools": [
-    { "name": "acme_lookup", "enabled": true, "allow_network": true, "allow_without_approval": false }
-  ],
-  "commands": ["acme_sync"],
-  "services": ["acme_service"],
-  "cli": ["acme_cli"],
-  "providers": ["acme_provider"],
-  "gateway": ["acme_gateway"],
-  "http": ["acme_http"],
-  "hook_phases": ["before_prompt_build", "before_tool_call", "after_tool_call"],
-  "runtime_policy": {
-    "network": { "socat_bypass": false },
-    "approval": { "mode": "ask_each_time" },
-    "tools": {
-      "acme_lookup": {
-        "enabled": true,
-        "allow_network": true,
-        "allow_without_approval": false
-      }
-    }
-  },
-  "prerequisites": {
-    "cli": [
-      {
-        "name": "GitHub CLI",
-        "binary": "gh",
-        "required": true,
-        "install_hint": "brew install gh",
-        "install_url": "https://cli.github.com/"
-      }
-    ],
-    "environment_check": {
-      "client_function": "check_environment"
-    }
-  },
-  "oauth": {
-    "providers": [
-      {
-        "id": "google",
-        "component": "server",
-        "authorization_url": "https://accounts.google.com/o/oauth2/v2/auth",
-        "token_url": "https://oauth2.googleapis.com/token",
-        "scopes": ["openid", "email"],
-        "pkce": "required",
-        "client_id_field": "google_client_id",
-        "client_secret_field": "google_client_secret",
-        "supports_refresh": true
-      }
-    ]
-  },
-  "automations": {
-    "behaviors": [
-      {
-        "id": "daily_style",
-        "name": "Daily style",
-        "prompt": "When writing updates, keep output concise and structured.",
-        "enabled_by_default": true
-      }
-    ],
-    "scheduled_tasks": [
-      {
-        "id": "daily_digest",
-        "name": "Daily digest",
-        "prompt": "Summarize plugin-specific updates.",
-        "schedule_expression": "0 9 * * *",
-        "timezone": "America/Los_Angeles",
-        "enabled_by_default": true
-      }
-    ]
-  },
-  "proactive": {
-    "screen_watch": [
-      {
-        "id": "invoice_watch",
-        "name": "Invoice watch",
-        "prompt": "Look for overdue invoice dashboards and draft reminders.",
-        "enabled_by_default": true,
-        "priority": "normal"
-      }
-    ]
-  },
-  "config_schema": {
-    "client": {
-      "api_base": { "type": "string", "required": true, "secret": false },
-      "api_key": { "type": "string", "required": true, "secret": true }
-    },
-    "server": {
-      "verify_token": { "type": "string", "required": true, "secret": true },
-      "google_client_id": { "type": "string", "required": true, "secret": false },
-      "google_client_secret": { "type": "string", "required": true, "secret": true }
-    }
+# or
+"secret_storage": {
+  "default": "vault",
+  "fields": {
+    "client.api_key": "vault",
+    "server.verify_token": "vault"
   }
-}
-</code></pre>
-    </section>
+}</code></pre>
+</section>
 
-    <footer>
-      Next: <a href="/zeus/docs/daemon-plugins/">Daemon Runtime</a>.
-    </footer>
+<section class="card">
+  <h2>Prerequisites with Auto-Install</h2>
+  <p>Declare required CLIs and optional per-platform auto-install commands.</p>
+  <pre><code>"prerequisites": {
+  "cli": [
+    {
+      "name": "Google Workspace CLI",
+      "binary": "gws",
+      "required": true,
+      "install_hint": "npm install -g @googleworkspace/cli",
+      "install_url": "https://github.com/googleworkspace/cli",
+      "auto_install_commands": {
+        "darwin": "npm install -g @googleworkspace/cli",
+        "linux": "npm install -g @googleworkspace/cli"
+      }
+    }
+  ]
+}</code></pre>
+</section>
+
+<section class="card">
+  <h2>OAuth Modes</h2>
+  <ul class="compact">
+    <li><code>mode: providers</code>: OAuth provider metadata model.</li>
+    <li><code>mode: cli_sequence</code>: daemon runs explicit CLI commands (for example <code>gws auth setup</code> then <code>gws auth login</code>).</li>
+    <li><code>mode: none</code>: no OAuth actions.</li>
+  </ul>
+  <pre><code>"oauth": {
+  "mode": "cli_sequence",
+  "setup_command": "gws auth setup",
+  "login_command": "gws auth login",
+  "description": "Run gws auth in daemon",
+  "agent_prompt": "Optional instructions shown in tooling/docs"
+}</code></pre>
+</section>
+
+<section class="card">
+  <h2>Shipped Skills</h2>
+  <p>Declare bundled skills for automatic install/remove with plugin lifecycle.</p>
+  <pre><code>"skills": {
+  "bundled": true,
+  "path": "skills",
+  "auto_install": true,
+  "auto_enable": true,
+  "uninstall_policy": "remove"
+}</code></pre>
+</section>
+
+<section class="card">
+  <h2>Lifecycle Notes</h2>
+  <ul class="compact">
+    <li>New installs are inactive until configured.</li>
+    <li>If setup is required, state transitions through <code>pending</code> → <code>running</code> → <code>succeeded</code>/<code>failed</code>.</li>
+    <li>Plugin can be enabled only when configured and setup is <code>not_required</code> or <code>succeeded</code>.</li>
+  </ul>
+</section>
+
+<section class="card">
+  <h2>Migration Note (Pre-Configure-Modal Plugins)</h2>
+  <ul class="compact">
+    <li>Legacy JSON workflows (<code>/api/plugins/config</code> + direct <code>secret_refs</code>) still exist for compatibility.</li>
+    <li>New plugins should target <code>/api/plugins/configure</code> and provide secrets via <code>secrets</code> payload.</li>
+    <li>Keep <code>index.json</code> as the single allowlisted catalog source.</li>
+  </ul>
+</section>
+
+<section class="card">
+  <h2>Reference Example (GWS)</h2>
+  <p>See <a href="https://github.com/arslnb/zeus-plugins/tree/main/plugins/gws" target="_blank" rel="noopener">plugins/gws</a> for a full manifest using prerequisites, CLI OAuth, and shipped skills.</p>
+</section>
+
+<footer>
+  Next: <a href="/zeus/docs/api-reference/">API Reference</a>.
+</footer>
 </div>
 {% endraw %}

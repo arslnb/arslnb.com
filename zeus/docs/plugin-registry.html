@@ -1,7 +1,7 @@
 ---
 layout: zeus-docs
 title: "Publish a Plugin"
-description: "How to submit your Zeus plugin so it appears in the public directory."
+description: "How to submit your Zeus plugin so it appears in the approved catalog."
 doc_slug: "plugin-registry"
 permalink: "/zeus/docs/plugin-registry/"
 ---
@@ -9,21 +9,31 @@ permalink: "/zeus/docs/plugin-registry/"
 <div class="zeus-docs-page">
 <header class="hero">
   <h1>Publish a Plugin</h1>
-  <p>Submit your plugin to the public Zeus registry so others can discover and install it.</p>
+  <p>Submit your plugin to the approved Zeus catalog so users can install it from <code>Settings → Plugins</code>.</p>
 </header>
+
+<section class="card">
+  <h2>Catalog Policy (Authoritative Allowlist)</h2>
+  <ul class="compact">
+    <li><code>index.json</code> is the definitive approval list.</li>
+    <li>The app installs/searches only plugins listed in <code>index.json</code>.</li>
+    <li>Plugin folders not listed in <code>index.json</code> are ignored by catalog validation and app discovery.</li>
+    <li>Catalog installs track the repository <code>main</code> branch.</li>
+  </ul>
+</section>
 
 <section class="card">
   <h2>Quick Links</h2>
   <ul class="compact">
     <li>Registry repo: <a href="https://github.com/arslnb/zeus-plugins" target="_blank" rel="noopener">github.com/arslnb/zeus-plugins</a></li>
     <li>Plugin directory: <a href="/zeus/plugins/">/zeus/plugins</a></li>
-    <li>Getting started: <a href="/zeus/docs/getting-started/">/zeus/docs/getting-started/</a></li>
     <li>Manifest reference: <a href="/zeus/docs/manifest-reference/">/zeus/docs/manifest-reference/</a></li>
+    <li>API reference: <a href="/zeus/docs/api-reference/">/zeus/docs/api-reference/</a></li>
   </ul>
 </section>
 
 <section class="card">
-  <h2>1) Scaffold Your Plugin</h2>
+  <h2>1) Scaffold and Validate</h2>
   <pre><code>git clone https://github.com/arslnb/zeus-plugins.git
 cd zeus-plugins
 python3 -m venv .venv
@@ -33,12 +43,15 @@ python -m pip install -e .
 # create scaffold
 zeus plugin init acme_demo --runtime daemon --owner acme
 
-# validate plugin
-zeus plugin check plugins/acme_demo --json</code></pre>
+# validate plugin folder
+zeus plugin check plugins/acme_demo --json
+
+# validate allowlisted catalog
+zeus plugin check . --registry --json</code></pre>
 </section>
 
 <section class="card">
-  <h2>2) What to Include in Your Submission</h2>
+  <h2>2) Required Submission Files</h2>
   <pre><code>plugins/
   acme_demo/
     zeus.plugin.json
@@ -47,66 +60,59 @@ zeus plugin check plugins/acme_demo --json</code></pre>
     examples/
       install.json
       config.json
-    client/plugin.py   # and/or server/plugin.py</code></pre>
-  <p class="note">Keep your plugin id stable (folder name, manifest id, and metadata id should match).</p>
+    client/plugin.py   # and/or server/plugin.py
+    skills/            # optional shipped skills</code></pre>
+  <ul class="compact">
+    <li>Manifest <code>id</code>, folder name, and metadata <code>id</code> must match.</li>
+    <li>Declare setup/auth in manifest (<code>prerequisites</code>, <code>oauth</code>) where applicable.</li>
+    <li>Declare shipped skills in manifest <code>skills</code> if you bundle them.</li>
+  </ul>
 </section>
 
 <section class="card">
-  <h2>3) Open a Pull Request</h2>
+  <h2>3) Add to Allowlist Index</h2>
+  <p>Add (or update) a single entry in <code>index.json</code>:</p>
+  <pre><code>{
+  "id": "acme_demo",
+  "name": "Acme Demo",
+  "version": "1.0.0",
+  "summary": "One-line summary.",
+  "owner": "acme",
+  "runtime": ["client"],
+  "categories": ["productivity"],
+  "min_zeus_version": "1.0.0",
+  "source_repo": "https://github.com/arslnb/zeus-plugins",
+  "license": "MIT",
+  "metadata_path": "plugins/acme_demo/metadata.json",
+  "manifest_path": "plugins/acme_demo/zeus.plugin.json"
+}</code></pre>
+</section>
+
+<section class="card">
+  <h2>4) Open Pull Request</h2>
   <pre><code>git checkout -b add-acme-demo-1-0-0
-git add plugins/acme_demo
+git add plugins/acme_demo index.json
 git commit -m "Add acme_demo plugin v1.0.0"
 git push origin add-acme-demo-1-0-0
 
 gh pr create --repo arslnb/zeus-plugins \
   --title "Add acme_demo plugin v1.0.0" \
-  --body "Adds acme_demo plugin with install/config examples and docs."</code></pre>
-</section>
-
-<section class="card">
-  <h2>One-Click Prompt for PR Packaging</h2>
-  <p>Use this prompt with Codex or Claude to prepare a clean plugin submission.</p>
-  <div class="zeus-launch-row">
-    <button class="zeus-launch-btn" data-assistant="codex" data-prompt-source="#zeus-registry-pr-prompt" type="button">Open in Codex</button>
-    <button class="zeus-launch-btn" data-assistant="claude" data-prompt-source="#zeus-registry-pr-prompt" type="button">Open in Claude</button>
-  </div>
-  <pre><code id="zeus-registry-pr-prompt">Prepare this plugin for submission to https://github.com/arslnb/zeus-plugins.
-
-Read these first and use them as source of truth:
-- https://arslnb.com/zeus/docs/llms.txt
-- https://arslnb.com/zeus/docs/agent-index.json
-- https://arslnb.com/zeus/docs/plugin-registry/
-- https://arslnb.com/zeus/docs/manifest-reference/
-- https://arslnb.com/zeus/plugins/
-- https://github.com/arslnb/zeus-plugins
-- https://github.com/arslnb/zeus-plugins/tree/main/schemas
-
-Tasks:
-1) Validate zeus.plugin.json and ensure runtime entries are real.
-2) Add metadata.json and matching index.json entry.
-3) Add README plus examples/install.json and examples/config.json.
-4) Generate git + gh commands to open a PR.
-
-Return:
-- final file tree
-- full file contents
-- exact PR commands
-- validation command output format.</code></pre>
+  --body "Adds acme_demo plugin with setup/config examples and docs."</code></pre>
 </section>
 
 <section class="card">
   <h2>Submission Checklist</h2>
   <ul class="compact">
-    <li>Manifest and metadata are valid JSON and consistent.</li>
-    <li>Runtime entry files exist and are executable.</li>
-    <li>Install/config examples are copy-paste ready.</li>
-    <li>README explains setup, config, and expected behavior.</li>
-    <li><code>zeus plugin check plugins/&lt;plugin_id&gt; --json</code> passes.</li>
+    <li>Manifest and metadata pass validation.</li>
+    <li>Index entry is present and paths are correct.</li>
+    <li>README explains setup flow and configuration form fields.</li>
+    <li>Examples include <code>/api/plugins/install</code> and <code>/api/plugins/configure</code>.</li>
+    <li>If secrets are needed, docs describe vault-backed configuration.</li>
   </ul>
 </section>
 
 <footer>
-  After merge, your plugin appears in <a href="/zeus/plugins/">/zeus/plugins</a>.
+  After merge, users can install from the in-app approved plugin catalog.
 </footer>
 </div>
 {% endraw %}

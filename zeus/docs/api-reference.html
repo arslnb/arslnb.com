@@ -19,10 +19,12 @@ permalink: "/zeus/docs/api-reference/"
         <tbody>
           <tr><td><code>/api/plugins</code></td><td>GET</td><td>List local plugin state.</td></tr>
           <tr><td><code>/api/plugins/search</code></td><td>POST</td><td>Search curated plugin catalog.</td></tr>
-          <tr><td><code>/api/plugins/install</code></td><td>POST</td><td>Install from <code>registry</code>, <code>git</code>, or <code>path</code>.</td></tr>
+          <tr><td><code>/api/plugins/install</code></td><td>POST</td><td>Install from approved catalog (<code>registry</code>) or explicit <code>git</code>/<code>path</code>.</td></tr>
           <tr><td><code>/api/plugins/uninstall</code></td><td>POST</td><td>Uninstall local plugin.</td></tr>
           <tr><td><code>/api/plugins/enabled</code></td><td>POST</td><td>Enable/disable local plugin.</td></tr>
-          <tr><td><code>/api/plugins/config</code></td><td>POST</td><td>Set local plugin config and secret refs.</td></tr>
+          <tr><td><code>/api/plugins/configure</code></td><td>POST</td><td>Set config + raw secrets (vault-backed), optionally run setup.</td></tr>
+          <tr><td><code>/api/plugins/setup/run</code></td><td>POST</td><td>Run/retry manifest-defined setup actions.</td></tr>
+          <tr><td><code>/api/plugins/config</code></td><td>POST</td><td>Legacy config endpoint (direct secret refs).</td></tr>
           <tr><td><code>/api/plugins/server-status</code></td><td>POST</td><td>Update server sync status metadata for UI/state.</td></tr>
         </tbody>
       </table>
@@ -82,18 +84,26 @@ permalink: "/zeus/docs/api-reference/"
 }
 </code></pre>
 
-      <h3>Set config + secret refs</h3>
-      <pre><code>POST /api/plugins/config
+      <h3>Configure plugin (recommended)</h3>
+      <pre><code>POST /api/plugins/configure
 {
   "plugin_id": "acme_demo",
   "config": {
     "client": { "api_base": "https://api.acme.dev" },
     "server": {}
   },
-  "secret_refs": {
-    "client": { "api_key": "acme_api_key" },
-    "server": { "verify_token": "acme_verify_token" }
-  }
+  "secrets": {
+    "client": { "api_key": "raw-secret-value" },
+    "server": { "verify_token": "raw-secret-value" }
+  },
+  "run_setup": true
+}
+</code></pre>
+
+      <h3>Run setup actions</h3>
+      <pre><code>POST /api/plugins/setup/run
+{
+  "plugin_id": "gws"
 }
 </code></pre>
 

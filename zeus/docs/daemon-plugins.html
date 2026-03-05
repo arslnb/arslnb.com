@@ -16,7 +16,7 @@ permalink: "/zeus/docs/daemon-plugins/"
       <h2>Load Conditions</h2>
       <ul class="compact">
         <li>Plugin exists in local <code>plugins_state.json</code>.</li>
-        <li>Plugin is <code>enabled</code> and entry file is present.</li>
+        <li>Plugin is <code>enabled</code>, <code>configured</code>, and setup state is <code>not_required</code> or <code>succeeded</code>.</li>
         <li><code>components.client.runtime</code> is <code>python</code>.</li>
       </ul>
     </section>
@@ -61,11 +61,21 @@ permalink: "/zeus/docs/daemon-plugins/"
       <h2>Prerequisites and Environment Checks</h2>
       <ul class="compact">
         <li><code>prerequisites.cli[]</code> declares external CLI dependencies (example: <code>gh</code>).</li>
-        <li>Each CLI prerequisite can include <code>install_hint</code> and <code>install_url</code> for user guidance.</li>
+        <li>Each CLI prerequisite can include <code>install_hint</code>, <code>install_url</code>, and <code>auto_install_commands</code> (<code>darwin</code>/<code>linux</code>).</li>
         <li><code>prerequisites.environment_check.client_function</code> points to a Python module function (for example <code>check_environment</code>).</li>
         <li>The function should return readiness as <code>bool</code>, <code>(bool, message)</code>, or <code>{ "ok": bool, "message": "..." }</code>.</li>
       </ul>
       <p>If prerequisites/environment checks fail, Zeus keeps the plugin installed but does not load runtime operations until checks pass.</p>
+    </section>
+
+    <section class="card">
+      <h2>Configure + Setup Lifecycle</h2>
+      <ul class="compact">
+        <li>User configures plugin via app modal (<code>Configure Plugin</code> button).</li>
+        <li>Secrets from the form are persisted to secret vault and converted to secret refs automatically.</li>
+        <li>Optional setup runner executes manifest-defined actions (including OAuth CLI sequences).</li>
+        <li>Setup status is persisted in plugin state with user-facing status reason.</li>
+      </ul>
     </section>
 
     <section class="card">
@@ -87,7 +97,7 @@ permalink: "/zeus/docs/daemon-plugins/"
   }
 }
 </code></pre>
-      <p class="note">Secrets are resolved from Zeus secret storage using references; plugins receive resolved values only at runtime context.</p>
+      <p class="note">Secrets are resolved from Zeus secret vault using references; plugins receive resolved values only at runtime context.</p>
     </section>
 
     <footer>
