@@ -76,7 +76,8 @@ permalink: "/zeus/docs/daemon-plugins/"
         <li>If prerequisites are missing, Zeus opens a new notch thread and the main Zeus agent handles prerequisite setup first.</li>
         <li>After prerequisite recheck succeeds, the app returns to the Plugins tab and opens the Configure Plugin modal if configuration is still needed.</li>
         <li>Secrets from the form are persisted to secret vault and converted to secret refs automatically.</li>
-        <li>After configuration, the auth/setup runner executes manifest-defined actions (including OAuth CLI sequences) when required.</li>
+        <li>After configuration, non-interactive setup can still run directly, but interactive CLI auth/setup is handed off to a new Zeus notch thread instead of blocking in the daemon.</li>
+        <li>Interactive setup streams CLI output to the user, pauses for browser/manual steps, and verifies completion with the manifest-declared <code>success_check_command</code>.</li>
         <li>Zeus persists both <code>prerequisite_state</code> and <code>setup_state</code> with user-facing status reason.</li>
       </ul>
     </section>

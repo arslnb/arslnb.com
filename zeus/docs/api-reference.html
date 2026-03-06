@@ -25,7 +25,9 @@ permalink: "/zeus/docs/api-reference/"
           <tr><td><code>/api/plugins/configure</code></td><td>POST</td><td>Set config + raw secrets (vault-backed), and optionally run auth/setup when prerequisites are already satisfied.</td></tr>
           <tr><td><code>/api/plugins/prerequisites/plan</code></td><td>POST</td><td>Mark prerequisite setup as running and return the deterministic notch handoff plan/prompt for Zeus.</td></tr>
           <tr><td><code>/api/plugins/prerequisites/recheck</code></td><td>POST</td><td>Re-evaluate prerequisite readiness after the Zeus setup thread finishes.</td></tr>
-          <tr><td><code>/api/plugins/setup/run</code></td><td>POST</td><td>Run/retry manifest-defined setup actions.</td></tr>
+          <tr><td><code>/api/plugins/setup/plan</code></td><td>POST</td><td>Mark plugin setup as running and return the deterministic notch handoff plan/prompt for Zeus interactive auth/setup.</td></tr>
+          <tr><td><code>/api/plugins/setup/recheck</code></td><td>POST</td><td>Run manifest-defined setup verification after Zeus interactive auth/setup completes.</td></tr>
+          <tr><td><code>/api/plugins/setup/run</code></td><td>POST</td><td>Legacy/direct setup path for non-interactive manifest-defined setup actions.</td></tr>
           <tr><td><code>/api/plugins/config</code></td><td>POST</td><td>Legacy config endpoint (direct secret refs).</td></tr>
           <tr><td><code>/api/plugins/server-status</code></td><td>POST</td><td>Update server sync status metadata for UI/state.</td></tr>
         </tbody>
@@ -117,7 +119,21 @@ permalink: "/zeus/docs/api-reference/"
 }
 </code></pre>
 
-      <h3>Run setup actions</h3>
+      <h3>Launch Zeus interactive setup</h3>
+      <pre><code>POST /api/plugins/setup/plan
+{
+  "plugin_id": "gws"
+}
+</code></pre>
+
+      <h3>Recheck setup after Zeus finishes</h3>
+      <pre><code>POST /api/plugins/setup/recheck
+{
+  "plugin_id": "gws"
+}
+</code></pre>
+
+      <h3>Run setup actions (legacy/direct)</h3>
       <pre><code>POST /api/plugins/setup/run
 {
   "plugin_id": "gws"

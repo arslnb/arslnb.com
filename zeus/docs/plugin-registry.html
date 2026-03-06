@@ -66,6 +66,7 @@ zeus plugin check . --registry --json</code></pre>
     <li>Manifest <code>id</code>, folder name, and metadata <code>id</code> must match.</li>
     <li>Declare prerequisite setup in manifest (<code>prerequisites.agent_guidance</code>, <code>prerequisites.cli[].install_options[]</code>) where applicable.</li>
     <li>Declare auth/setup separately in <code>oauth</code>; prerequisite install and auth setup are different phases now.</li>
+    <li>For CLI auth flows that may open a browser or require manual console work, set <code>oauth.interactive=true</code> and provide <code>oauth.success_check_command</code>.</li>
     <li>Declare shipped skills in manifest <code>skills</code> if you bundle them.</li>
   </ul>
 </section>
