@@ -52,13 +52,30 @@ permalink: "/zeus/docs/examples-daemon-plugin/"
     }
   },
   "prerequisites": {
+    "agent_guidance": "Install missing CLIs first, then hand back to plugin configuration.",
     "cli": [
       {
+        "id": "github_cli",
         "name": "GitHub CLI",
         "binary": "gh",
         "required": true,
-        "install_hint": "brew install gh",
-        "install_url": "https://cli.github.com/"
+        "why": "Used for repository and pull request operations.",
+        "check_command": "gh --version",
+        "install_options": [
+          {
+            "type": "shell",
+            "label": "Install with Homebrew",
+            "command": "brew install gh",
+            "auto_run": true,
+            "requires_admin": false,
+            "platforms": ["darwin"]
+          },
+          {
+            "type": "open_url",
+            "label": "Open install docs",
+            "url": "https://cli.github.com/"
+          }
+        ]
       }
     ],
     "environment_check": {

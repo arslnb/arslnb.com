@@ -1,7 +1,7 @@
 ---
 layout: zeus-docs
 title: "Zeus Plugins - Manifest Reference"
-description: "Contract for zeus.plugin.json including setup, auth, skills, and secret storage."
+description: "Contract for zeus.plugin.json including prerequisites, auth, skills, and secret storage."
 doc_slug: "manifest-reference"
 permalink: "/zeus/docs/manifest-reference/"
 ---
@@ -66,36 +66,58 @@ permalink: "/zeus/docs/manifest-reference/"
 </section>
 
 <section class="card">
-  <h2>Prerequisites with Auto-Install</h2>
-  <p>Declare required CLIs and optional per-platform auto-install commands.</p>
+  <h2>Prerequisites and Zeus Setup Handoff</h2>
+  <p>Declare prerequisites in a structured way so Zeus can open a notch setup thread, create one todo per missing prerequisite, and guide the user through installation before configuration.</p>
   <pre><code>"prerequisites": {
+  "agent_guidance": "Install each CLI one at a time. Auto-run only declared shell commands.",
   "cli": [
     {
+      "id": "google_workspace_cli",
       "name": "Google Workspace CLI",
       "binary": "gws",
       "required": true,
-      "install_hint": "npm install -g @googleworkspace/cli",
-      "install_url": "https://github.com/googleworkspace/cli",
-      "auto_install_commands": {
-        "darwin": "npm install -g @googleworkspace/cli",
-        "linux": "npm install -g @googleworkspace/cli"
-      }
+      "why": "Runs Gmail and Workspace operations for this plugin.",
+      "check_command": "gws --version",
+      "install_options": [
+        {
+          "type": "shell",
+          "label": "Install with npm",
+          "description": "Installs the CLI globally with npm.",
+          "command": "npm install -g @googleworkspace/cli",
+          "auto_run": true,
+          "requires_admin": false,
+          "platforms": ["darwin", "linux"]
+        },
+        {
+          "type": "open_url",
+          "label": "Open install docs",
+          "url": "https://github.com/googleworkspace/cli"
+        }
+      ]
     }
-  ]
+  ],
+  "environment_check": {
+    "client_function": "check_environment"
+  }
 }</code></pre>
+  <ul class="compact">
+    <li>Every prerequisite must define a detection path with <code>binary</code> and/or <code>check_command</code>.</li>
+    <li><code>install_options[].type</code> supports <code>shell</code> and <code>open_url</code> in v1.</li>
+    <li><code>shell</code> options can be auto-run only when <code>auto_run: true</code> and <code>requires_admin: false</code>.</li>
+    <li>Older manifests that only declare <code>auto_install_commands</code>, <code>install_hint</code>, and <code>install_url</code> are still normalized into this model for compatibility.</li>
+  </ul>
 </section>
 
 <section class="card">
   <h2>OAuth Modes</h2>
   <ul class="compact">
     <li><code>mode: providers</code>: OAuth provider metadata model.</li>
-    <li><code>mode: cli_sequence</code>: daemon runs explicit CLI commands (for example <code>gws auth setup</code> then <code>gws auth login</code>).</li>
+    <li><code>mode: cli_sequence</code>: daemon runs explicit CLI commands. Use <code>setup_command</code> for first-run bootstrap and make <code>login_command</code> optional when the setup command already performs login.</li>
     <li><code>mode: none</code>: no OAuth actions.</li>
   </ul>
   <pre><code>"oauth": {
   "mode": "cli_sequence",
   "setup_command": "gws auth setup",
-  "login_command": "gws auth login",
   "description": "Run gws auth in daemon",
   "agent_prompt": "Optional instructions shown in tooling/docs"
 }</code></pre>
@@ -116,9 +138,11 @@ permalink: "/zeus/docs/manifest-reference/"
 <section class="card">
   <h2>Lifecycle Notes</h2>
   <ul class="compact">
-    <li>New installs are inactive until configured.</li>
-    <li>If setup is required, state transitions through <code>pending</code> → <code>running</code> → <code>succeeded</code>/<code>failed</code>.</li>
-    <li>Plugin can be enabled only when configured and setup is <code>not_required</code> or <code>succeeded</code>.</li>
+    <li>New installs are inactive until prerequisite setup, configuration, and auth/setup are all ready.</li>
+    <li><code>prerequisite_state</code> covers environment readiness: <code>not_required</code>, <code>pending</code>, <code>running</code>, <code>succeeded</code>, <code>failed</code>.</li>
+    <li><code>setup_state</code> remains auth/setup specific (for example OAuth CLI sequences).</li>
+    <li>The app opens a Zeus notch thread for prerequisite setup first, then returns to <code>Settings → Plugins</code> and opens the Configure Plugin modal if configuration is still needed.</li>
+    <li>Plugin can be enabled only when <code>enabled=true</code>, <code>configured=true</code>, <code>prerequisite_state</code> is ready, and <code>setup_state</code> is ready.</li>
   </ul>
 </section>
 
@@ -127,6 +151,7 @@ permalink: "/zeus/docs/manifest-reference/"
   <ul class="compact">
     <li>Legacy JSON workflows (<code>/api/plugins/config</code> + direct <code>secret_refs</code>) still exist for compatibility.</li>
     <li>New plugins should target <code>/api/plugins/configure</code> and provide secrets via <code>secrets</code> payload.</li>
+    <li>Legacy prerequisite fields (<code>auto_install_commands</code>, <code>install_hint</code>, <code>install_url</code>) still load, but new plugins should author <code>install_options[]</code>.</li>
     <li>Keep <code>index.json</code> as the single allowlisted catalog source.</li>
   </ul>
 </section>

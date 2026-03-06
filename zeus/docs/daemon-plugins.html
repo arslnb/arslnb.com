@@ -16,7 +16,7 @@ permalink: "/zeus/docs/daemon-plugins/"
       <h2>Load Conditions</h2>
       <ul class="compact">
         <li>Plugin exists in local <code>plugins_state.json</code>.</li>
-        <li>Plugin is <code>enabled</code>, <code>configured</code>, and setup state is <code>not_required</code> or <code>succeeded</code>.</li>
+        <li>Plugin is <code>enabled</code>, <code>configured</code>, prerequisite state is <code>not_required</code> or <code>succeeded</code>, and setup state is <code>not_required</code> or <code>succeeded</code>.</li>
         <li><code>components.client.runtime</code> is <code>python</code>.</li>
       </ul>
     </section>
@@ -60,21 +60,24 @@ permalink: "/zeus/docs/daemon-plugins/"
     <section class="card">
       <h2>Prerequisites and Environment Checks</h2>
       <ul class="compact">
-        <li><code>prerequisites.cli[]</code> declares external CLI dependencies (example: <code>gh</code>).</li>
-        <li>Each CLI prerequisite can include <code>install_hint</code>, <code>install_url</code>, and <code>auto_install_commands</code> (<code>darwin</code>/<code>linux</code>).</li>
+        <li><code>prerequisites.cli[]</code> declares external dependencies with stable ids, detection rules, human-readable <code>why</code>, and <code>install_options[]</code>.</li>
+        <li><code>install_options[]</code> supports <code>shell</code> and <code>open_url</code>. Zeus auto-runs only manifest-declared shell commands that are explicitly marked safe.</li>
+        <li><code>prerequisites.agent_guidance</code> is included in the notch handoff prompt for the main Zeus agent.</li>
         <li><code>prerequisites.environment_check.client_function</code> points to a Python module function (for example <code>check_environment</code>).</li>
         <li>The function should return readiness as <code>bool</code>, <code>(bool, message)</code>, or <code>{ "ok": bool, "message": "..." }</code>.</li>
       </ul>
-      <p>If prerequisites/environment checks fail, Zeus keeps the plugin installed but does not load runtime operations until checks pass.</p>
+      <p>If prerequisites are missing, Zeus keeps the plugin installed, marks <code>prerequisite_state</code> as pending/failed, and can open a notch setup thread that creates one todo per missing prerequisite. Older <code>auto_install_commands</code> manifests still normalize into the same install-option model for compatibility.</p>
     </section>
 
     <section class="card">
       <h2>Configure + Setup Lifecycle</h2>
       <ul class="compact">
-        <li>User configures plugin via app modal (<code>Configure Plugin</code> button).</li>
+        <li>User installs from the approved catalog in <code>Settings → Plugins</code>.</li>
+        <li>If prerequisites are missing, Zeus opens a new notch thread and the main Zeus agent handles prerequisite setup first.</li>
+        <li>After prerequisite recheck succeeds, the app returns to the Plugins tab and opens the Configure Plugin modal if configuration is still needed.</li>
         <li>Secrets from the form are persisted to secret vault and converted to secret refs automatically.</li>
-        <li>Optional setup runner executes manifest-defined actions (including OAuth CLI sequences).</li>
-        <li>Setup status is persisted in plugin state with user-facing status reason.</li>
+        <li>After configuration, the auth/setup runner executes manifest-defined actions (including OAuth CLI sequences) when required.</li>
+        <li>Zeus persists both <code>prerequisite_state</code> and <code>setup_state</code> with user-facing status reason.</li>
       </ul>
     </section>
 

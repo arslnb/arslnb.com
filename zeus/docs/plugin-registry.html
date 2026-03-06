@@ -64,7 +64,8 @@ zeus plugin check . --registry --json</code></pre>
     skills/            # optional shipped skills</code></pre>
   <ul class="compact">
     <li>Manifest <code>id</code>, folder name, and metadata <code>id</code> must match.</li>
-    <li>Declare setup/auth in manifest (<code>prerequisites</code>, <code>oauth</code>) where applicable.</li>
+    <li>Declare prerequisite setup in manifest (<code>prerequisites.agent_guidance</code>, <code>prerequisites.cli[].install_options[]</code>) where applicable.</li>
+    <li>Declare auth/setup separately in <code>oauth</code>; prerequisite install and auth setup are different phases now.</li>
     <li>Declare shipped skills in manifest <code>skills</code> if you bundle them.</li>
   </ul>
 </section>
@@ -105,14 +106,15 @@ gh pr create --repo arslnb/zeus-plugins \
   <ul class="compact">
     <li>Manifest and metadata pass validation.</li>
     <li>Index entry is present and paths are correct.</li>
-    <li>README explains setup flow and configuration form fields.</li>
+    <li>README explains prerequisite install flow, Zeus handoff behavior, and configuration form fields.</li>
     <li>Examples include <code>/api/plugins/install</code> and <code>/api/plugins/configure</code>.</li>
     <li>If secrets are needed, docs describe vault-backed configuration.</li>
+    <li>If prerequisites are required, provide at least one install option or docs URL for each required prerequisite.</li>
   </ul>
 </section>
 
 <footer>
-  After merge, users can install from the in-app approved plugin catalog.
+  After merge, users can install from the in-app approved catalog. If prerequisites are missing, Zeus opens a notch setup thread before handing back to plugin configuration. See the <a href="https://github.com/arslnb/zeus-plugins/tree/main/plugins/gws" target="_blank" rel="noopener">GWS plugin</a> for the reference implementation.
 </footer>
 </div>
 {% endraw %}

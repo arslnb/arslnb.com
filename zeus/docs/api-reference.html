@@ -19,10 +19,12 @@ permalink: "/zeus/docs/api-reference/"
         <tbody>
           <tr><td><code>/api/plugins</code></td><td>GET</td><td>List local plugin state.</td></tr>
           <tr><td><code>/api/plugins/search</code></td><td>POST</td><td>Search curated plugin catalog.</td></tr>
-          <tr><td><code>/api/plugins/install</code></td><td>POST</td><td>Install from approved catalog (<code>registry</code>) or explicit <code>git</code>/<code>path</code>.</td></tr>
+          <tr><td><code>/api/plugins/install</code></td><td>POST</td><td>Install from approved catalog (<code>registry</code>) or explicit <code>git</code>/<code>path</code>, install shipped skills, and return a prerequisite plan when environment setup is needed.</td></tr>
           <tr><td><code>/api/plugins/uninstall</code></td><td>POST</td><td>Uninstall local plugin.</td></tr>
           <tr><td><code>/api/plugins/enabled</code></td><td>POST</td><td>Enable/disable local plugin.</td></tr>
-          <tr><td><code>/api/plugins/configure</code></td><td>POST</td><td>Set config + raw secrets (vault-backed), optionally run setup.</td></tr>
+          <tr><td><code>/api/plugins/configure</code></td><td>POST</td><td>Set config + raw secrets (vault-backed), and optionally run auth/setup when prerequisites are already satisfied.</td></tr>
+          <tr><td><code>/api/plugins/prerequisites/plan</code></td><td>POST</td><td>Mark prerequisite setup as running and return the deterministic notch handoff plan/prompt for Zeus.</td></tr>
+          <tr><td><code>/api/plugins/prerequisites/recheck</code></td><td>POST</td><td>Re-evaluate prerequisite readiness after the Zeus setup thread finishes.</td></tr>
           <tr><td><code>/api/plugins/setup/run</code></td><td>POST</td><td>Run/retry manifest-defined setup actions.</td></tr>
           <tr><td><code>/api/plugins/config</code></td><td>POST</td><td>Legacy config endpoint (direct secret refs).</td></tr>
           <tr><td><code>/api/plugins/server-status</code></td><td>POST</td><td>Update server sync status metadata for UI/state.</td></tr>
@@ -83,6 +85,7 @@ permalink: "/zeus/docs/api-reference/"
   "force": true
 }
 </code></pre>
+      <p class="note">Response includes plugin lifecycle fields such as <code>prerequisite_state</code>, <code>missing_prerequisites</code>, and <code>prerequisite_plan</code> when Zeus needs to open the notch setup flow.</p>
 
       <h3>Configure plugin (recommended)</h3>
       <pre><code>POST /api/plugins/configure
@@ -97,6 +100,20 @@ permalink: "/zeus/docs/api-reference/"
     "server": { "verify_token": "raw-secret-value" }
   },
   "run_setup": true
+}
+</code></pre>
+
+      <h3>Launch Zeus prerequisite setup</h3>
+      <pre><code>POST /api/plugins/prerequisites/plan
+{
+  "plugin_id": "gws"
+}
+</code></pre>
+
+      <h3>Recheck prerequisites after Zeus finishes</h3>
+      <pre><code>POST /api/plugins/prerequisites/recheck
+{
+  "plugin_id": "gws"
 }
 </code></pre>
 
