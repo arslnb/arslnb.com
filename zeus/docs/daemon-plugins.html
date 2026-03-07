@@ -66,18 +66,18 @@ permalink: "/zeus/docs/daemon-plugins/"
         <li><code>prerequisites.environment_check.client_function</code> points to a Python module function (for example <code>check_environment</code>).</li>
         <li>The function should return readiness as <code>bool</code>, <code>(bool, message)</code>, or <code>{ "ok": bool, "message": "..." }</code>.</li>
       </ul>
-      <p>If prerequisites are missing, Zeus keeps the plugin installed, marks <code>prerequisite_state</code> as pending/failed, and can open a notch setup thread that creates one todo per missing prerequisite. Older <code>auto_install_commands</code> manifests still normalize into the same install-option model for compatibility.</p>
+      <p>If prerequisites are missing, Zeus keeps the plugin installed, marks <code>prerequisite_state</code> as pending/failed, and can open a notch install thread that creates one todo per missing prerequisite. Older <code>auto_install_commands</code> manifests still normalize into the same install-option model for compatibility.</p>
     </section>
 
     <section class="card">
-      <h2>Configure + Setup Lifecycle</h2>
+      <h2>Single Install Lifecycle</h2>
       <ul class="compact">
         <li>User installs from the approved catalog in <code>Settings → Plugins</code>.</li>
-        <li>If prerequisites are missing, Zeus opens a new notch thread and the main Zeus agent handles prerequisite setup first.</li>
-        <li>After prerequisite recheck succeeds, the app returns to the Plugins tab and opens the Configure Plugin modal if configuration is still needed.</li>
+        <li>If prerequisites are missing, Zeus opens a new notch thread and the main Zeus agent handles prerequisite install first.</li>
+        <li>The app keeps one Install action active across the whole lifecycle: after prerequisite recheck succeeds it opens the install settings form if needed, persists secret fields to vault, then continues into auth.</li>
         <li>Secrets from the form are persisted to secret vault and converted to secret refs automatically.</li>
-        <li>After configuration, non-interactive setup can still run directly, but interactive CLI auth/setup is handed off to a new Zeus notch thread instead of blocking in the daemon.</li>
-        <li>Interactive setup streams CLI output to the user, pauses for browser/manual steps, and verifies completion with the manifest-declared <code>success_check_command</code>.</li>
+        <li>After configuration, non-interactive auth commands can still run directly, but interactive CLI auth is handed off to a new Zeus notch thread instead of blocking in the daemon.</li>
+        <li>Interactive auth streams CLI output to the user, pauses for browser/manual steps, and verifies completion with the manifest-declared <code>success_check_command</code>.</li>
         <li>Zeus persists both <code>prerequisite_state</code> and <code>setup_state</code> with user-facing status reason.</li>
       </ul>
     </section>

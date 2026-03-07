@@ -45,8 +45,8 @@ permalink: "/zeus/docs/manifest-reference/"
     <li>Define fields under <code>config_schema.client</code> and/or <code>config_schema.server</code>.</li>
     <li>Each field requires <code>type</code> and <code>secret</code> (boolean).</li>
     <li>Allowed <code>type</code>: <code>string</code>, <code>integer</code>, <code>number</code>, <code>boolean</code>, <code>object</code>, <code>array</code>.</li>
-    <li>Use <code>required: true</code> to enforce user input in Configure Plugin flow.</li>
-    <li>For secret fields, values are submitted through configure form and persisted in Zeus secret vault; only secret refs are stored in plugin state.</li>
+    <li>Use <code>required: true</code> to enforce user input during the single Install flow.</li>
+    <li>For secret fields, values are collected during Install, persisted in Zeus secret vault, and stored in plugin state only as secret refs.</li>
   </ul>
 </section>
 
@@ -66,8 +66,8 @@ permalink: "/zeus/docs/manifest-reference/"
 </section>
 
 <section class="card">
-  <h2>Prerequisites and Zeus Setup Handoff</h2>
-  <p>Declare prerequisites in a structured way so Zeus can open a notch setup thread, create one todo per missing prerequisite, and guide the user through installation before configuration.</p>
+  <h2>Prerequisites and Zeus Install Handoff</h2>
+  <p>Declare prerequisites in a structured way so Zeus can open a notch install thread, create one todo per missing prerequisite, and guide the user through installation before the next Install step.</p>
   <pre><code>"prerequisites": {
   "agent_guidance": "Install each CLI one at a time. Auto-run only declared shell commands.",
   "cli": [
@@ -112,21 +112,28 @@ permalink: "/zeus/docs/manifest-reference/"
   <h2>OAuth Modes</h2>
   <ul class="compact">
     <li><code>mode: providers</code>: OAuth provider metadata model.</li>
-    <li><code>mode: cli_sequence</code>: Zeus runs explicit CLI commands for plugin auth/setup. Use <code>interactive: true</code> when setup must stream CLI output, pause for browser/manual work, and resume in the notch.</li>
+    <li><code>mode: cli_sequence</code>: Zeus runs explicit CLI commands for plugin auth. Use <code>interactive: true</code> when auth must stream CLI output, pause for browser/manual work, and resume in the notch.</li>
+    <li><code>env</code>: optional map of <code>ENV_VAR_NAME</code> to <code>client.field</code> or <code>server.field</code> for non-secret config values. Zeus injects optional bindings only when those fields are set.</li>
+    <li><code>secret_env</code>: optional map of <code>ENV_VAR_NAME</code> to a secret config field path. Zeus resolves the Secret Vault key at runtime, never prints the secret value in the handoff prompt, and injects optional bindings only when those fields are set.</li>
     <li><code>mode: none</code>: no OAuth actions.</li>
   </ul>
   <pre><code>"oauth": {
   "mode": "cli_sequence",
-  "setup_command": "gws auth setup",
+  "login_command": "gws auth login",
   "interactive": true,
   "success_check_command": "gws auth status",
-  "description": "Run gws auth through Zeus setup handoff",
-  "agent_prompt": "Optional instructions shown to Zeus during setup"
+  "secret_env": {
+    "GOOGLE_WORKSPACE_CLI_CLIENT_ID": "client.google_client_id",
+    "GOOGLE_WORKSPACE_CLI_CLIENT_SECRET": "client.google_client_secret"
+  },
+  "description": "Run gws auth through the Zeus install handoff",
+  "agent_prompt": "Optional instructions shown to Zeus during install"
 }</code></pre>
   <ul class="compact">
     <li><code>setup_command</code> and <code>login_command</code> are both optional individually, but at least one must be present.</li>
     <li>Use <code>interactive: true</code> when the command may open a browser, print URLs, or require user work outside Zeus.</li>
     <li>When <code>interactive: true</code>, declare <code>success_check_command</code> so Zeus can deterministically verify completion after the agent handoff finishes.</li>
+    <li>If an <code>env</code> or <code>secret_env</code> binding points at a required config field, Install still blocks until that required field is provided.</li>
   </ul>
 </section>
 
@@ -145,11 +152,11 @@ permalink: "/zeus/docs/manifest-reference/"
 <section class="card">
   <h2>Lifecycle Notes</h2>
   <ul class="compact">
-    <li>New installs are inactive until prerequisite setup, configuration, and auth/setup are all ready.</li>
+    <li>New installs are inactive until prerequisites, configuration, and auth are all ready.</li>
     <li><code>prerequisite_state</code> covers environment readiness: <code>not_required</code>, <code>pending</code>, <code>running</code>, <code>succeeded</code>, <code>failed</code>.</li>
-    <li><code>setup_state</code> remains auth/setup specific (for example OAuth CLI sequences).</li>
-    <li>The app opens a Zeus notch thread for prerequisite setup first, then returns to <code>Settings → Plugins</code> and opens the Configure Plugin modal if configuration is still needed.</li>
-    <li>Interactive auth/setup uses the same notch-thread handoff: Zeus streams CLI output, lets the user complete browser/manual steps, then rechecks <code>success_check_command</code> before marking the plugin ready.</li>
+    <li><code>setup_state</code> remains auth-specific (for example OAuth CLI sequences).</li>
+    <li>The app exposes one Install action. Zeus runs prerequisite install first, opens the settings/secret form when configuration is still needed, and then continues into auth.</li>
+    <li>Interactive auth uses the same notch-thread handoff: Zeus streams CLI output, lets the user complete browser/manual steps, then rechecks <code>success_check_command</code> before marking Install complete.</li>
     <li>Plugin can be enabled only when <code>enabled=true</code>, <code>configured=true</code>, <code>prerequisite_state</code> is ready, and <code>setup_state</code> is ready.</li>
   </ul>
 </section>

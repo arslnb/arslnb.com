@@ -158,7 +158,7 @@ def register(ctx):
       <h3>CLI prerequisites + environment check</h3>
       <pre><code>{
   "prerequisites": {
-    "agent_guidance": "Install each prerequisite before opening the configure flow.",
+    "agent_guidance": "Install each prerequisite before continuing the Install flow.",
     "cli": [
       {
         "id": "github_cli",
@@ -198,7 +198,7 @@ def check_environment(context):
         return False, "please install gh with brew install gh"
     return True, ""
 </code></pre>
-      <p class="note">When this prerequisite is missing, Zeus installs the plugin locally, opens a notch setup thread, and hands off to the main Zeus agent before returning to the Configure Plugin modal.</p>
+      <p class="note">When this prerequisite is missing, Zeus installs the plugin locally, opens a notch install thread, and keeps the single Install flow moving until prerequisites, settings, secrets, and auth are complete.</p>
 
       <h3>Hooks + operation kinds (<code>commands</code>/<code>services</code>/<code>cli</code>/<code>providers</code>)</h3>
       <pre><code>{
