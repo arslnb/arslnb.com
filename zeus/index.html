@@ -30,68 +30,89 @@ description: "Zeus is a Mac-native autonomous desktop agent that lives in your n
   </div>
 </section>
 
-<section class="zeus-section zeus-screenshot-section">
-  <div class="zeus-screen">
-    <div class="zeus-notch" id="zeus-notch">
-      <div class="zeus-notch-pill">
-        <div class="zeus-notch-cam"></div>
+<section class="zeus-section zeus-showcase">
+  <div class="zeus-screenshot-section">
+    <div class="zeus-screen">
+      <div class="zeus-notch" id="zeus-notch">
+        <div class="zeus-notch-pill">
+          <div class="zeus-notch-cam"></div>
+        </div>
+        <div class="zeus-notch-panel">
+          <div class="zeus-notch-chat" id="zeus-notch-chat"></div>
+          <div class="zeus-notch-thinking" id="zeus-notch-thinking">
+            <div class="zeus-grid-icon" id="zeus-grid-icon">
+              <span></span><span></span><span></span>
+              <span></span><span></span><span></span>
+              <span></span><span></span><span></span>
+            </div>
+            <span class="zeus-thinking-text">Zeus is thinking<span class="zeus-thinking-dots" id="zeus-thinking-dots"></span></span>
+          </div>
+          <div class="zeus-notch-input">
+            <div class="zeus-input-bubble">
+              <span class="zeus-input-text" id="zeus-input-text">Ask Zeus anything...</span>
+              <span class="zeus-input-mic">&#9679;</span>
+            </div>
+          </div>
+        </div>
       </div>
-      <div class="zeus-notch-panel">
-        <div class="zeus-notch-chat" id="zeus-notch-chat"></div>
-        <div class="zeus-notch-thinking" id="zeus-notch-thinking">
-          <div class="zeus-grid-icon" id="zeus-grid-icon">
-            <span></span><span></span><span></span>
-            <span></span><span></span><span></span>
-            <span></span><span></span><span></span>
-          </div>
-          <span class="zeus-thinking-text">Zeus is thinking<span class="zeus-thinking-dots" id="zeus-thinking-dots"></span></span>
-        </div>
-        <div class="zeus-notch-input">
-          <div class="zeus-input-bubble">
-            <span class="zeus-input-text" id="zeus-input-text">Ask Zeus anything...</span>
-            <span class="zeus-input-mic">&#9679;</span>
-          </div>
-        </div>
+      <div class="zeus-screen-menubar">
+        <span class="zeus-menubar-left">
+          <span class="zeus-menubar-apple">&#63743;</span>
+          <span class="zeus-menubar-app">Finder</span>
+          <span>File</span>
+          <span>Edit</span>
+          <span>View</span>
+          <span class="zeus-menubar-hide-xs">Go</span>
+          <span class="zeus-menubar-hide-sm">Window</span>
+          <span class="zeus-menubar-hide-sm">Help</span>
+        </span>
+        <span class="zeus-menubar-right">
+          <span class="zeus-menubar-status" aria-label="Zeus">
+            <img class="zeus-menubar-icon zeus-menubar-icon-zeus" src="{{ '/assets/images/menubar/zeus.png' | relative_url }}" alt="" aria-hidden="true" decoding="async">
+          </span>
+          <span class="zeus-menubar-status zeus-menubar-battery" aria-label="Battery">
+            <img class="zeus-menubar-icon zeus-menubar-icon-battery" src="{{ '/assets/images/menubar/battery.png' | relative_url }}" alt="" aria-hidden="true" decoding="async">
+          </span>
+          <span class="zeus-menubar-status" aria-label="Wi-Fi">
+            <img class="zeus-menubar-icon zeus-menubar-icon-wifi" src="{{ '/assets/images/menubar/wifi.png' | relative_url }}" alt="" aria-hidden="true" decoding="async">
+          </span>
+          <span class="zeus-menubar-status" aria-label="Spotlight">
+            <img class="zeus-menubar-icon zeus-menubar-icon-spotlight" src="{{ '/assets/images/menubar/spotlight.png' | relative_url }}" alt="" aria-hidden="true" decoding="async">
+          </span>
+          <span class="zeus-menubar-status" aria-label="Siri">
+            <img class="zeus-menubar-icon zeus-menubar-icon-siri" src="{{ '/assets/images/menubar/siri.png' | relative_url }}" alt="" aria-hidden="true" decoding="async">
+          </span>
+          <span class="zeus-menubar-status" aria-label="Control Center">
+            <img class="zeus-menubar-icon zeus-menubar-icon-control" src="{{ '/assets/images/menubar/control.png' | relative_url }}" alt="" aria-hidden="true" decoding="async">
+          </span>
+          <span class="zeus-menubar-time">Mon Mar 9 3:32 PM</span>
+        </span>
+      </div>
+      <div class="zeus-screen-desktop" id="zeus-desktop"></div>
+      <div class="zeus-dock">
+        <div class="zeus-dock-icon zeus-dock-finder"></div>
+        <div class="zeus-dock-sep"></div>
+        <div class="zeus-dock-icon zeus-dock-ghostty"></div>
+        <div class="zeus-dock-icon zeus-dock-claude"></div>
+        <div class="zeus-dock-icon zeus-dock-preview"></div>
+        <div class="zeus-dock-icon zeus-dock-notes"></div>
+        <div class="zeus-dock-icon zeus-dock-chrome"></div>
+        <div class="zeus-dock-icon zeus-dock-discord"></div>
+        <div class="zeus-dock-sep"></div>
+        <div class="zeus-dock-icon zeus-dock-trash"></div>
       </div>
     </div>
-    <div class="zeus-screen-menubar">
-      <span class="zeus-menubar-left">
-        <span class="zeus-menubar-apple">&#63743;</span>
-        <span>Finder</span>
-        <span>File</span>
-        <span>Edit</span>
-        <span>View</span>
-      </span>
-      <span class="zeus-menubar-right">
-        <span>100%</span>
-        <span>Wi-Fi</span>
-        <span>Sat 10:32</span>
-      </span>
-    </div>
-    <div class="zeus-screen-desktop" id="zeus-desktop"></div>
-    <div class="zeus-dock">
-      <div class="zeus-dock-icon zeus-dock-finder"></div>
-      <div class="zeus-dock-icon zeus-dock-safari"></div>
-      <div class="zeus-dock-icon zeus-dock-mail"></div>
-      <div class="zeus-dock-icon zeus-dock-messages"></div>
-      <div class="zeus-dock-icon zeus-dock-calendar"></div>
-      <div class="zeus-dock-icon zeus-dock-notes"></div>
-      <div class="zeus-dock-icon zeus-dock-terminal"></div>
-      <div class="zeus-dock-icon zeus-dock-vscode"></div>
-      <div class="zeus-dock-sep"></div>
-      <div class="zeus-dock-icon zeus-dock-downloads"></div>
-      <div class="zeus-dock-icon zeus-dock-trash"></div>
+  </div>
+  <div class="zeus-use-cases" aria-label="Use cases">
+    <div class="zeus-tabs">
+      <button class="zeus-tab active" data-scenario="0">Organize Desktop</button>
+      <button class="zeus-tab" data-scenario="1">Deep Research</button>
+      <button class="zeus-tab" data-scenario="2">Morning Briefing</button>
+      <button class="zeus-tab" data-scenario="3">Schedule Meeting</button>
+      <button class="zeus-tab" data-scenario="4">Book a Table</button>
     </div>
   </div>
 </section>
-
-<div class="zeus-tabs">
-  <button class="zeus-tab active" data-scenario="0">Organize Desktop</button>
-  <button class="zeus-tab" data-scenario="1">Deep Research</button>
-  <button class="zeus-tab" data-scenario="2">Morning Briefing</button>
-  <button class="zeus-tab" data-scenario="3">Schedule Meeting</button>
-  <button class="zeus-tab" data-scenario="4">Book a Table</button>
-</div>
 
 <section class="zeus-section">
   <h2 class="section-heading">Simple Setup</h2>
