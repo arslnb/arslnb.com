@@ -79,6 +79,11 @@ class AcmeAdapter:
                 "channel": "acme",
                 "from_user": from_user,
                 "text": text,
+                "metadata": {
+                    "reply_context": {
+                        "to": from_user,
+                    }
+                },
                 "payload": payload,
                 "received_at": payload.get("timestamp")
             }
@@ -182,6 +187,11 @@ def register(ctx):
         <li><code>POST /v1/client/channels/acme/send</code></li>
         <li><code>POST /webhook/stripe-events</code></li>
       </ul>
+    </section>
+
+    <section class="card">
+      <h2>Real Registry Reference</h2>
+      <p>If you want a working sample instead of the synthetic <code>acme_channel</code> example, look at the registry plugin <code>kitchen_sink_plugin</code>. It implements a real Telegram channel path, auto-registers its Telegram webhook when <code>ZEUS_PUBLIC_BASE_URL</code> is configured, and includes the reply-context metadata Zeus uses to send agent-generated replies back through the same channel.</p>
     </section>
 
     <footer>

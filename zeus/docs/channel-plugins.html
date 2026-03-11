@@ -18,6 +18,7 @@ permalink: "/zeus/docs/channel-plugins/"
         <li>Manifest includes <code>components.server.entry</code> with runtime <code>python</code>.</li>
         <li>Server module exports <code>register(ctx)</code>.</li>
         <li>Returned plugin object can implement <code>channels()</code> and/or <code>webhooks()</code>.</li>
+        <li><code>ctx</code> now includes server config, secret refs, and connected server OAuth sessions for that plugin.</li>
       </ul>
     </section>
 
@@ -67,6 +68,12 @@ permalink: "/zeus/docs/channel-plugins/"
     <section class="card">
       <h2>Event Stream Behavior</h2>
       <p>Plugin channel/webhook handlers can return message envelopes (or return values convertible to envelopes). Zeus normalizes output and emits it onto the same secure client event stream consumed by standard message APIs.</p>
+      <p>If you want agent-driven replies to route back through the same channel automatically, include a provider-specific <code>metadata.reply_context</code> object on inbound envelopes. Zeus uses that reply context when the Mac app sends the final assistant response back through <code>POST /v1/client/channels/{channel}/send</code>.</p>
+    </section>
+
+    <section class="card">
+      <h2>Live Reference Plugin</h2>
+      <p>The registry sample <code>kitchen_sink_plugin</code> now exercises this contract against a real Telegram Bot API channel and a real GitHub OAuth provider. Use it as the reference when you want a working integration example, not just a shape-only fixture.</p>
     </section>
 
     <section class="card">
@@ -76,6 +83,7 @@ permalink: "/zeus/docs/channel-plugins/"
         <li>Server performs controlled in-process reload.</li>
         <li>On reload failure, previous plugin/channel map is restored.</li>
         <li>On success, routes become available immediately.</li>
+        <li>If <code>ZEUS_PUBLIC_BASE_URL</code> is set, plugins can auto-register provider webhooks during <code>on_enable()</code>.</li>
       </ul>
     </section>
 
