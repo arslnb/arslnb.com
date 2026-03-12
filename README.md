@@ -40,3 +40,6 @@ bundle exec jekyll build
 ```
 
 Output goes to `_site/`. Deploy that folder anywhere (GitHub Pages, Netlify, Cloudflare Pages, etc).
+
+For GitHub-hosted deploys, this repo now uses `.github/workflows/deploy-pages.yml`.
+Set the Pages source to `GitHub Actions` in the repo settings so pushes to `main` deploy through the workflow.

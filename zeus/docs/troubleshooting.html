@@ -21,6 +21,8 @@ permalink: "/zeus/docs/troubleshooting/"
           <tr><td><code>manifest id is required</code></td><td>Missing plugin id.</td><td>Add non-empty <code>id</code>.</td></tr>
           <tr><td><code>components.client.entry is required</code></td><td>Client component missing entry path.</td><td>Provide valid <code>components.client.entry</code>.</td></tr>
           <tr><td><code>server entry not found</code></td><td>Server entry path invalid.</td><td>Fix <code>components.server.entry</code> relative path.</td></tr>
+          <tr><td><code>plugin registry is not configured</code></td><td>Server install tried to resolve a plugin with no static registry base URL.</td><td>Set <code>ZEUS_PLUGIN_REGISTRY_BASE_URL</code> to your published registry host.</td></tr>
+          <tr><td><code>plugin registry public key missing</code></td><td>Server install cannot verify signed metadata/artifacts.</td><td>Set <code>ZEUS_PLUGIN_REGISTRY_PUBLIC_KEY</code> to the generated <code>registry-public-key.b64</code> value.</td></tr>
           <tr><td><code>artifact checksum mismatch</code></td><td>Registry metadata mismatch or tampered artifact.</td><td>Re-publish artifact and metadata with correct SHA256/signature.</td></tr>
         </tbody>
       </table>

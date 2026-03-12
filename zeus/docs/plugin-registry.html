@@ -33,6 +33,40 @@ permalink: "/zeus/docs/plugin-registry/"
 </section>
 
 <section class="card">
+  <h2>Static Registry Publish (For Server Installs)</h2>
+  <p>The GitHub repo is the source of truth, but the Zeus message server does <strong>not</strong> install plugins by cloning GitHub. It installs from a signed static registry.</p>
+  <pre><code>cd zeus-plugins
+python -m pip install -e .
+
+# generate once
+zeus plugin keygen --out-dir .registry-keys
+
+# publish approved plugins to a static directory
+zeus plugin publish . \
+  --output-dir dist/registry \
+  --base-url https://plugins.example.com \
+  --private-key .registry-keys/ed25519-private.pem \
+  --clean</code></pre>
+  <p>Host <code>dist/registry/</code> on any static host. Zeus expects:</p>
+  <ul class="compact">
+    <li><code>index.json</code> at the registry root for the app catalog</li>
+    <li><code>plugins/&lt;plugin_id&gt;/&lt;version&gt;.json</code> for server installs</li>
+    <li><code>artifacts/&lt;plugin_id&gt;/&lt;version&gt;/&lt;plugin_id&gt;-&lt;version&gt;.tgz</code> for the packaged plugin</li>
+  </ul>
+  <p>Then set on the Zeus message server:</p>
+  <ul class="compact">
+    <li><code>ZEUS_PLUGIN_REGISTRY_BASE_URL=https://plugins.example.com</code></li>
+    <li><code>ZEUS_PLUGIN_REGISTRY_PUBLIC_KEY=&lt;contents of dist/registry/registry-public-key.b64&gt;</code></li>
+  </ul>
+  <p>For <code>github.com/arslnb/zeus-plugins</code>, the simplest path is GitHub Pages. This repo now includes a workflow that publishes <code>dist/registry/</code> to Pages on every push to <code>main</code>.</p>
+  <ul class="compact">
+    <li>Required secret: <code>ZEUS_REGISTRY_SIGNING_PRIVATE_KEY</code></li>
+    <li>Optional repository variable: <code>ZEUS_PLUGIN_REGISTRY_BASE_URL</code> for a custom domain</li>
+    <li>Default registry base URL: <code>https://arslnb.github.io/zeus-plugins</code></li>
+  </ul>
+</section>
+
+<section class="card">
   <h2>1) Scaffold and Validate</h2>
   <pre><code>git clone https://github.com/arslnb/zeus-plugins.git
 cd zeus-plugins
