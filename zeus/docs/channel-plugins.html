@@ -18,7 +18,7 @@ permalink: "/zeus/docs/channel-plugins/"
         <li>Manifest includes <code>components.server.entry</code> with runtime <code>python</code>.</li>
         <li>Server module exports <code>register(ctx)</code>.</li>
         <li>Returned plugin object can implement <code>channels()</code> and/or <code>webhooks()</code>.</li>
-        <li><code>ctx</code> now includes server config, secret refs, and connected server OAuth sessions for that plugin.</li>
+        <li><code>ctx</code> now includes server config, secret refs, resolved secret values (<code>ctx.secrets</code>), and connected server OAuth sessions for that plugin.</li>
       </ul>
     </section>
 
@@ -69,6 +69,7 @@ permalink: "/zeus/docs/channel-plugins/"
       <h2>Event Stream Behavior</h2>
       <p>Plugin channel/webhook handlers can return message envelopes (or return values convertible to envelopes). Zeus normalizes output and emits it onto the same secure client event stream consumed by standard message APIs.</p>
       <p>If you want agent-driven replies to route back through the same channel automatically, include a provider-specific <code>metadata.reply_context</code> object on inbound envelopes. Zeus uses that reply context when the Mac app sends the final assistant response back through <code>POST /v1/client/channels/{channel}/send</code>.</p>
+      <p>Channel plugins should generally avoid provider-specific slash commands and instead let inbound messages flow through the normal agent loop. The live Telegram reference plugin follows that pattern.</p>
     </section>
 
     <section class="card">

@@ -116,9 +116,9 @@ class AcmeAdapter:
 class AcmeChannelPlugin:
     def __init__(self, ctx):
         config = dict(ctx.config or {})
-        refs = dict(ctx.secret_refs or {})
-        verify_token = str(refs.get("verify_token") or "")
-        send_api_key = str(refs.get("send_api_key") or "")
+        secrets = dict(getattr(ctx, "secrets", {}) or {})
+        verify_token = str(secrets.get("verify_token") or "")
+        send_api_key = str(secrets.get("send_api_key") or "")
         self.custom_route = str(config.get("custom_route") or "").strip().lower()
         self.adapter = AcmeAdapter(
             endpoint_base=str(config.get("endpoint_base") or ""),
@@ -191,7 +191,7 @@ def register(ctx):
 
     <section class="card">
       <h2>Real Registry Reference</h2>
-      <p>If you want a working sample instead of the synthetic <code>acme_channel</code> example, look at the registry plugin <code>kitchen_sink_plugin</code>. It implements a real Telegram channel path, auto-registers its Telegram webhook when <code>ZEUS_PUBLIC_BASE_URL</code> is configured, and includes the reply-context metadata Zeus uses to send agent-generated replies back through the same channel.</p>
+      <p>If you want a working sample instead of the synthetic <code>acme_channel</code> example, look at the registry plugin <code>kitchen_sink_plugin</code>. It implements a real Telegram channel path at <code>/v1/channels/telegram/webhook</code>, auto-registers its Telegram webhook when <code>ZEUS_PUBLIC_BASE_URL</code> is configured, and includes the reply-context metadata Zeus uses to send agent-generated replies back through the same channel.</p>
     </section>
 
     <footer>
