@@ -150,7 +150,7 @@ gh pr create --repo arslnb/zeus-plugins \
 </section>
 
 <footer>
-  After merge, users can install from the in-app approved catalog. If prerequisites are missing, Zeus opens a notch install thread, completes the manifest-declared prerequisite steps, collects any required settings and secrets into vault, and then continues into auth. See the <a href="https://github.com/arslnb/zeus-plugins/tree/main/plugins/gws" target="_blank" rel="noopener">GWS plugin</a> for the reference implementation.
+  After merge, users can install from the in-app approved catalog. If prerequisites are missing, Zeus opens a notch install thread, completes the manifest-declared prerequisite steps, collects any required settings and secrets into vault, and then continues into auth. When a plugin also has a server component, Zeus resolves the local vault-backed secret fields and mirrors them into the server's vault during install and Resync Server, so channel sends do not depend on local-only secret references. See the <a href="https://github.com/arslnb/zeus-plugins/tree/main/plugins/gws" target="_blank" rel="noopener">GWS plugin</a> for the reference implementation.
 </footer>
 </div>
 {% endraw %}
