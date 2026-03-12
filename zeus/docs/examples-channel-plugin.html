@@ -191,7 +191,7 @@ def register(ctx):
 
     <section class="card">
       <h2>Real Registry Reference</h2>
-      <p>If you want a working sample instead of the synthetic <code>acme_channel</code> example, look at the registry plugin <code>kitchen_sink_plugin</code>. It implements a real Telegram channel path at <code>/v1/channels/telegram/webhook</code>, auto-registers its Telegram webhook when <code>ZEUS_PUBLIC_BASE_URL</code> is configured, and includes the reply-context metadata Zeus uses to send agent-generated replies back through the same channel.</p>
+      <p>If you want a working sample instead of the synthetic <code>acme_channel</code> example, look at the registry plugin <code>kitchen_sink_plugin</code>. It implements a real Telegram channel path at <code>/v1/channels/telegram/webhook</code>, auto-registers its Telegram webhook when <code>ZEUS_PUBLIC_BASE_URL</code> is configured, and includes both the reply-context metadata Zeus uses for final replies and a processing-context payload for immediate typing/reaction acknowledgements.</p>
     </section>
 
     <footer>

@@ -69,6 +69,7 @@ permalink: "/zeus/docs/channel-plugins/"
       <h2>Event Stream Behavior</h2>
       <p>Plugin channel/webhook handlers can return message envelopes (or return values convertible to envelopes). Zeus normalizes output and emits it onto the same secure client event stream consumed by standard message APIs.</p>
       <p>If you want agent-driven replies to route back through the same channel automatically, include a provider-specific <code>metadata.reply_context</code> object on inbound envelopes. Zeus uses that reply context when the Mac app sends the final assistant response back through <code>POST /v1/client/channels/{channel}/send</code>.</p>
+      <p>If your provider supports lightweight native affordances while the full reply is still being generated, also include <code>metadata.processing_context</code>. Zeus forwards that payload immediately through the same signed send route so channels can show typing indicators, reactions, drafts, or similar provider-native acknowledgements.</p>
       <p>Channel plugins should generally avoid provider-specific slash commands and instead let inbound messages flow through the normal agent loop. The live Telegram reference plugin follows that pattern.</p>
     </section>
 
