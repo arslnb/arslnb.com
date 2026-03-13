@@ -31,7 +31,26 @@ permalink: "/zeus/docs/examples-channel-plugin/"
       "endpoint_base": { "type": "string", "required": true, "secret": false },
       "verify_token": { "type": "string", "required": true, "secret": true },
       "send_api_key": { "type": "string", "required": true, "secret": true },
-      "custom_route": { "type": "string", "required": true, "secret": false }
+      "custom_route": { "type": "string", "required": true, "secret": false },
+      "owner_handle": { "type": "string", "required": false, "secret": false }
+    }
+  },
+  "ui_hints": {
+    "messaging_channels": {
+      "acme": {
+        "primary_user_identity": {
+          "title": "Acme primary user identity",
+          "description": "Collect the Acme handle this plugin should treat as the primary Zeus owner.",
+          "fields": [
+            {
+              "component": "server",
+              "name": "owner_handle",
+              "label": "Acme handle",
+              "placeholder": "arslnb"
+            }
+          ]
+        }
+      }
     }
   }
 }
@@ -78,10 +97,15 @@ class AcmeAdapter:
                 "message_id": f"acme:{event_id}",
                 "channel": "acme",
                 "from_user": from_user,
+                "thread_hint": from_user,
                 "text": text,
                 "metadata": {
                     "reply_context": {
                         "to": from_user,
+                    },
+                    "processing_context": {
+                        "to": from_user,
+                        "typing": True,
                     }
                 },
                 "payload": payload,
@@ -119,6 +143,7 @@ class AcmeChannelPlugin:
         secrets = dict(getattr(ctx, "secrets", {}) or {})
         verify_token = str(secrets.get("verify_token") or "")
         send_api_key = str(secrets.get("send_api_key") or "")
+        owner_handle = str(config.get("owner_handle") or "").strip().lower().replace("@", "")
         self.custom_route = str(config.get("custom_route") or "").strip().lower()
         self.adapter = AcmeAdapter(
             endpoint_base=str(config.get("endpoint_base") or ""),
@@ -158,6 +183,7 @@ class AcmeChannelPlugin:
 def register(ctx):
     return AcmeChannelPlugin(ctx)
 </code></pre>
+      <p>In a real channel adapter, use the saved <code>owner_handle</code> (or similar fields) to decide when to stamp <code>metadata.sender_class = "owner"</code> on inbound envelopes. Zeus renders those fields directly under <strong>Settings &gt; Messaging Channels</strong> when you declare the <code>ui_hints.messaging_channels.&lt;channel&gt;.primary_user_identity</code> block.</p>
     </section>
 
     <section class="card">
@@ -191,7 +217,7 @@ def register(ctx):
 
     <section class="card">
       <h2>Real Registry Reference</h2>
-      <p>If you want a working sample instead of the synthetic <code>acme_channel</code> example, look at the registry plugin <code>kitchen_sink_plugin</code>. It implements a real Telegram channel path at <code>/v1/channels/telegram/webhook</code>, auto-registers its Telegram webhook when <code>ZEUS_PUBLIC_BASE_URL</code> is configured, and includes both the reply-context metadata Zeus uses for final replies and a processing-context payload for immediate typing/reaction acknowledgements.</p>
+      <p>If you want a working sample instead of the synthetic <code>acme_channel</code> example, look at the registry plugin <code>kitchen_sink_plugin</code>. It implements a real Telegram channel path at <code>/v1/channels/telegram/webhook</code>, auto-registers its Telegram webhook when <code>ZEUS_PUBLIC_BASE_URL</code> is configured, and includes both the reply-context metadata Zeus uses for final replies and a processing-context payload for immediate typing/reaction acknowledgements. It also emits a stable conversation identity so the same Telegram chat stays bound to one canonical Zeus thread, and it exposes owner-identity fields in the macOS <strong>Settings &gt; Messaging Channels</strong> UI.</p>
     </section>
 
     <footer>
