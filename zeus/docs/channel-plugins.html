@@ -17,7 +17,7 @@ permalink: "/zeus/docs/channel-plugins/"
       <ul class="compact">
         <li>Manifest includes <code>components.server.entry</code> with runtime <code>python</code>.</li>
         <li>Server module exports <code>register(ctx)</code>.</li>
-        <li>Returned plugin object can implement <code>channels()</code> and/or <code>webhooks()</code>.</li>
+        <li>Returned plugin object can implement <code>channels()</code>, <code>webhooks()</code>, and/or signed <code>actions()</code>.</li>
         <li><code>ctx</code> now includes server config, secret refs, resolved secret values (<code>ctx.secrets</code>), and connected server OAuth sessions for that plugin.</li>
       </ul>
     </section>
@@ -56,11 +56,24 @@ permalink: "/zeus/docs/channel-plugins/"
     </section>
 
     <section class="card">
+      <h2>Server Action Interface</h2>
+      <p>Plugins can also expose signed server-side actions for daemon tools or UI flows that need server-only state such as OAuth tokens:</p>
+      <pre><code>def actions(self):
+    return {
+      "github_me": self.github_me,
+      "github_notifications": self.github_notifications,
+    }
+</code></pre>
+      <p>Zeus invokes these through <code>POST /v1/client/plugins/{plugin_id}/actions/{action}</code> using the same signed device-auth headers as the rest of the plugin control plane.</p>
+    </section>
+
+    <section class="card">
       <h2>Runtime Routes</h2>
       <ul class="compact">
         <li><code>GET /v1/channels/{channel}/webhook</code> -> <code>verify_webhook</code></li>
         <li><code>POST /v1/channels/{channel}/webhook</code> -> <code>ingest_webhook</code></li>
         <li><code>POST /v1/client/channels/{channel}/send</code> -> <code>send</code> (signed device auth)</li>
+        <li><code>POST /v1/client/plugins/{plugin_id}/actions/{action}</code> -> server plugin <code>actions()</code> (signed device auth)</li>
         <li><code>ANY /webhook/{route}</code> -> custom plugin webhook handler</li>
       </ul>
     </section>
@@ -78,7 +91,7 @@ permalink: "/zeus/docs/channel-plugins/"
 
     <section class="card">
       <h2>Live Reference Plugin</h2>
-      <p>The registry sample <code>kitchen_sink_plugin</code> now exercises this contract against a real Telegram Bot API channel and a real GitHub OAuth provider. Use it as the reference when you want a working integration example, not just a shape-only fixture.</p>
+      <p>The registry sample <code>kitchen_sink_plugin</code> now exercises this contract against a real Telegram Bot API channel, a real GitHub OAuth provider, and signed server actions that power the daemon-side <code>github_me</code> and <code>github_notifications</code> tools. Use it as the reference when you want a working integration example, not just a shape-only fixture.</p>
     </section>
 
     <section class="card">

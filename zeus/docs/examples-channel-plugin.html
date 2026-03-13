@@ -163,6 +163,15 @@ class AcmeChannelPlugin:
             }
         }
 
+    def actions(self):
+        return {
+            "whoami": self.whoami,
+        }
+
+    async def whoami(self, payload=None, context=None):
+        del payload, context
+        return {"ok": True, "text": "acme action result"}
+
     def handle_custom_event(self, request):
         body = request.body if hasattr(request, "body") else b""
         payload = {}
@@ -211,13 +220,14 @@ def register(ctx):
         <li><code>GET /v1/channels/acme/webhook</code></li>
         <li><code>POST /v1/channels/acme/webhook</code></li>
         <li><code>POST /v1/client/channels/acme/send</code></li>
+        <li><code>POST /v1/client/plugins/acme_channel/actions/whoami</code></li>
         <li><code>POST /webhook/stripe-events</code></li>
       </ul>
     </section>
 
     <section class="card">
       <h2>Real Registry Reference</h2>
-      <p>If you want a working sample instead of the synthetic <code>acme_channel</code> example, look at the registry plugin <code>kitchen_sink_plugin</code>. It implements a real Telegram channel path at <code>/v1/channels/telegram/webhook</code>, auto-registers its Telegram webhook when <code>ZEUS_PUBLIC_BASE_URL</code> is configured, and includes both the reply-context metadata Zeus uses for final replies and a processing-context payload for immediate typing/reaction acknowledgements. It also emits a stable conversation identity so the same Telegram chat stays bound to one canonical Zeus thread, and it exposes owner-identity fields in the macOS <strong>Settings &gt; Messaging Channels</strong> UI.</p>
+      <p>If you want a working sample instead of the synthetic <code>acme_channel</code> example, look at the registry plugin <code>kitchen_sink_plugin</code>. It implements a real Telegram channel path at <code>/v1/channels/telegram/webhook</code>, auto-registers its Telegram webhook when <code>ZEUS_PUBLIC_BASE_URL</code> is configured, exposes owner-identity fields in the macOS <strong>Settings &gt; Messaging Channels</strong> UI, and uses signed server actions to power the daemon-side <code>github_me</code> and <code>github_notifications</code> tools over the stored <code>server_github</code> OAuth session.</p>
     </section>
 
     <footer>
