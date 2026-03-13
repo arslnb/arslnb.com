@@ -193,6 +193,7 @@ def register(ctx):
     return AcmeChannelPlugin(ctx)
 </code></pre>
       <p>In a real channel adapter, use the saved <code>owner_handle</code> (or similar fields) to decide when to stamp <code>metadata.sender_class = "owner"</code> on inbound envelopes. Zeus renders those fields directly under <strong>Settings &gt; Messaging Channels</strong> when you declare the <code>ui_hints.messaging_channels.&lt;channel&gt;.primary_user_identity</code> block.</p>
+      <p>If the user turns on <strong>Offline replies while Mac is offline</strong>, Zeus may temporarily answer from the server when the Mac does not claim the turn quickly enough. Channel plugins do not need a second webhook contract for this; they only need stable <code>conversation_key</code> identity and usable <code>reply_context</code> so the fallback and the later Mac resume both stay on the same remote conversation.</p>
     </section>
 
     <section class="card">
@@ -227,7 +228,7 @@ def register(ctx):
 
     <section class="card">
       <h2>Real Registry Reference</h2>
-      <p>If you want a working sample instead of the synthetic <code>acme_channel</code> example, look at the registry plugin <code>kitchen_sink_plugin</code>. It implements a real Telegram channel path at <code>/v1/channels/telegram/webhook</code>, auto-registers its Telegram webhook when <code>ZEUS_PUBLIC_BASE_URL</code> is configured, exposes owner-identity fields in the macOS <strong>Settings &gt; Messaging Channels</strong> UI, and uses signed server actions to power the daemon-side <code>github_me</code> and <code>github_notifications</code> tools over the stored <code>server_github</code> OAuth session.</p>
+      <p>If you want a working sample instead of the synthetic <code>acme_channel</code> example, look at the registry plugin <code>kitchen_sink_plugin</code>. It implements a real Telegram channel path at <code>/v1/channels/telegram/webhook</code>, auto-registers its Telegram webhook when <code>ZEUS_PUBLIC_BASE_URL</code> is configured, exposes owner-identity fields in the macOS <strong>Settings &gt; Messaging Channels</strong> UI, uses signed server actions to power the daemon-side <code>github_me</code> and <code>github_notifications</code> tools over the stored <code>server_github</code> OAuth session, and stays compatible with the opt-in offline fallback reply flow because it emits stable canonical conversation identity plus reply context.</p>
     </section>
 
     <footer>
