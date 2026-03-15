@@ -64,6 +64,16 @@ permalink: "/zeus/docs/troubleshooting/"
     </section>
 
     <section class="card">
+      <h2>Local Debugger Thread History</h2>
+      <ul class="compact">
+        <li>New local threads now show stored origin tags in the debugger, such as <code>user</code>, <code>channel</code>, <code>telegram</code>, <code>cron</code>, <code>behavior</code>, or <code>gmail</code>.</li>
+        <li>Zeus does not rewrite or infer those tags for old threads. If a legacy thread has no tags, the debugger will simply show none.</li>
+        <li><code>Clear runtime history</code> in the local debugger wipes local runtime history only: threads, sessions, messages, tasks, approvals, run traces, and remote conversation mappings.</li>
+        <li><code>Clear runtime history</code> does <strong>not</strong> remove plugin installs, saved secrets, settings, behaviors, proactive rules, or scheduled jobs.</li>
+      </ul>
+    </section>
+
+    <section class="card">
       <h2>Channel and Webhook Issues</h2>
       <ol>
         <li>Check plugin status via <code>GET /v1/client/plugins</code>.</li>
